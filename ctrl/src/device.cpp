@@ -141,21 +141,20 @@ bool ResolvedPort::bindTo(size_t index) {
         port_attr.phys_state != IBV_PORT_ACTIVE_DEFER) {
       continue;
     }
-    
+
     if (skipped_active_ports == index) {
-      /*
       if (port_attr.link_layer != IBV_LINK_LAYER_INFINIBAND) {
         throw std::runtime_error(
             "Transport type required is InfiniBand but port link layer is " +
             link_layer_str(port_attr.link_layer));
       }
-      */
+
       port_id = i;
       port_lid = port_attr.lid;
 
       return true;
     }
-    
+
     skipped_active_ports += 1;
   }
 
