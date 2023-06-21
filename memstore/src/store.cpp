@@ -44,7 +44,7 @@ void MemoryStore::set(std::string const &key, std::string const &value) {
 
   if (rc != MEMCACHED_SUCCESS) {
     throw std::runtime_error("Failed to set to the store the (K, V) = (" + key +
-                             ", " + value + ")");
+                             ", " + value + ")" + memcached_strerror());
   }
 }
 

@@ -170,7 +170,8 @@ void ReliableConnection::connect(RemoteConnection &rc) {
   conn_attr.ah_attr.port_num = static_cast<uint8_t>(cb.port());
 
   conn_attr.dest_qp_num = rc.rci.qpn;
-  conn_attr.ah_attr.dlid = rc.rci.lid;
+  //conn_attr.ah_attr.dlid = rc.rci.lid; //original mu code 
+  conn_attr.ah_attr.dlid = rc.rci.lid; //comme RoCE v2, pas besoin ? 
 
   conn_attr.max_dest_rd_atomic = 16;
   conn_attr.min_rnr_timer = 12;
