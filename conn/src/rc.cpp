@@ -171,7 +171,7 @@ void ReliableConnection::connect(RemoteConnection &rc) {
 
   conn_attr.dest_qp_num = rc.rci.qpn;
   //conn_attr.ah_attr.dlid = rc.rci.lid; //original mu code 
-  conn_attr.ah_attr.dlid = rc.rci.lid; //comme RoCE v2, pas besoin ? 
+  conn_attr.ah_attr.dlid = 0; //comme RoCE v2, pas besoin ? 
 
   conn_attr.max_dest_rd_atomic = 16;
   conn_attr.min_rnr_timer = 12;
