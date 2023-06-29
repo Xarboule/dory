@@ -43,13 +43,15 @@ removeFromList(make_list, "make_args")
 make_list.sort()
 make_list = removed + make_list
 
-print("Make list : " + make_list)
+print("========Make_list : ==========")
+print(make_list)
 
 import argparse
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
-print("parser" + parser)
+print("========Parser : ==========")
+print(parser)
 
 parser.add_argument(
     "-b",
@@ -83,7 +85,8 @@ parser.add_argument(
 )
 
 results = parser.parse_args()
-print("result : " + results)
+print("========Results : ==========")
+print(results)
 
 
 compiler = results.compiler
