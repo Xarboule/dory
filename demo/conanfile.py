@@ -7,7 +7,6 @@ class DoryDemoConan(ConanFile):
     license = "MIT"
     # url = "TODO"
     
-    """
     description = "RDMA demo"
     settings = {
         "os": None,
@@ -32,24 +31,7 @@ class DoryDemoConan(ConanFile):
         "dory-crypto:log_level": "INFO",
         "lto": True,
     }
-    """
-
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "lto": [True, False],
-        "log_level": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"],
-    }
-    default_options = {
-        "shared": False,
-        "fPIC": True,
-        "lto": True,
-        "log_level": "INFO",
-
-        "dory-ctrl:log_level": "INFO",
-        "dory-connection:log_level": "INFO"
-    }
+    
 
 
     generators = "cmake"
