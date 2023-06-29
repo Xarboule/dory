@@ -9,12 +9,11 @@ class DoryDemoConan(ConanFile):
     description = "RDMA demo"
     settings = {
         "os": None,
-        #"compiler": {
-        #    "gcc": {"libcxx": "libstdc++11", "cppstd": ["17", "20"], "version": None},
-        #    "clang": {"libcxx": "libstdc++11", "cppstd": ["17", "20"], "version": None},
-        #},
+        "compiler": {
+            "gcc": {"libcxx": "libstdc++11", "cppstd": ["17", "20"], "version": None},
+            "clang": {"libcxx": "libstdc++11", "cppstd": ["17", "20"], "version": None},
+        },
         
-        "compiler": None,
         "build_type": None,
         "arch": None,
     }
