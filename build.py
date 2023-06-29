@@ -16,7 +16,6 @@ make_list = subprocess.check_output(["make", "list"], cwd=current_dir)
 make_list = make_list.decode("utf-8").split()
 make_list = [x.strip() for x in filter(lambda x: not x.endswith("mangled"), make_list)]
 
-print(make_list)
 
 def removeFromList(lst, value):
     try:
@@ -44,13 +43,13 @@ removeFromList(make_list, "make_args")
 make_list.sort()
 make_list = removed + make_list
 
-print(make_list)
+print("Make list : " + make_list)
 
 import argparse
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
-print(parser)
+print("parser" + parser)
 
 parser.add_argument(
     "-b",
@@ -84,7 +83,7 @@ parser.add_argument(
 )
 
 results = parser.parse_args()
-print(results)
+print("result : " + results)
 
 
 compiler = results.compiler
