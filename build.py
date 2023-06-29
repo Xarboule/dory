@@ -11,10 +11,12 @@ import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 make_list = subprocess.check_output(["make", "list"], cwd=current_dir)
 make_list = make_list.decode("utf-8").split()
 make_list = [x.strip() for x in filter(lambda x: not x.endswith("mangled"), make_list)]
 
+print(make_list)
 
 def removeFromList(lst, value):
     try:
@@ -32,6 +34,9 @@ removed = (
     + removeFromList(make_list, "distclean")
 )
 
+print(removed)
+print(make_list)
+
 # Hide some internal targets
 removeFromList(make_list, "compiler-options")
 removeFromList(make_list, "make_args")
@@ -39,10 +44,13 @@ removeFromList(make_list, "make_args")
 make_list.sort()
 make_list = removed + make_list
 
+print(make_list)
 
 import argparse
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+
+print(parser)
 
 parser.add_argument(
     "-b",
@@ -76,6 +84,8 @@ parser.add_argument(
 )
 
 results = parser.parse_args()
+print(results)
+
 
 compiler = results.compiler
 build_type = results.build_type
@@ -102,6 +112,9 @@ elif compiler == "clang":
 
 # The compilers need to be explicity set, as conan won't interfere with the
 # build system. Therefore, make sure the CC/CXX flags match the conan profile.
+print("make CONAN_PROFILE={} CC={} CXX={} {}".format(
+        CONAN_PROFILE, CC, CXX, " ".join(targets)))
+
 ret = subprocess.call(
     "make CONAN_PROFILE={} CC={} CXX={} {}".format(
         CONAN_PROFILE, CC, CXX, " ".join(targets)
