@@ -70,6 +70,10 @@ void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
   auto infoForRemoteParty = rc.remoteInfo();
   store.set(name.str(), infoForRemoteParty.serialize());
   LOGGER_INFO(logger, "Publishing qp {}", name.str());
+
+  std::stringstream info_supp;
+  info_supp << "key=(" << name.str << "); value=(" << infoForRemoteParty.serialize() << ")";
+  LOGGER_INFO(logger, "[GILLOU]remote info published : {}", info_supp); 
 }
 
 void ConnectionExchanger::announce_all(MemoryStore& store,

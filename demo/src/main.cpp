@@ -96,6 +96,7 @@ int main(int argc, char* argv[]) {
 
   ConnectionExchanger ce(id, remote_ids, cb);
   ce.configure_all("primary", "shared-mr", "cq", "cq");
+
   ce.announce_all(store, "qp");
 
   auto shared_memory_addr = reinterpret_cast<uint8_t*>(cb.mr("shared-mr").addr);
