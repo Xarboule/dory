@@ -72,7 +72,9 @@ void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
   LOGGER_INFO(logger, "Publishing qp {}", name.str());
 
   std::stringstream info_supp;
-  info_supp << "key=(" << name.str << "); value=(" << infoForRemoteParty.serialize() << ")";
+
+  name << prefix << "-" << my_id << "-for-" << proc_id;
+  info_supp << "key=(" << name.str() << "); value=(" << infoForRemoteParty.serialize() << ")";
   LOGGER_INFO(logger, "[GILLOU]remote info published : {}", info_supp); 
 }
 
