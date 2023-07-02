@@ -69,7 +69,7 @@ void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
   name << prefix << "-" << my_id << "-for-" << proc_id;
   auto infoForRemoteParty = rc.remoteInfo();
   store.set(name.str(), infoForRemoteParty.serialize());
-  //LOGGER_INFO(logger, "Publishing qp {}", name.str());
+  LOGGER_INFO(logger, "[HI]Publishing qp {}", name.str());
 
 
   std::stringstream info_supp;
