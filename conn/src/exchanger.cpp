@@ -477,13 +477,13 @@ void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
 		throw std::runtime_error("Passed pointer is null ");
 		return;
 	}
-	printf("RDMA cm id at %p \n", id);
+	printf("RDMA cm id at %p \n", reinterpret_cast<void*>(id));
 	if(id->verbs && id->verbs->device)
-		printf("dev_ctx: %p (device name: %s) \n", id->verbs,
+		printf("dev_ctx: %p (device name: %s) \n", reinterpret_cast<void*>(id->verbs),
 				id->verbs->device->name);
 	if(id->channel)
-		printf("cm event channel %p\n", id->channel);
-	printf("QP: %p, port_space %x, port_num %u \n", id->qp,
+		printf("cm event channel %p\n", reinterpret_cast<void*>(id->channel));
+	printf("QP: %p, port_space %x, port_num %u \n", reinterpret_cast<void*>(id->qp),
 			id->ps,
 			id->port_num);
 }
