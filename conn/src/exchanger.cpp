@@ -176,7 +176,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   auto& rc = rcs.find(proc_id)->second;
 
   std::stringstream str_print;
-  str_print = "Handling the connection of "<< my_id << "-to-"<< proc_id;
+  str_print << "Handling the connection of "<< my_id << "-to-"<< proc_id;
   LOGGER_INFO(logger, "[Gillou debug] {}", str_print.str());
 
   std::string rdma_mode; 
@@ -218,7 +218,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	
   
   /* Explicit binding of rdma cm id to the socket credentials */
-	ret = rdma_bind_addr(cm_id, &server_addr);
+	ret = rdma_bind_addr(cm_id, (struct sockaddr*)&server_addr);
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
