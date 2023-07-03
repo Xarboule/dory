@@ -144,9 +144,9 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
 
   
   if (id->verbs != pd->context)
-	  printf("Cas d'erreur 2 : contexte de id différent de celui du pd de attr");
+	  printf("Cas d'erreur 2 : contexte de id différent de celui du pd de attr\n");
     printf("id's verbs : %p :\n,", reinterpret_cast<void*>(id->verbs) );
-    printf("pd's context : %p :\n,", reinterpret_cast<void*>(id->verbs) );
+    printf("pd's context : %p :\n,", reinterpret_cast<void*>(pd->context) );
       
   if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq) ||
 	    (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
