@@ -97,10 +97,8 @@ class ConnectionExchanger {
  private:
   std::pair<bool, int> valid_ids() const;
 
- public : 
-  static struct rdma_event_channel *cm_event_channel;
-  static struct rdma_cm_id *cm_id;
-
+ 
+  
  private:
   int my_id;
   std::vector<int> remote_ids;
@@ -109,6 +107,9 @@ class ConnectionExchanger {
   std::map<int, ReliableConnection> rcs;
   std::unique_ptr<ReliableConnection> loopback_;
   LOGGER_DECL(logger);
+
+  struct rdma_event_channel *cm_event_channel;
+  struct rdma_cm_id *cm_id;
 
 };
 }  // namespace dory
