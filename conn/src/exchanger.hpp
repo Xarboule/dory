@@ -85,9 +85,9 @@ class ConnectionExchanger {
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights);
 
-  int start_server();
+  int start_server(int proc_id);
 
-  int start_client(); 
+  int start_client(int proc_id); 
 
 
 
