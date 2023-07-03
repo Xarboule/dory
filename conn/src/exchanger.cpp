@@ -55,7 +55,7 @@ void ConnectionExchanger::configure_with_cm(int proc_id, std::string const& pd,
   rc.bindToMR(mr);
   /*Quand on utilise le CM, on doit créer la qp avec rdma_qp après avoir reçu l'event
   Du coup, la QP de rc sera crée plus tard*/
-  //rc.associateWithCQ(send_cq_name, recv_cq_name);
+  rc.associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
   }
 
 void ConnectionExchanger::configure_all_with_cm(std::string const& pd,
@@ -213,12 +213,19 @@ int ConnectionExchanger:: start_server(int proc_id) {
   std::string str_ip;
   std::cout << "What's the IP of this node ? (running as a server)";
   std::cin >> str_ip;
-  ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
+
+  char* char_ip = new char[str_ip.length() + 1];
+  strcpy(char_array, s.c_str());
+      
+
+  ret = get_addr(char_array, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
 	
+  delete[] char_array;
+  
   
   /* Explicit binding of rdma cm id to the socket credentials */
 	ret = rdma_bind_addr(cm_id, reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -252,7 +259,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
 
-      rc.associateWithCQ_for_cm(cm_event->id,send_cq_name, recv_cq_name);
+      rc.associateWithCQ_for_cm(cm_event->id, send_cq_name, recv_cq_name);
 
 
       //Poster quelques receive buffers 
@@ -353,7 +360,7 @@ int ConnectionExchanger :: get_addr(char *dst, struct sockaddr *addr)
 	int ret = -1;
 	ret = getaddrinfo(dst, NULL, NULL, &res);
 	if (ret) {
-		rdma_error("getaddrinfo failed - invalid hostname or IP address\n");
+		throw std::runtime_error("Error when fetching getaddrinfo ");
 		return ret;
 	}
 	memcpy(addr, res->ai_addr, sizeof(struct sockaddr_in));

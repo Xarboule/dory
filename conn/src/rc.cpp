@@ -122,13 +122,19 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
-void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id, std::string send_cp_name,
+void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name) {
+  LOGGER_INFO(logger, "Inside associateWithCQ_for_cm_prel");
+  create_attr.send_cq = cb.cq(send_cp_name).get();
+  create_attr.recv_cq = cb.cq(recv_cp_name).get();
+}
+
+void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 
-  ret = rdma_create_qp(id, rc.get_pd(), rc.get_init_attr() );
+  ret = rdma_create_qp(id, pd, create_attr );
   if (ret) {
     throw std::runtime_error("Failed to create QP due to errno");
     return -1;
