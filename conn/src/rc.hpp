@@ -145,6 +145,10 @@ class ReliableConnection {
 
   struct ibv_qp_init_attr* get_init_attr();
 
+  struct rdma_cm_id* get_cm_id();
+  
+  struct rdma_event_channel* get_event_channel();
+  
   void associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name);
 
@@ -152,9 +156,7 @@ class ReliableConnection {
 
   void configure_cm_channel();
 
-  struct rdma_cm_id* get_cm_id();
 
-  struct rdma_event_channel* get_event_channel();
 
  private:
   bool post_send(ibv_send_wr &wr);
@@ -173,6 +175,10 @@ class ReliableConnection {
   ControlBlock &cb;
   struct ibv_pd *pd;
   struct ibv_qp_init_attr create_attr;
+
+  struct rdma_event_channel *cm_event_channel;
+  struct rdma_cm_id *cm_id;
+
   struct ibv_qp_attr conn_attr;
   deleted_unique_ptr<struct ibv_qp> uniq_qp;
   ControlBlock::MemoryRegion mr;
@@ -182,9 +188,6 @@ class ReliableConnection {
   
   LOGGER_DECL(logger);
 
-  //champs ajoutés
-  struct rdma_event_channel *cm_event_channel;
-  struct rdma_cm_id *cm_id;
 
 };
 }  // namespace dory
