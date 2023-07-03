@@ -100,10 +100,11 @@ int main(int argc, char* argv[]) {
 
   auto shared_memory_addr = reinterpret_cast<uint8_t*>(cb.mr("shared-mr").addr);
 
+  /*
   std::cout << "Waiting (10 sec) for all processes to fetch the connections"
             << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(10));
-
+  */
   ce.connect_all_with_cm(store, "qp",
                  ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);

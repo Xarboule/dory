@@ -282,6 +282,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   //destination à renseigner 
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
+  struct rdma_cm_event event_copy;
 
   /*On donne les infos sur l'IP du server qu'on cherche à atteindre*/
   memset(&server_addr, 0, sizeof(server_addr));
@@ -319,7 +320,9 @@ int ConnectionExchanger:: start_client(int proc_id){
 		exit(-1);
 	}
 	/* we ack the event */
-	ret = rdma_ack_cm_event(cm_event);
+	
+	memcpy(&event_copy, cm_event, sizeof(*cm_event));      
+  ret = rdma_ack_cm_event(cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
@@ -328,7 +331,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 
 	 /* Resolves an RDMA route to the destination address in order to
 	  * establish a connection */
-	ret = rdma_resolve_route(cm_event->id, 2000);
+	ret = rdma_resolve_route(event_copy->id, 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve route");
 	   exit(-1);
@@ -342,7 +345,8 @@ int ConnectionExchanger:: start_client(int proc_id){
 	}
 
 	/* we ack the event */
-	ret = rdma_ack_cm_event(cm_event);
+	memcpy(&event_copy, cm_event, sizeof(*cm_event));      
+  ret = rdma_ack_cm_event(cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
@@ -355,21 +359,20 @@ int ConnectionExchanger:: start_client(int proc_id){
   auto& rc = rcs.find(proc_id)->second;
 
   /*Creating the QP*/
-  rc.associateWithCQ_for_cm(cm_event->id);
+  rc.associateWithCQ_for_cm(event_copy->id);
 
 
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));
-  rdma_connect(cm_event->id, &cm_params);
+  rdma_connect(event_copy->id, &cm_params);
 
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
     return ret;
-  }
-  ret = rdma_ack_cm_event(cm_event);
+  }ret = rdma_ack_cm_event(cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
