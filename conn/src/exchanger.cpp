@@ -175,12 +175,9 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   //fetching the RC associated with the remote id
   auto& rc = rcs.find(proc_id)->second;
 
-  std::string str_print;
-  str_print = "Handling the connection of ";
-  str_print << my_id; 
-  str_print += "-to-";
-  str_print << proc_id;
-  LOGGER_INFO(logger, "[Gillou debug] {}", str_print);
+  std::stringstream str_print;
+  str_print = "Handling the connection of "<< my_id << "-to-"<< proc_id
+  LOGGER_INFO(logger, "[Gillou debug] {}", str_print.str());
 
   std::string rdma_mode; 
   std :: cout << "Which mode : client or server ? "; // Type a number and press enter
@@ -200,16 +197,15 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
 
 /* Starts an RDMA server by allocating basic (CM) connection resources */
 int ConnectionExchanger:: start_server(int proc_id) {
-  struct sockaddr_in *server_addr;
+  struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
   
   /*On donne les infos sur l'IP du server*/
-  bzero(&server_addr, sizeof server_addr);
-	server_addr->sin_family = AF_INET; 
-	server_addr->sin_addr.s_addr = htonl(INADDR_ANY); 
-	server_addr->sin_port = htons(20886);
+  memset(&server_addr, 0, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
   
+  /*
   std::string str_ip;
   std::cout << "What's the IP of this node ? (running as a server)";
   std::cin >> str_ip;
@@ -218,10 +214,11 @@ int ConnectionExchanger:: start_server(int proc_id) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
+  */
 	
   
   /* Explicit binding of rdma cm id to the socket credentials */
-	ret = rdma_bind_addr(cm_id, (struct sockaddr*) server_addr);
+	ret = rdma_bind_addr(cm_id, (struct sockaddr*) &server_addr);
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
@@ -302,19 +299,19 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
   cm_event_channel = rdma_create_event_channel();
 	if (!cm_event_channel) {
     throw std::runtime_error("Creating cm event channel failed");
-		return -1;
+		return;
 	}
   LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
 
 	int ret = rdma_create_id(cm_event_channel, &cm_id, NULL, RDMA_PS_TCP);
 	if (ret) {
     throw std::runtime_error("Creating cm id failed");
-		return -1;
+		return;
 	}
   LOGGER_INFO(logger, "A RDMA connection id for the server is created ");
 	
   for (int pid : remote_ids) {
-    connect_with_cm(pid, store, prefix, rights);
+    connect_with_cm(pid, prefix, rights);
   }
 }
 
