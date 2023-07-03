@@ -19,8 +19,9 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include <rdma/rdma_cma.h>
-#include <infiniband/verbs.h>
+
+#include <dory/extern/ibverbs.hpp>
+#include <dory/extern/rdmacm.hpp>
 
 
 namespace dory {
