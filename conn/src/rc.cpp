@@ -131,16 +131,14 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
-  create_attr.send_cq = cb.cq(send_cp_name).get();
-  create_attr.recv_cq = cb.cq(recv_cp_name).get();
 
-  ret = rdma_create_qp(id, pd, create_attr );
+  int ret = rdma_create_qp(id, pd, &create_attr );
   if (ret) {
     throw std::runtime_error("Failed to create QP due to errno");
-    return -1;
+    return;
   }
 
-  auto qp = id.qp;
+  auto qp = id->qp;
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
