@@ -161,6 +161,11 @@ void RdmaConsensus::run() {
           ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
   //ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
 
+  std :: string foo;
+  std::cout <<"EVERYTHING IS CONNECTED WELL\n";
+  std::cout <<"Press anything to continue once all connections are ok";
+  std :: cin >> foo;
+
   //ce_replication->wait_ready_all(store, "qp-replication", "connect");
   //ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
   ce_leader_election->connectLoopback(
