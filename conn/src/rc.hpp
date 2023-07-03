@@ -7,6 +7,10 @@
 #include <dory/ctrl/block.hpp>
 #include <dory/shared/logger.hpp>
 
+
+#include <dory/extern/ibverbs.hpp>
+#include <dory/extern/rdmacm.hpp>
+
 namespace dory {
 struct RemoteConnection {
   struct __attribute__((packed)) RemoteConnectionInfo {
