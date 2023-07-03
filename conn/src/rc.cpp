@@ -138,14 +138,9 @@ C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
 
-  auto qp1 = id->qp;
-  if(qp1){
-    printf("qp : %p \n", reinterpret_cast<void*>(qp1));
-		throw std::runtime_error("id->qp pointer is not null ");
-		return;
-	} 
-
-  int ret = rdma_create_qp(id, NULL,  &create_attr );
+  id->recv_cq = create_attr.recv_cq;
+  
+  int ret = rdma_create_qp(id, pd,  &create_attr );
   
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
