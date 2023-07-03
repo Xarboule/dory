@@ -479,8 +479,8 @@ void ReliableConnection :: configure_cm_channel(){
 }
 
 
-struct rdma_cm_id* get_cm_id(){return cm_id;}
+struct ReliableConnection :: rdma_cm_id* get_cm_id(){return cm_id;}
 
-struct rdma_event_channel* get_event_channel(){return cm_event_channel};
+struct ReliableConnection :: rdma_event_channel* get_event_channel(){return cm_event_channel};
 
 }  // namespace dory

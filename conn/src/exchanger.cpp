@@ -220,7 +220,7 @@ int ConnectionExchanger:: start_server(int proc_id, int num_conn) {
 
   /*On donne les infos sur l'IP du server*/
   memset(&server_addr, 0, sizeof(server_addr));
-  server_addr.sin_family = AF_INET
+  server_addr.sin_family = AF_INET;
   std::string str_ip;
   std::cout << "What's the IP of this node ? (running as a server)";
   std::cin >> str_ip;
