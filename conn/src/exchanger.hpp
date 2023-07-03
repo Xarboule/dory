@@ -117,6 +117,6 @@ class ConnectionExchanger {
   std::unique_ptr<ReliableConnection> loopback_;
   LOGGER_DECL(logger);
 
-  static int num_conn = 0;
+  static int num_conn;
 };
 }  // namespace dory
