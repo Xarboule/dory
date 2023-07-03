@@ -138,12 +138,19 @@ C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
 
-  int ret = rdma_create_qp(id, pd, &create_attr );
+  auto qp = id->qp;
+  if(qp){
+    printf("qp : %s \n", reinterpret_cast<void*>(qp));
+		throw std::runtime_error("id->qp pointer is not null ");
+		return;
+	} 
+
+  int ret = rdma_create_qp(id, &create_attr );
   
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
-    //throw std::runtime_error("Failed to create QP due to %");
-    //return;
+    throw std::runtime_error("Failed to create QP due to %");
+    return;
   }
 
   /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
