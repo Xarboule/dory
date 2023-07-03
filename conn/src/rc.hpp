@@ -150,7 +150,7 @@ class ReliableConnection {
 
   void associateWithCQ_for_cm(rdma_cm_id* id);
 
-  void configure_cm_channel()
+  void configure_cm_channel();
 
   struct rdma_cm_id* get_cm_id();
 

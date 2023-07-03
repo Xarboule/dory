@@ -201,7 +201,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
     //ça fait un gros bloc qui fait tout (pas terrible)
   }
   else if (rdma_mode == "client"){
-    start_client(proc_id, num_conn);
+    start_client(proc_id);
   }
   else{ 
     throw std::runtime_error("Wrong input");
@@ -282,7 +282,7 @@ int ConnectionExchanger:: start_server(int proc_id, int num_conn) {
 }
 
 
-int ConnectionExchanger:: start_client(int proc_id, int num_conn){
+int ConnectionExchanger:: start_client(int proc_id){
   //destination à renseigner 
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;

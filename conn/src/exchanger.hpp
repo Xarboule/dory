@@ -79,13 +79,13 @@ class ConnectionExchanger {
                                         std::string recv_cq_name);
 
   void connect_with_cm(int proc_id,std::string const& prefix,
-                                    ControlBlock::MemoryRights rights);
+                                    ControlBlock::MemoryRights rights, int num_conn);
 
   void connect_all_with_cm(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights);
 
-  int start_server(int proc_id);
+  int start_server(int proc_id, int num_conn);
 
   int start_client(int proc_id); 
 
