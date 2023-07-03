@@ -22,10 +22,6 @@
 #include <dory/extern/ibverbs.hpp>
 #include <dory/extern/rdmacm.hpp>
 
-#define rdma_error(msg, args...) do {\
-	fprintf(stderr, "%s : %d : ERROR : "msg, __FILE__, __LINE__, ## args);\
-}while(0);
-
 
 namespace dory {
 class ConnectionExchanger {

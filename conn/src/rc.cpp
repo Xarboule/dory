@@ -140,8 +140,8 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
 
   int ret = rdma_create_qp(id, pd, &create_attr );
   if (ret) {
-    rdma_error("Failed to create QP due to errno: %d\n", -errno);
-    throw std::runtime_error("Failed to create QP due to errno");
+    printf("Failed to create QP due to errno: %d\n", -errno);
+    throw std::runtime_error("Failed to create QP due to %");
     return;
   }
 
