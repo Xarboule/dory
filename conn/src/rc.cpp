@@ -4,6 +4,8 @@
 #include "rc.hpp"
 #include "wr-builder.hpp"
 
+
+
 // namespace dory {
 //   /**
 //    * Handle the completion status of a WC
@@ -138,6 +140,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
 
   int ret = rdma_create_qp(id, pd, &create_attr );
   if (ret) {
+    rdma_error("Failed to create QP due to errno: %d\n", -errno);
     throw std::runtime_error("Failed to create QP due to errno");
     return;
   }
