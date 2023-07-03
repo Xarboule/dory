@@ -208,7 +208,6 @@ int ConnectionExchanger:: start_server(int proc_id) {
   /*On donne les infos sur l'IP du server*/
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(20886);
   
   std::string str_ip;
   std::cout << "What's the IP of this node ? (running as a server)";
@@ -224,6 +223,8 @@ int ConnectionExchanger:: start_server(int proc_id) {
   }
 	
   delete[] char_ip;
+  
+  server_addr.sin_port = htons(20886);
   
   
   /* Explicit binding of rdma cm id to the socket credentials */
