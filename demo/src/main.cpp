@@ -109,5 +109,6 @@ int main(int argc, char* argv[]) {
                  ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
+  printf("DEMO REUSSIE")
   return 0;
 }
