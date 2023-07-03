@@ -358,9 +358,8 @@ int ConnectionExchanger:: start_client(int proc_id){
 
   auto& rc = rcs.find(proc_id)->second;
 
-  /*Creating the QP*/
+  /* Creating the QP */
   rc.associateWithCQ_for_cm(event_copy.id);
-
 
   /*Connecting*/
   struct rdma_conn_param cm_params;

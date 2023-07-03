@@ -134,11 +134,11 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 }
 
 /*Une fois le connection manager prêt, on peut enfin créer une qp
-C'est comme ça qu'on évite de devoir nous même utiliser lesl ibv_modify_qp()*/
-void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
+C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
+void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
 
-  int ret = rdma_create_qp(id, pd, &create_attr );
+  int ret = rdma_create_qp(id, get_pd(), get_init_attr() );
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
     throw std::runtime_error("Failed to create QP due to %");
