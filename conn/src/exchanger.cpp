@@ -420,6 +420,13 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
 	}
   cm_id->verbs = rc.get_pd()->context;
 
+  if (cm_id->verbs != rc.get_pd()->context)
+	  printf("La copie n'a pas marché");
+  
+  printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
+  printf("pd's context : %p \n,", reinterpret_cast<void*>(rc.get_pd()->context) );
+  
+
   LOGGER_INFO(logger, "A RDMA connection id for the server is created ");
 	
   for (int pid : remote_ids) {
