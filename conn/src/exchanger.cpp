@@ -413,11 +413,13 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
   }
   auto& rc = rcs.find(i)->second;
   
-	int ret = rdma_create_id(cm_event_channel, &cm_id, rc.get_pd()->context , RDMA_PS_TCP);
+	int ret = rdma_create_id(cm_event_channel, &cm_id, NULL , RDMA_PS_TCP);
 	if (ret) {
     throw std::runtime_error("Creating cm id failed");
 		return;
 	}
+  cm_id->verbs = rc.get_pd();
+
   LOGGER_INFO(logger, "A RDMA connection id for the server is created ");
 	
   for (int pid : remote_ids) {
