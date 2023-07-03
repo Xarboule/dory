@@ -168,9 +168,9 @@ void RdmaConsensus::run() {
 
   //ce_replication->wait_ready_all(store, "qp-replication", "connect");
   //ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
-  ce_leader_election->connectLoopback(
+  /*ce_leader_election->connectLoopback(
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
-      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
+      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);*/
 
   // Initialize the contexts
   auto& cq_leader_election = cb->cq("cq-leader-election");

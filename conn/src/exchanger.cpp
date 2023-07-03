@@ -97,6 +97,7 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   Avec *_with_cm(), on crée la qp une fois les infos échangées,et c'est rdma_cm qui
   s'occupe de tout 
 
+  On ne peut pas utiliser les *_loopback, car ils initialisent tout sans cm 
 */
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
