@@ -174,10 +174,12 @@ void RdmaConsensus::run() {
 
   // Initialize the contexts
   auto& cq_leader_election = cb->cq("cq-leader-election");
+  std::cout<<"cb-> blabla ok"
   le_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_leader_election.get(), cq_leader_election, remote_ids,
       my_id);
 
+  std::cout<<"coonnection context initialized"
   auto& cq_replication = cb->cq("cq-replication");
   re_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_replication.get(), cq_replication, remote_ids, my_id);
