@@ -337,10 +337,10 @@ int ConnectionExchanger:: start_client(int proc_id){
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));
-  rdma_connect(id, &cm_params);
+  rdma_connect(cm_id, &cm_params);
 
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
-  ret = process_rdma_cm_event(c->cm_event_channel,RDMA_CM_EVENT_ESTABLISHED,&cm_event);
+  ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
     return ret;
@@ -350,11 +350,9 @@ int ConnectionExchanger:: start_client(int proc_id){
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
   }
-  debug("The client is connected successfully \n");
 
-
-
-  
+  LOGGER_INFO(logger, "The client is connected successfully \n");
+ 
   return 0 ;
 }
 
