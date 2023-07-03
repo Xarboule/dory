@@ -19,7 +19,6 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-
 #include <dory/extern/ibverbs.hpp>
 #include <dory/extern/rdmacm.hpp>
 
@@ -93,6 +92,8 @@ class ConnectionExchanger {
   int process_rdma_cm_event(struct rdma_event_channel *echannel,
 		enum rdma_cm_event_type expected_event,
 		struct rdma_cm_event **cm_event);
+
+  int get_addr(char *dst, struct sockaddr *addr);
 
  private:
   std::pair<bool, int> valid_ids() const;

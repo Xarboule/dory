@@ -122,11 +122,29 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
-void ReliableConnection::associateWithCQ_for_cm(std::string send_cp_name,
+void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id, std::string send_cp_name,
                                          std::string recv_cp_name) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
+
+  ret = rdma_create_qp(id, rc.get_pd(), rc.get_init_attr() );
+  if (ret) {
+    throw std::runtime_error("Failed to create QP due to errno");
+    return -1;
+  }
+
+  auto qp = id.qp;
+  uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
+    auto ret = ibv_destroy_qp(qp);
+    if (ret != 0) {
+      throw std::runtime_error("Could not query device: " +
+                                std::string(std::strerror(errno)));
+    }
+  });
+  LOGGER_INFO(logger, "QP successfully created ! ");
+  
+      
 }
 
 
