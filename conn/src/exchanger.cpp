@@ -254,10 +254,6 @@ int ConnectionExchanger:: start_server(int proc_id) {
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
       
-      
-      show_rdma_cmid(cm_id);
-      show_rdma_cmid(cm_event->id);
-
       rc.associateWithCQ_for_cm(cm_event->id);
 
 
@@ -365,11 +361,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   auto& rc = rcs.find(proc_id)->second;
 
   /* Creating the QP */
-        
-  show_rdma_cmid(cm_id);
-  show_rdma_cmid(event_copy.id);
-
-
+      
   rc.associateWithCQ_for_cm(event_copy.id);
 
   /*Connecting*/
