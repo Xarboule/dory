@@ -218,7 +218,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	
   
   /* Explicit binding of rdma cm id to the socket credentials */
-	ret = rdma_bind_addr(cm_id, reinterpret_cast<struct sockaddr*>&server_addr);
+	ret = rdma_bind_addr(cm_id, reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
