@@ -366,7 +366,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));
-  rdma_connect(event_copy.id, &cm_params);
+  rdma_connect(cm_id, &cm_params);
 
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ESTABLISHED,&cm_event);
