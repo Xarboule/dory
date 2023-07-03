@@ -142,8 +142,8 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
-    throw std::runtime_error("Failed to create QP due to %");
-    return;
+    //throw std::runtime_error("Failed to create QP due to %");
+    //return;
   }
 
   /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
