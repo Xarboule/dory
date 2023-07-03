@@ -277,6 +277,36 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	return ret;
 }
 
+int process_rdma_cm_event(struct rdma_event_channel *echannel,
+		enum rdma_cm_event_type expected_event,
+		struct rdma_cm_event **cm_event)
+{
+	int ret = 1;
+	ret = rdma_get_cm_event(echannel, cm_event); //blocking call
+	if (ret) {
+		LOGGER_INFO(logger,"Failed to retrieve a cm event");
+		return -1;
+	}
+	/* lets see, if it was a good event */
+	if(0 != (*cm_event)->status){
+		LOGGER_INFO(logger,"CM event has non zero status:");
+		ret = -((*cm_event)->status);
+		/* important, we acknowledge the event */
+		rdma_ack_cm_event(*cm_event);
+		return ret;
+	}
+	/* if it was a good event, was it of the expected type */
+	if ((*cm_event)->event != expected_event) {
+		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+				rdma_event_str((*cm_event)->event));
+		/* important, we acknowledge the event */
+		rdma_ack_cm_event(*cm_event);
+		return -1; // unexpected event :(
+	}
+	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
+	/* The caller must acknowledge the event */
+	return ret;
+}
 
 int ConnectionExchanger:: start_client(int proc_id){
     return 0 ;

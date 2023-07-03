@@ -89,7 +89,9 @@ class ConnectionExchanger {
 
   int start_client(int proc_id); 
 
-
+  int process_rdma_cm_event(struct rdma_event_channel *echannel,
+		enum rdma_cm_event_type expected_event,
+		struct rdma_cm_event **cm_event);
 
  private:
   std::pair<bool, int> valid_ids() const;
