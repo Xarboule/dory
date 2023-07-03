@@ -122,6 +122,8 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
+/*Pour créer la QP, il faut renseigner des infos dans cle champ reate_attr de cette instance de 
+ReliableConnection. Ici, on s'occupep des champs cq (send et recv)*/
 void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm_prel");
@@ -129,6 +131,8 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 }
 
+/*Une fois le connection manager prêt, on peut enfin créer une qp
+C'est comme ça qu'on évite de devoir nous même utiliser lesl ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
 
@@ -138,6 +142,8 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
     return;
   }
 
+  /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
+  Il est notamment utilisé dans les send et receive */
   auto qp = id->qp;
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
@@ -147,7 +153,6 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* &id) {
     }
   });
   LOGGER_INFO(logger, "QP successfully created ! ");
-  
       
 }
 

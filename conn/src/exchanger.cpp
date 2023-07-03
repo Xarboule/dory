@@ -63,7 +63,6 @@ void ConnectionExchanger::configure_all_with_cm(std::string const& pd,
                                         std::string send_cq_name,
                                         std::string recv_cq_name) {
   
-  LOGGER_INFO(logger, "Inside configure_all_with_cm");
   for (auto const& id : remote_ids) {
     configure_with_cm(id, pd, mr, send_cq_name, recv_cq_name);
   }
@@ -213,19 +212,17 @@ int ConnectionExchanger:: start_server(int proc_id) {
   std::cout << "What's the IP of this node ? (running as a server)";
   std::cin >> str_ip;
 
+  //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
-  strcpy(char_ip, str_ip.c_str());
-      
+  strcpy(char_ip, str_ip.c_str()); 
   ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
-	
   delete[] char_ip;
   
   server_addr.sin_port = htons(20886);
-  
   
   /* Explicit binding of rdma cm id to the socket credentials */
 	ret = rdma_bind_addr(cm_id, reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -235,34 +232,30 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	}
 	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 	
+
+  /*Listening for incoming events*/
   ret = rdma_listen(cm_id, 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
-		
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return -1;
 	}
-
 	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr),
           ntohs(server_addr.sin_port));
 
   /*Même si on ne s'attend qu'à une connexion, on met un while pour être persistant*/
   do {
       ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+      //on veut un CONNECT_REQUEST
       if (ret) {
          continue; //en cas d'erreur, on recommence un coup dans la boucle 
       }
-      
-      /*METTRE LE RESTE DE LA CONNECTION ICI*/
-      
-      //(optionnel) vérifier que le contexte de l'event et celui du server sont identiques (le contexte est en privé dans cb.resolved_port, c'est pas urgent)
+      //(à faire optionnel) vérifier que le contexte de l'event et celui du server sont identiques (le contexte est dans cb.resolved_port)
       
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
-
       rc.associateWithCQ_for_cm(cm_event->id);
 
-
-      //Poster quelques receive buffers 
+      //TO DO :Poster quelques receive buffers 
 
 
       //Accepter la connexion
@@ -284,39 +277,85 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	return ret;
 }
 
-int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echannel,
-		enum rdma_cm_event_type expected_event,
-		struct rdma_cm_event **cm_event)
-{
-	int ret = 1;
-	ret = rdma_get_cm_event(echannel, cm_event); //blocking call
-	if (ret) {
-		LOGGER_INFO(logger,"Failed to retrieve a cm event");
-		return -1;
-	}
-	/* lets see, if it was a good event */
-	if(0 != (*cm_event)->status){
-		LOGGER_INFO(logger,"CM event has non zero status");
-		ret = -((*cm_event)->status);
-		/* important, we acknowledge the event */
-		rdma_ack_cm_event(*cm_event);
-		return ret;
-	}
-	/* if it was a good event, was it of the expected type */
-	if ((*cm_event)->event != expected_event) {
-		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
-				rdma_event_str((*cm_event)->event));
-		/* important, we acknowledge the event */
-		rdma_ack_cm_event(*cm_event);
-		return -1; // unexpected event :(
-	}
-	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
-	/* The caller must acknowledge the event */
-	return ret;
-}
 
 int ConnectionExchanger:: start_client(int proc_id){
-    return 0 ;
+  //destination à renseigner 
+  struct sockaddr_in server_sockaddr;
+  struct rdma_cm_event *cm_event = NULL;
+
+  int ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_sockaddr), 2000);
+	if (ret) {
+		throw std::runtime_error("Failed to resolve address");
+		exit(-1);
+	}
+  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ADDR_RESOLVED\n");
+  ret  = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+		exit(-1);
+	}
+	/* we ack the event */
+	ret = rdma_ack_cm_event(cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+		exit(-1);
+	}
+  LOGGER_INFO(logger, "RDMA address is resolved \n");
+
+	 /* Resolves an RDMA route to the destination address in order to
+	  * establish a connection */
+	ret = rdma_resolve_route(cm_id, 2000);
+	if (ret) {
+		throw std::runtime_error("Failed to resolve route");
+	   exit(-1);
+	}
+  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ROUTE_RESOLVED\n");
+
+	ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+		exit(-1);
+	}
+
+	/* we ack the event */
+	ret = rdma_ack_cm_event(cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+		exit(-1);
+	}
+
+
+	printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_sockaddr.sin_addr),
+			ntohs(server_sockaddr.sin_port));
+
+  auto& rc = rcs.find(proc_id)->second;
+
+  /*Creating the QP*/
+  rc.associateWithCQ_for_cm(cm_id);
+
+
+  /*Connecting*/
+  struct rdma_conn_param cm_params;
+  memset(&cm_params, 0, sizeof(cm_params));
+  rdma_connect(id, &cm_params);
+
+  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+  ret = process_rdma_cm_event(c->cm_event_channel,RDMA_CM_EVENT_ESTABLISHED,&cm_event);
+  if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+    return ret;
+  }
+  ret = rdma_ack_cm_event(cm_event);
+  if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+    return -errno;
+  }
+  debug("The client is connected successfully \n");
+
+
+
+  
+  return 0 ;
 }
 
 void ConnectionExchanger::connect_all(MemoryStore& store,
@@ -333,8 +372,6 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
   /*Le CM event channel sera commun à toutes les connexions
   On le crée et on lui donne un id une seule fois, peu importe notre nombre de connexion
   */
-
-  LOGGER_INFO(logger, "Inside connect_all_with_cm");
   cm_event_channel = rdma_create_event_channel();
 	if (!cm_event_channel) {
     throw std::runtime_error("Creating cm event channel failed");
@@ -354,8 +391,7 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
   }
 }
 
-int ConnectionExchanger :: get_addr(char *dst, struct sockaddr *addr)
-{
+int ConnectionExchanger :: get_addr(char *dst, struct sockaddr *addr){
 	struct addrinfo *res;
 	int ret = -1;
 	ret = getaddrinfo(dst, NULL, NULL, &res);
@@ -365,6 +401,39 @@ int ConnectionExchanger :: get_addr(char *dst, struct sockaddr *addr)
 	}
 	memcpy(addr, res->ai_addr, sizeof(struct sockaddr_in));
 	freeaddrinfo(res);
+	return ret;
+}
+
+int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echannel,
+		enum rdma_cm_event_type expected_event,
+		struct rdma_cm_event **cm_event){
+	
+  int ret = 1;
+	ret = rdma_get_cm_event(echannel, cm_event); //blocking call
+	if (ret) {
+		LOGGER_INFO(logger,"Failed to retrieve a cm event");
+		return -1;
+	}
+	
+  /* lets see, if it was a good event */
+	if(0 != (*cm_event)->status){
+		LOGGER_INFO(logger,"CM event has non zero status");
+		ret = -((*cm_event)->status);
+		/* important, we acknowledge the event */
+		rdma_ack_cm_event(*cm_event);
+		return ret;
+	}
+	
+  /* if it was a good event, was it of the expected type */
+	if ((*cm_event)->event != expected_event) {
+		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+				rdma_event_str((*cm_event)->event));
+		/* important, we acknowledge the event */
+		rdma_ack_cm_event(*cm_event);
+		return -1; // unexpected event :(
+	}
+	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
+	/* The caller must acknowledge the event */
 	return ret;
 }
 
