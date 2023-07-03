@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
             << +rp.portLID() << ")" << std::endl;
 
 
-  fon (int i : remote_ids){
+  for (int i : remote_ids){
     printf("remote id "+ i);
   }
 
