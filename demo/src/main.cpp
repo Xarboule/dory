@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     throw std::runtime_error("Provide the id of the process as argument");
   }
 
-  constexpr int nr_procs = 2;
+  constexpr int nr_procs = 3;
   constexpr int minimum_id = 1;
   int id = 0;
   switch (argv[1][0]) {
@@ -85,6 +85,11 @@ int main(int argc, char* argv[]) {
   std::cout << "Binded successful? " << binded << std::endl;
   std::cout << "(port_id, port_lid) = (" << +rp.portID() << ", "
             << +rp.portLID() << ")" << std::endl;
+
+
+  fon (int i : remote_ids){
+    printf("remote id "+ i);
+  }
 
   // Configure the control block
   ControlBlock cb(rp);
