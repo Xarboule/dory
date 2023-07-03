@@ -99,6 +99,8 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
+  
+  LOGGER_INFO(logger, "Inside announce all");
   auto& rc = rcs.find(proc_id)->second;
 
   std::stringstream name;
