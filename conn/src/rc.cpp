@@ -478,9 +478,8 @@ void ReliableConnection :: configure_cm_channel(){
   LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
+struct rdma_cm_id* ReliableConnection ::  get_cm_id(){return this->cm_id;}
 
-struct ReliableConnection :: rdma_cm_id* get_cm_id(){return this->cm_id;}
-
-struct ReliableConnection :: rdma_event_channel* get_event_channel(){return this->cm_event_channel;}
+struct  rdma_event_channel* ReliableConnection :: get_event_channel(){return this->cm_event_channel;}
 
 }  // namespace dory
