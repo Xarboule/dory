@@ -364,7 +364,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 
   /* Creating the QP */
       
-  rc.associateWithCQ_for_cm(cm_id->id);
+  rc.associateWithCQ_for_cm(cm_id);
 
   /*Connecting*/
   struct rdma_conn_param cm_params;
