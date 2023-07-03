@@ -185,7 +185,7 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
 
 void ConnectionExchanger:: connect_with_cm(int proc_id,
                                   std::string const& prefix,
-                                  ControlBlock::MemoryRights rights, int num_conn){
+                                  ControlBlock::MemoryRights rights){
   //fetching the RC associated with the remote id
   auto& rc = rcs.find(proc_id)->second;
 
@@ -198,7 +198,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   std :: cin >> rdma_mode; // Get user input from the keyboard
 
   if (rdma_mode == "server"){
-    start_server(proc_id, num_conn);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
+    start_server(proc_id);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
     //ça fait un gros bloc qui fait tout (pas terrible)
   }
   else if (rdma_mode == "client"){
@@ -210,7 +210,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
 }
 
 /* Starts an RDMA server by allocating basic (CM) connection resources */
-int ConnectionExchanger:: start_server(int proc_id, int num_conn) {
+int ConnectionExchanger:: start_server(int proc_id) {
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -235,6 +235,7 @@ int ConnectionExchanger:: start_server(int proc_id, int num_conn) {
   }
   delete[] char_ip;
   server_addr.sin_port = htons(20886 + num_conn);
+  num_conn ++;
   
   /* Explicit binding of rdma cm id to the socket credentials */
 	ret = rdma_bind_addr(rc.get_cm_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -392,10 +393,8 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
 void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights){	
-  int num_conn = 0; //histoire de port 
   for (int pid : remote_ids) {
-    connect_with_cm(pid, prefix, rights, num_conn);
-    num_conn++;
+    connect_with_cm(pid, prefix, rights);
   }
 }
 

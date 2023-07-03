@@ -79,13 +79,13 @@ class ConnectionExchanger {
                                         std::string recv_cq_name);
 
   void connect_with_cm(int proc_id,std::string const& prefix,
-                                    ControlBlock::MemoryRights rights, int num_conn);
+                                    ControlBlock::MemoryRights rights);
 
   void connect_all_with_cm(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights);
 
-  int start_server(int proc_id, int num_conn);
+  int start_server(int proc_id);
 
   int start_client(int proc_id); 
 
@@ -114,6 +114,6 @@ class ConnectionExchanger {
   std::unique_ptr<ReliableConnection> loopback_;
   LOGGER_DECL(logger);
 
-
+  static num_conn = 0;
 };
 }  // namespace dory
