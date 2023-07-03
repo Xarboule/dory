@@ -23,4 +23,4 @@ class DoryExternals(ConanFile):
         self.copy("*.hpp", dst="include/dory/extern", src="src")
 
     def package_info(self):
-        self.cpp_info.system_libs = ["ibverbs", "memcached", "rdma_cma"]
+        self.cpp_info.system_libs = ["ibverbs", "memcached", "rdmacm"]
