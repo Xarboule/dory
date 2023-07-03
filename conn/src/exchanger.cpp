@@ -246,6 +246,8 @@ int ConnectionExchanger:: start_server(int proc_id) {
   do {
       ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       //on veut un CONNECT_REQUEST
+      printf("Caught something ! ");
+
       if (ret) {
          continue; //en cas d'erreur, on recommence un coup dans la boucle 
       }
