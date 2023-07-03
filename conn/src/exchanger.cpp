@@ -418,7 +418,7 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
     throw std::runtime_error("Creating cm id failed");
 		return;
 	}
-  cm_id->verbs = rc.get_pd();
+  cm_id->verbs = rc.get_pd()->context;
 
   LOGGER_INFO(logger, "A RDMA connection id for the server is created ");
 	
