@@ -237,7 +237,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
     return ret;
   }
   delete[] char_ip;
-  server_addr.sin_port = htons(20886 + get_num_conn());
+  server_addr.sin_port = htons(static_cast<uint16_t>((20886 + get_num_conn())));
   incr_num_conn();
   
   /* Explicit binding of rdma cm id to the socket credentials */
@@ -310,7 +310,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   int port_serv;
   std::cout << "What's the port number of the server ? (this node is running as a client) ";
   std::cin >> port_serv;
-  server_addr.sin_port = htons(port_serv);
+  server_addr.sin_port = htons(static_cast<uint16_t>(port_serv));
   
   auto& rc = rcs.find(proc_id)->second;
   rc.configure_cm_channel();
