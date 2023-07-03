@@ -124,8 +124,9 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
-/*Pour créer la QP, il faut renseigner des infos dans cle champ reate_attr de cette instance de 
-ReliableConnection. Ici, on s'occupep des champs cq (send et recv)*/
+/*Pour créer la QP, il faut renseigner des infos dans le champ create_attr de cette instance de 
+ReliableConnection. Ici, on s'occupe des champs cq (send et recv)
+Pour passer par CM, on finalisera la création de qp une fois le cm_id en place*/
 void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm_prel");
@@ -138,10 +139,9 @@ C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
   
-
+  /* Debugging
 	if (id->qp)
 	  printf("Cas d'erreur 1 : qp de l'id est nulle ");
-
   
   if (id->verbs != pd->context)
 	  printf("Cas d'erreur 2 : contexte de id différent de celui du pd de attr\n");
@@ -152,17 +152,19 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
     printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
     printf("pd's context : %p \n,", reinterpret_cast<void*>(pd->context) );
     
-
       
   if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq) ||
 	    (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
 	  printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
 
-  int ret = rdma_create_qp(id, pd,  &create_attr );
+  */
+
+  id->verbs = pd->context;  //nécessaire pour éviter une erreur 
+  int ret = rdma_create_qp(id, pd,  &create_attr);
   
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
-    throw std::runtime_error("Failed to create QP due to %");
+    throw std::runtime_error("Failed to create QP due to ...");
     return;
   }
 
@@ -453,10 +455,32 @@ void ReliableConnection::query_qp(ibv_qp_attr &qp_attr,
   ibv_query_qp(uniq_qp.get(), &qp_attr, attr_mask, &init_attr);
 }
 
-  /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
-  struct ibv_pd* ReliableConnection::get_pd(){ return pd;}
+/*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
+struct ibv_pd* ReliableConnection::get_pd(){ return pd;}
 
-  struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return &create_attr;}  
+struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return &create_attr;}  
 
+/*Méthode pour initialiser rdma event channel et rdma cm id*/
+/*Un rdma event channel et rdma cm id par connexion*/
+void ReliableConnection :: configure_cm_channel(){
+  cm_event_channel = rdma_create_event_channel();
+	if (!cm_event_channel) {
+    throw std::runtime_error("Creating cm event channel failed");
+		return;
+	}
+  LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
+
+	int ret = rdma_create_id(cm_event_channel, &cm_id, NULL , RDMA_PS_TCP);
+	if (ret) {
+    throw std::runtime_error("Creating cm id failed");
+		return;
+	}  
+  LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
+}
+
+
+struct rdma_cm_id* get_cm_id(){return cm_id;}
+
+struct rdma_event_channel* get_event_channel(){return cm_event_channel};
 
 }  // namespace dory

@@ -101,9 +101,9 @@ class ConnectionExchanger {
  private:
   std::pair<bool, int> valid_ids() const;
 
- public :
+ /*public :
   struct rdma_event_channel *cm_event_channel;
-  struct rdma_cm_id *cm_id;
+  struct rdma_cm_id *cm_id;*/
  
  private:
   int my_id;

@@ -150,6 +150,12 @@ class ReliableConnection {
 
   void associateWithCQ_for_cm(rdma_cm_id* id);
 
+  void configure_cm_channel()
+
+  struct rdma_cm_id* get_cm_id();
+
+  struct rdma_event_channel* get_event_channel();
+
  private:
   bool post_send(ibv_send_wr &wr);
 
@@ -173,7 +179,12 @@ class ReliableConnection {
   RemoteConnection rconn;
   ControlBlock::MemoryRights init_rights;
   deleted_unique_ptr<struct ibv_send_wr> wr_cached;
-
+  
   LOGGER_DECL(logger);
+
+  //champs ajoutés
+  struct rdma_event_channel *cm_event_channel;
+  struct rdma_cm_id *cm_id;
+
 };
 }  // namespace dory
