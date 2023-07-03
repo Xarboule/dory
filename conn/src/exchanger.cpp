@@ -215,16 +215,15 @@ int ConnectionExchanger:: start_server(int proc_id) {
   std::cin >> str_ip;
 
   char* char_ip = new char[str_ip.length() + 1];
-  strcpy(char_array, s.c_str());
+  strcpy(char_ip, str_ip.c_str());
       
-
-  ret = get_addr(char_array, reinterpret_cast<struct sockaddr*>(&server_addr));
+  ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
 	
-  delete[] char_array;
+  delete[] char_ip;
   
   
   /* Explicit binding of rdma cm id to the socket credentials */
@@ -259,7 +258,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
 
-      rc.associateWithCQ_for_cm(cm_event->id, send_cq_name, recv_cq_name);
+      rc.associateWithCQ_for_cm(cm_event->id);
 
 
       //Poster quelques receive buffers 
