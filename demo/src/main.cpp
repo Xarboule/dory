@@ -94,6 +94,7 @@ int main(int argc, char* argv[]) {
                     ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
   cb.registerCQ("cq");
 
+  fprint("ok");
   ConnectionExchanger ce(id, remote_ids, cb);
   ce.configure_all_with_cm("primary", "shared-mr", "cq", "cq");
   ce.announce_all(store, "qp");
