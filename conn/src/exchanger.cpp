@@ -464,7 +464,7 @@ void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
 }
 
 /*Simple counter, for the ports */
-static int ConnectionExchanger :: get_num_conn(){return num_conn}
+int ConnectionExchanger :: get_num_conn(){return num_conn;}
 
 void ConnectionExchanger :: incr_num_conn(){num_conn++;}
 
