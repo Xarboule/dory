@@ -311,11 +311,11 @@ int ConnectionExchanger:: start_client(int proc_id){
   
 
   ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
-  
-	if (ret) {
+  if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
 	}
+  
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ADDR_RESOLVED\n");
   printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
   ret  = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
@@ -323,8 +323,8 @@ int ConnectionExchanger:: start_client(int proc_id){
 		throw std::runtime_error("Failed to receive a valid event");
 		exit(-1);
 	}
-	/* we ack the event */
 	
+  /* we ack the event */
 	memcpy(&event_copy, cm_event, sizeof(*cm_event));      
   ret = rdma_ack_cm_event(cm_event);
 	if (ret) {
@@ -335,7 +335,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 
 	 /* Resolves an RDMA route to the destination address in order to
 	  * establish a connection */
-	ret = rdma_resolve_route(event_copy.id, 2000);
+	ret = rdma_resolve_route(cm_id, 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve route");
 	   exit(-1);
