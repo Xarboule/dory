@@ -367,7 +367,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   /* Creating the QP */
         
   show_rdma_cmid(cm_id);
-  show_rdma_cmid(even_copy.id);
+  show_rdma_cmid(event_copy.id);
 
 
   rc.associateWithCQ_for_cm(event_copy.id);
@@ -474,16 +474,16 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 
 void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
 	if(!id){
-		rdma_error("Passed ptr is NULL\n");
+		throw std::runtime_error("Passed pointer is null ");
 		return;
 	}
-	printf("RDMA cm id at %p \n", id);
+	printf("RDMA cm id at {} \n", id);
 	if(id->verbs && id->verbs->device)
-		printf("dev_ctx: %p (device name: %s) \n", id->verbs,
+		printf("dev_ctx: {} (device name: {}) \n", id->verbs,
 				id->verbs->device->name);
 	if(id->channel)
-		printf("cm event channel %p\n", id->channel);
-	printf("QP: %p, port_space %x, port_num %u \n", id->qp,
+		printf("cm event channel {}\n", id->channel);
+	printf("QP: {}, port_space {}, port_num {} \n", id->qp,
 			id->ps,
 			id->port_num);
 }
