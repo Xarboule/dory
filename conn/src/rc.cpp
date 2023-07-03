@@ -456,9 +456,9 @@ void ReliableConnection::query_qp(ibv_qp_attr &qp_attr,
 }
 
 /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
-struct ibv_pd* ReliableConnection::get_pd(){ return pd;}
+struct ibv_pd* ReliableConnection::get_pd(){ return this->pd;}
 
-struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return &create_attr;}  
+struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return &(this->create_attr);}  
 
 /*Méthode pour initialiser rdma event channel et rdma cm id*/
 /*Un rdma event channel et rdma cm id par connexion*/
@@ -479,8 +479,8 @@ void ReliableConnection :: configure_cm_channel(){
 }
 
 
-struct ReliableConnection :: rdma_cm_id* get_cm_id(){return cm_id;}
+struct ReliableConnection :: rdma_cm_id* get_cm_id(){return this->cm_id;}
 
-struct ReliableConnection :: rdma_event_channel* get_event_channel(){return cm_event_channel};
+struct ReliableConnection :: rdma_event_channel* get_event_channel(){return this->cm_event_channel;}
 
 }  // namespace dory
