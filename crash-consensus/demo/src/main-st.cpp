@@ -127,7 +127,6 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
             std::cout << "Error: in leader mode. Code: "
                       << static_cast<int>(err) << std::endl;
             break;
-
           case dory::ProposeError::SlowPathLogRecycled:
             std::cout << "Log recycled, waiting a bit..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
