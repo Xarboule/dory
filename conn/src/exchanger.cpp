@@ -223,7 +223,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
 	}
-	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded \n");
+	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 	
   ret = rdma_listen(cm_id, 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
@@ -277,7 +277,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	return ret;
 }
 
-int process_rdma_cm_event(struct rdma_event_channel *echannel,
+int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echannel,
 		enum rdma_cm_event_type expected_event,
 		struct rdma_cm_event **cm_event)
 {
@@ -289,7 +289,7 @@ int process_rdma_cm_event(struct rdma_event_channel *echannel,
 	}
 	/* lets see, if it was a good event */
 	if(0 != (*cm_event)->status){
-		LOGGER_INFO(logger,"CM event has non zero status:");
+		LOGGER_INFO(logger,"CM event has non zero status");
 		ret = -((*cm_event)->status);
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
