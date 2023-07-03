@@ -103,7 +103,7 @@ class ConnectionExchanger {
   std::unique_ptr<ReliableConnection> loopback_;
   LOGGER_DECL(logger);
 
-  static struct rdma_event_channel *cm_event_channel = NULL;
+  static struct rdma_event_channel *cm_event_channel;
   static struct rdma_cm_id *cm_id;
 
 };
