@@ -140,7 +140,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
 
   auto qp1 = id->qp;
   if(qp1){
-    printf("qp : %p \n", reinterpret_cast<void*>(qp));
+    printf("qp : %p \n", reinterpret_cast<void*>(qp1));
 		throw std::runtime_error("id->qp pointer is not null ");
 		return;
 	} 
