@@ -15,7 +15,7 @@ if(NOT MEMCACHED_LIB)
 endif()
 
 
-find_library(RDMA_CM_LIB rdma_cm)
+find_library(RDMA_CM_LIB rdma_cma)
 if(NOT RDMA_CM_LIB)
-     message(FATAL_ERROR "rdma_cm library not found")
+     message(FATAL_ERROR "rdma_cma library not found")
 endif()
