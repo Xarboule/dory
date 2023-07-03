@@ -176,20 +176,23 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   auto& rc = rcs.find(proc_id)->second;
 
   std::string str_print;
-  str_print << "Handling the connection of " << my_id << "-to-" proc_id;
+  str_print = "Handling the connection of " + my_id +"-to-"+ proc_id;
   LOGGER_INFO(logger, "[Gillou debug] {}", str_print);
 
   std::string rdma_mode; 
   std :: cout << "Which mode : client or server ? "; // Type a number and press enter
   std :: cin >> rdma_mode; // Get user input from the keyboard
 
-  if (rdma_mode == "server")
+  if (rdma_mode == "server"){
     start_server();  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
     //ça fait un gros bloc qui fait tout (pas terrible)
-  elif (rdma_mode == "client") 
+  }
+  else if (rdma_mode == "client"){
     start_client();
-  else 
+  }
+  else{ 
     throw std::runtime_error("Wrong input");
+  }
 }
 
 /* Starts an RDMA server by allocating basic (CM) connection resources */
@@ -200,9 +203,9 @@ int ConnectionExchanger:: start_server() {
   
   /*On donne les infos sur l'IP du server*/
   bzero(&server_addr, sizeof server_addr);
-	server_sockaddr.sin_family = AF_INET; 
-	server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY); 
-	server_sockaddr.sin_port = htons(20886);
+	server_addr.sin_family = AF_INET; 
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
+	server_addr.sin_port = htons(20886);
   
   std::string str_ip;
   std::cout << "What's the IP of this node ? (running as a server)";
@@ -215,14 +218,14 @@ int ConnectionExchanger:: start_server() {
 	
   
   /* Explicit binding of rdma cm id to the socket credentials */
-	ret = rdma_bind_addr(cm_server_id, (struct sockaddr*) server_addr);
+	ret = rdma_bind_addr(cm_id, (struct sockaddr*) server_addr);
 	if (ret) {
 		rdma_error("Failed to bind server address, errno: %d \n", -errno);
 		return -errno;
 	}
 	debug("Server RDMA CM id is successfully binded \n");
 	
-  ret = rdma_listen(cm_server_id, 8); /* backlog = 8 clients, same as TCP*/
+  ret = rdma_listen(cm_id, 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
 		rdma_error("rdma_listen failed to listen on server address, errno: %d ",
 				-errno);
@@ -267,7 +270,7 @@ int ConnectionExchanger:: start_server() {
          rdma_error("Failed to acknowledge the cm event errno: %d \n", -errno);
          return -errno;
       }
-      debug("A new RDMA client connection id is stored at %p\n", t->cm_client_id);
+      debug("A new RDMA client connection id is stored");
       break; //on sort de là, car la connection est stored comme il faut 
    } while(1);
 
