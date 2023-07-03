@@ -129,7 +129,7 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 }
 
-void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
+void ReliableConnection::associateWithCQ_for_cm(struct rdma_cm_id* id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();

@@ -141,11 +141,10 @@ class ReliableConnection {
 
   struct ibv_qp_init_attr* get_init_attr();
 
-  void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
+  void associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name);
 
-  void associateWithCQ_for_cm(std::string send_cp_name,
-                                         std::string recv_cp_name);
+  void associateWithCQ_for_cm(struct rdma_cm_id* id);
 
  private:
   bool post_send(ibv_send_wr &wr);
