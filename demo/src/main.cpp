@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 
 
   for (int i : remote_ids){
-    printf("remote id "+ i);
+    printf("remote id : %i", i);
   }
 
   // Configure the control block
