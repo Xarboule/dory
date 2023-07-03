@@ -311,11 +311,13 @@ int ConnectionExchanger:: start_client(int proc_id){
   
 
   ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
+  
 	if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
 	}
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ADDR_RESOLVED\n");
+  printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
   ret  = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
@@ -339,7 +341,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 	   exit(-1);
 	}
   LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ROUTE_RESOLVED\n");
-
+  printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
 	ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
@@ -362,7 +364,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 
   /* Creating the QP */
       
-  rc.associateWithCQ_for_cm(event_copy.id);
+  rc.associateWithCQ_for_cm(cm_id->id);
 
   /*Connecting*/
   struct rdma_conn_param cm_params;
