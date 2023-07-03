@@ -406,7 +406,13 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
 	}
   LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
 
-	int ret = rdma_create_id(cm_event_channel, &cm_id, cb.pd(pd_name).get() , RDMA_PS_TCP);
+  for (int pid : remote_ids){
+    auto& rc = rcs.find(proc_id)->second;
+    break;
+  }
+  
+
+	int ret = rdma_create_id(cm_event_channel, &cm_id, rc.get_pd() , RDMA_PS_TCP);
 	if (ret) {
     throw std::runtime_error("Creating cm id failed");
 		return;
