@@ -142,11 +142,11 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
 	if (id->qp)
 	  printf("Cas d'erreur 1 : qp de l'id est nulle ");
 
-  if (id->verbs != create_attr->pd->context)
+  if (id->verbs != create_attr.pd->context)
 	  printf("Cas d'erreur 2 : contexte de id différent de celui du pd de attr");
     
-  if ((id->recv_cq && create_attr->recv_cq && id->recv_cq != create_attr->recv_cq) ||
-	    (id->send_cq && create_attr->send_cq && id->send_cq != create_attr->send_cq))
+  if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq) ||
+	    (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
 	  printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
 
   int ret = rdma_create_qp(id, pd,  &create_attr );
