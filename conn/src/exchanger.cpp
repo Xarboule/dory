@@ -327,7 +327,7 @@ void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
   On le crée et on lui donne un id une seule fois, peu importe notre nombre de connexion
   */
 
-  fprint("In");
+  LOGGER_INFO(logger, "Inside connect_all_with_cm");
   cm_event_channel = rdma_create_event_channel();
 	if (!cm_event_channel) {
     throw std::runtime_error("Creating cm event channel failed");
