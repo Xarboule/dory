@@ -27,8 +27,9 @@ void ConnectionExchanger::configure(int proc_id, std::string const& pd,
 
   auto& rc = rcs.find(proc_id)->second;
 
+
   rc.bindToPD(pd);
-  rc.bindToMR(mr);
+  rc.bindToMR(mr);  
   rc.associateWithCQ(send_cq_name, recv_cq_name);
 }
 
@@ -45,23 +46,32 @@ void ConnectionExchanger::configure_with_cm(int proc_id, std::string const& pd,
                                     std::string const& mr,
                                     std::string send_cq_name,
                                     std::string recv_cq_name) {
+  LOGGER_INFO(logger, "Inside configure_all_with_cm");
+
   rcs.insert(
       std::pair<int, ReliableConnection>(proc_id, ReliableConnection(cb)));
 
   auto& rc = rcs.find(proc_id)->second;
 
   rc.bindToPD(pd);
+  LOGGER_INFO(logger, "Bind to PD ok");
   rc.bindToMR(mr);
+  LOGGER_INFO(logger, "Bind to MR ok");
   /*Quand on utilise le CM, on doit créer la qp avec rdma_qp après avoir reçu l'event
   Du coup, la QP de rc sera crée plus tard
   Pour l'instant, on configure juste les attributs, pour plus tard */
   rc.associateWithCQ_for_cm(send_cq_name, recv_cq_name);
+  LOGGER_INFO(logger, "Getting cq ready ok ");
+
+  LOGGER_INFO(logger, "Done with configure_all_with_cm");
 }
 
 void ConnectionExchanger::configure_all_with_cm(std::string const& pd,
                                         std::string const& mr,
                                         std::string send_cq_name,
                                         std::string recv_cq_name) {
+  
+  LOGGER_INFO(logger, "Inside configure_all_with_cm");
   for (auto const& id : remote_ids) {
     configure_with_cm(id, pd, mr, send_cq_name, recv_cq_name);
   }
@@ -249,7 +259,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
 
-      ret = rdma_create_qp(cm_event->id,rc.get_pd(), rc.get_init_attr() );
+      ret = rdma_create_qp(cm_event->id, rc.get_pd(), rc.get_init_attr() );
       if (ret) {
         throw std::runtime_error("Failed to create QP due to errno");
         return -1;

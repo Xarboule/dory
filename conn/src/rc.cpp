@@ -124,6 +124,7 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
 
 void ReliableConnection::associateWithCQ_for_cm(std::string send_cp_name,
                                          std::string recv_cp_name) {
+  LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 }
