@@ -174,12 +174,13 @@ void RdmaConsensus::run() {
 
   // Initialize the contexts
   auto& cq_leader_election = cb->cq("cq-leader-election");
-  std::cout<<"cb-> blabla ok"
+  std::cout<<"cb-> blabla ok";
   le_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_leader_election.get(), cq_leader_election, remote_ids,
       my_id);
 
-  std::cout<<"coonnection context initialized"
+  std::cout<<"coonnection context initialized";
+
   auto& cq_replication = cb->cq("cq-replication");
   re_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_replication.get(), cq_replication, remote_ids, my_id);
@@ -188,12 +189,14 @@ void RdmaConsensus::run() {
       *re_conn_ctx.get(), *replication_log.get(), log_offset);
 
   // Initialize Leader election
+  std::cout<<"leader election";
   leader_election = std::make_unique<LeaderElection>(
       *le_conn_ctx.get(), *scratchpad.get(), threadConfig);
   leader_election->attachReplicatorContext(re_ctx.get());
   response_blocked = &(leader_election->response_blocked);
 
   // Initialize replication
+  std::cout<<"replication";
   auto quorum_size = quorum::majority(remote_ids.size() + 1) - 1;
   auto next_log_entry_offset = re_ctx->log.headerFirstUndecidedOffset();
 
