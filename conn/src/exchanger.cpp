@@ -253,7 +253,13 @@ int ConnectionExchanger:: start_server(int proc_id) {
       
       /*On fetch la RC associée à proc_id*/
       auto& rc = rcs.find(proc_id)->second;
+      
+      
+      show_rdma_cmid(cm_id);
+      show_rdma_cmid(cm_event->id);
+
       rc.associateWithCQ_for_cm(cm_event->id);
+
 
       //TO DO :Poster quelques receive buffers 
 
@@ -359,6 +365,11 @@ int ConnectionExchanger:: start_client(int proc_id){
   auto& rc = rcs.find(proc_id)->second;
 
   /* Creating the QP */
+        
+  show_rdma_cmid(cm_id);
+  show_rdma_cmid(even_copy.id);
+
+
   rc.associateWithCQ_for_cm(event_copy.id);
 
   /*Connecting*/
@@ -459,6 +470,22 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
 	/* The caller must acknowledge the event */
 	return ret;
+}
+
+void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
+	if(!id){
+		rdma_error("Passed ptr is NULL\n");
+		return;
+	}
+	printf("RDMA cm id at %p \n", id);
+	if(id->verbs && id->verbs->device)
+		printf("dev_ctx: %p (device name: %s) \n", id->verbs,
+				id->verbs->device->name);
+	if(id->channel)
+		printf("cm event channel %p\n", id->channel);
+	printf("QP: %p, port_space %x, port_num %u \n", id->qp,
+			id->ps,
+			id->port_num);
 }
 
 std::pair<bool, int> ConnectionExchanger::valid_ids() const {

@@ -148,7 +148,7 @@ class ReliableConnection {
   void associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name);
 
-  void associateWithCQ_for_cm(rdma_cm_id* &id);
+  void associateWithCQ_for_cm(rdma_cm_id* id);
 
  private:
   bool post_send(ibv_send_wr &wr);

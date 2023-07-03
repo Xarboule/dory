@@ -95,6 +95,9 @@ class ConnectionExchanger {
 
   int get_addr(char *dst, struct sockaddr *addr);
 
+  void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id);
+
+  
  private:
   std::pair<bool, int> valid_ids() const;
 
