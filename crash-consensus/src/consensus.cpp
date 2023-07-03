@@ -149,7 +149,7 @@ void RdmaConsensus::run() {
 
   //ce_replication->wait_ready_all(store, "qp-replication", "announce");
   //ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
-
+  Connection:
   ce_replication->connect_all_with_cm(
       store, "qp-replication",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);

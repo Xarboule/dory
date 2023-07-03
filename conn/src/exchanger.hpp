@@ -97,6 +97,9 @@ class ConnectionExchanger {
 
   void show_rdma_cmid(struct rdma_cm_id *id);
 
+  static int get_num_conn();
+
+  void incr_num_conn();
 
  private:
   std::pair<bool, int> valid_ids() const;

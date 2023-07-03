@@ -6,6 +6,9 @@
 #include "exchanger.hpp"
 
 namespace dory {
+
+int ConnectionExchanger :: num_conn = 0;
+
 ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
                                          ControlBlock& cb)
     : my_id{my_id}, remote_ids{remote_ids}, cb{cb}, LOGGER_INIT(logger, "CE") {
@@ -234,8 +237,8 @@ int ConnectionExchanger:: start_server(int proc_id) {
     return ret;
   }
   delete[] char_ip;
-  server_addr.sin_port = htons(20886 + num_conn);
-  num_conn ++;
+  server_addr.sin_port = htons(20886 + get_num_conn());
+  incr_num_conn();
   
   /* Explicit binding of rdma cm id to the socket credentials */
 	ret = rdma_bind_addr(rc.get_cm_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -459,6 +462,11 @@ void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
 			id->ps,
 			id->port_num);
 }
+
+/*Simple counter, for the ports */
+static int ConnectionExchanger :: get_num_conn(){return num_conn}
+
+void ConnectionExchanger :: incr_num_conn(){num_conn++;}
 
 std::pair<bool, int> ConnectionExchanger::valid_ids() const {
   auto min_max_remote =
