@@ -122,6 +122,14 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
+void ReliableConnection::associateWithCQ_for_CM(std::string send_cp_name,
+                                         std::string recv_cp_name) {
+  create_attr.send_cq = cb.cq(send_cp_name).get();
+  create_attr.recv_cq = cb.cq(recv_cp_name).get();
+}
+
+
+
 void ReliableConnection::reset() {
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
@@ -392,5 +400,11 @@ void ReliableConnection::query_qp(ibv_qp_attr &qp_attr,
                                   int attr_mask) const {
   ibv_query_qp(uniq_qp.get(), &qp_attr, attr_mask, &init_attr);
 }
+
+  /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
+  struct ibv_pd* ReliableConnection::get_pd(){ return pd;}
+  
+  struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return create_attr;}  
+
 
 }  // namespace dory

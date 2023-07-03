@@ -41,6 +41,32 @@ void ConnectionExchanger::configure_all(std::string const& pd,
   }
 }
 
+void ConnectionExchanger::configure_with_cm(int proc_id, std::string const& pd,
+                                    std::string const& mr,
+                                    std::string send_cq_name,
+                                    std::string recv_cq_name) {
+  rcs.insert(
+      std::pair<int, ReliableConnection>(proc_id, ReliableConnection(cb)));
+
+  auto& rc = rcs.find(proc_id)->second;
+
+  rc.bindToPD(pd);
+  rc.bindToMR(mr);
+  /*Quand on utilise le CM, on doit créer la qp avec rdma_qp après avoir reçu l'event
+  Du coup, la QP de rc sera crée plus tard
+  Pour l'instant, on configure juste les attributs, pour plus tard */
+  rc.associateWithCQ_for_cm(send_cq_name, recv_cq_name);
+}
+
+void ConnectionExchanger::configure_all_with_cm(std::string const& pd,
+                                        std::string const& mr,
+                                        std::string send_cq_name,
+                                        std::string recv_cq_name) {
+  for (auto const& id : remote_ids) {
+    configure_with_cm(id, pd, mr, send_cq_name, recv_cq_name);
+  }
+}
+
 void ConnectionExchanger::addLoopback(std::string const& pd,
                                       std::string const& mr,
                                       std::string send_cq_name,
@@ -69,13 +95,12 @@ void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
   name << prefix << "-" << my_id << "-for-" << proc_id;
   auto infoForRemoteParty = rc.remoteInfo();
   store.set(name.str(), infoForRemoteParty.serialize());
-  LOGGER_INFO(logger, "[HI]Publishing qp {}", name.str());
+  LOGGER_INFO(logger, "Publishing qp {}", name.str());
 
-
+  /*
   std::string info_supp;
-
   info_supp = "key=(" + name.str() + "); value=(" + infoForRemoteParty.serialize() + ")";
-  LOGGER_INFO(logger, "[GILLOU]remote info published : {}", info_supp); 
+  LOGGER_INFO(logger, "[GILLOU]remote info published : {}", info_supp); */
 }
 
 void ConnectionExchanger::announce_all(MemoryStore& store,
@@ -144,11 +169,144 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
   LOGGER_INFO(logger, "Connected with {}", name.str());
 }
 
+void ConnectionExchanger:: connect_with_cm(int proc_id,
+                                  std::string const& prefix,
+                                  ControlBlock::MemoryRights rights){
+  //fetching the RC associated with the remote id
+  auto& rc = rcs.find(proc_id)->second;
+
+  std::string str_print;
+  str_print << "Handling the connection of " << my_id << "-to-" proc_id;
+  LOGGER_INFO(logger, "[Gillou debug] {}", str_print);
+
+  std::string rdma_mode; 
+  std :: cout << "Which mode : client or server ? "; // Type a number and press enter
+  std :: cin >> rdma_mode; // Get user input from the keyboard
+
+  if (rdma_mode == "server")
+    start_server();  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
+    //ça fait un gros bloc qui fait tout (pas terrible)
+  elif (rdma_mode == "client") 
+    start_client();
+  else 
+    throw std::runtime_error("Wrong input");
+}
+
+/* Starts an RDMA server by allocating basic (CM) connection resources */
+int ConnectionExchanger:: start_server() {
+  struct sockaddr_in *server_addr;
+  struct rdma_cm_event *cm_event = NULL;
+	int ret = -1;
+  
+  /*On donne les infos sur l'IP du server*/
+  bzero(&server_addr, sizeof server_addr);
+	server_sockaddr.sin_family = AF_INET; 
+	server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY); 
+	server_sockaddr.sin_port = htons(20886);
+  
+  std::string str_ip;
+  std::cout << "What's the IP of this node ? (running as a server)";
+  std::cin >> str_ip;
+  ret = get_addr(str_ip, (struct sockaddr*) &server_addr);
+  if (ret) {
+    rdma_error("Invalid IP \n");
+    return ret;
+  }
+	
+  
+  /* Explicit binding of rdma cm id to the socket credentials */
+	ret = rdma_bind_addr(cm_server_id, (struct sockaddr*) server_addr);
+	if (ret) {
+		rdma_error("Failed to bind server address, errno: %d \n", -errno);
+		return -errno;
+	}
+	debug("Server RDMA CM id is successfully binded \n");
+	
+  ret = rdma_listen(cm_server_id, 8); /* backlog = 8 clients, same as TCP*/
+	if (ret) {
+		rdma_error("rdma_listen failed to listen on server address, errno: %d ",
+				-errno);
+		return -errno;
+	}
+
+	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr->sin_addr),
+          ntohs(server_addr->sin_port));
+
+  /*Même si on ne s'attend qu'à une connexion, on met un while pour être persistant*/
+  do {
+      ret = process_rdma_cm_event(cm_event_channel,RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+      if (ret) {
+         continue; //en cas d'erreur, on recommence un coup dans la boucle 
+      }
+      
+      /*METTRE LE RESTE DE LA CONNECTION ICI*/
+      
+      //(optionnel) vérifier que le contexte de l'event et celui du server sont identiques (le contexte est en privé dans cb.resolved_port, c'est pas urgent)
+      
+      /*On fetch la RC associée à proc_id*/
+      auto& rc = rcs.find(proc_id)->second;
+
+      ret = rdma_create_qp(cm_event->id,rc.get_pd(), &rc.get_init_attr() );
+      if (ret) {
+        rdma_error("Failed to create QP due to errno: %d\n", -errno);
+        return -errno;
+      }
+      
+      //Poster quelques receive buffers 
+
+
+      //Accepter la connexion
+      struct rdma_conn_param cm_params;
+      memset(&cm_params, 0, sizeof(cm_params));
+      TEST_NZ(rdma_accept(cm_event->id, &cm_params)); 
+
+
+      /*Une fois que la connection est bien finie, on ack l'event du début*/
+      ret = rdma_ack_cm_event(cm_event);
+      if (ret) {
+         rdma_error("Failed to acknowledge the cm event errno: %d \n", -errno);
+         return -errno;
+      }
+      debug("A new RDMA client connection id is stored at %p\n", t->cm_client_id);
+      break; //on sort de là, car la connection est stored comme il faut 
+   } while(1);
+
+	return ret;
+}
+
+
+int ConnectionExchanger:: start_client(){}
+
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights) {
   for (int pid : remote_ids) {
     connect(pid, store, prefix, rights);
+  }
+}
+
+void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
+                                      std::string const& prefix,
+                                      ControlBlock::MemoryRights rights){
+  /*Le CM event channel sera commun à toutes les connexions
+  On le crée et on lui donne un id une seule fois, peu importe notre nombre de connexion
+  */
+  cm_event_channel = rdma_create_event_channel();
+	if (!cm_event_channel) {
+		rdma_error("Creating cm event channel failed with errno : (%d)", -errno);
+		return -errno;
+	}
+	debug("RDMA CM event channel is created successfully at %p \n",cm_event_channel);
+
+	ret = rdma_create_id(cm_event_channel, &cm_id, NULL, RDMA_PS_TCP);
+	if (ret) {
+		rdma_error("Creating server cm id failed with errno: %d ", -errno);
+		return -errno;
+	}
+	debug("A RDMA connection id for the server is created \n");
+	
+  for (int pid : remote_ids) {
+    connect_with_cm(pid, store, prefix, rights);
   }
 }
 

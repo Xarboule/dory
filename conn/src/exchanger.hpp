@@ -13,6 +13,16 @@
 #include <dory/store.hpp>
 #include "rc.hpp"
 
+/*les librairies pour cm */
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#include <rdma/rdma_cma.h>
+#include <infiniband/verbs.h>
+
+
 namespace dory {
 class ConnectionExchanger {
  private:
@@ -56,6 +66,31 @@ class ConnectionExchanger {
   void connectLoopback(ControlBlock::MemoryRights rights);
   ReliableConnection& loopback() { return *(loopback_.get()); }
 
+
+  //nouvelles fonctions pour utiliser CM 
+  void configure_with_cm(int proc_id, std::string const& pd,
+                                    std::string const& mr,
+                                    std::string send_cq_name,
+                                    std::string recv_cq_name);
+  
+  void configure_all_with_cm(std::string const& pd,
+                                        std::string const& mr,
+                                        std::string send_cq_name,
+                                        std::string recv_cq_name);
+
+  void connect_with_cm(int proc_id,std::string const& prefix,
+                                    ControlBlock::MemoryRights rights);
+
+  void connect_all_with_cm(MemoryStore& store,
+                                      std::string const& prefix,
+                                      ControlBlock::MemoryRights rights);
+
+  int start_server();
+
+  int start_client(); 
+
+
+
  private:
   std::pair<bool, int> valid_ids() const;
 
@@ -67,5 +102,9 @@ class ConnectionExchanger {
   std::map<int, ReliableConnection> rcs;
   std::unique_ptr<ReliableConnection> loopback_;
   LOGGER_DECL(logger);
+
+  static struct rdma_event_channel *cm_event_channel = NULL;
+  static struct rdma_cm_id *cm_id;
+
 };
 }  // namespace dory
