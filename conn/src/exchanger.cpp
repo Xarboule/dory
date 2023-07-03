@@ -284,7 +284,6 @@ int ConnectionExchanger:: start_client(int proc_id){
   //destination à renseigner 
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
-  struct rdma_cm_event event_copy;
 
   /*On donne les infos sur l'IP du server qu'on cherche à atteindre*/
   memset(&server_addr, 0, sizeof(server_addr));
@@ -325,8 +324,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 	}
 	
   /* we ack the event */
-	memcpy(&event_copy, cm_event, sizeof(*cm_event));      
-  ret = rdma_ack_cm_event(cm_event);
+	ret = rdma_ack_cm_event(cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
@@ -349,8 +347,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 	}
 
 	/* we ack the event */
-	memcpy(&event_copy, cm_event, sizeof(*cm_event));      
-  ret = rdma_ack_cm_event(cm_event);
+	ret = rdma_ack_cm_event(cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
