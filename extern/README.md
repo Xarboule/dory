@@ -30,4 +30,5 @@ and use in source files as follows:
 ```cpp
 #include <dory/extern/ibverbs.hpp>
 #include <dory/extern/memcached.hpp>
+#include <dory/extern/rdma_cm.hpp>
 ```

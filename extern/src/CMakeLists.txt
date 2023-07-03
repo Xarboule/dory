@@ -13,3 +13,9 @@ find_library(MEMCACHED_LIB memcached)
 if(NOT MEMCACHED_LIB)
      message(FATAL_ERROR "memcached library not found")
 endif()
+
+
+find_library(RDMA_CM_LIB rdma_cm)
+if(NOT RDMA_CM_LIB)
+     message(FATAL_ERROR "rdma_cm library not found")
+endif()
