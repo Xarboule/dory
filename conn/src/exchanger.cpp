@@ -294,7 +294,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
   strcpy(char_ip, str_ip.c_str()); 
-  ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
+  int ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
@@ -307,7 +307,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   server_addr.sin_port = htons(port_serv);
   
 
-  int ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
+  ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
