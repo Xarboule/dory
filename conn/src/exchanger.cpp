@@ -280,10 +280,34 @@ int ConnectionExchanger:: start_server(int proc_id) {
 
 int ConnectionExchanger:: start_client(int proc_id){
   //destination à renseigner 
-  struct sockaddr_in server_sockaddr;
+  struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 
-  int ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_sockaddr), 2000);
+  /*On donne les infos sur l'IP du server qu'on cherche à atteindre*/
+  memset(&server_addr, 0, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
+  
+  std::string str_ip;
+  std::cout << "What's the IP of the server ? (this node is running as a client)";
+  std::cin >> str_ip;
+
+  //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
+  char* char_ip = new char[str_ip.length() + 1];
+  strcpy(char_ip, str_ip.c_str()); 
+  ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
+  if (ret) {
+    throw std::runtime_error("Wrong input");
+    return ret;
+  }
+  delete[] char_ip;
+  
+  int port_serv;
+  std::cout << "What's the port number of the server ? (this node is running as a client)";
+  std::cin >> port_serv;
+  server_addr.sin_port = htons(port_serv);
+  
+
+  int ret = rdma_resolve_addr(cm_id, NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
@@ -325,8 +349,8 @@ int ConnectionExchanger:: start_client(int proc_id){
 	}
 
 
-	printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_sockaddr.sin_addr),
-			ntohs(server_sockaddr.sin_port));
+	printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),
+			ntohs(server_addr.sin_port));
 
   auto& rc = rcs.find(proc_id)->second;
 
