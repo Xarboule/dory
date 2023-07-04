@@ -487,7 +487,8 @@ void *ReliableConnection ::getLocalSetup() {
   void *privateData = malloc(24);
   memset(privateData, 0, 24);
 
-  uint64_t addr = static_cast<uint64_t>(mr.addr);
+  //uint64_t addr = static_cast<uint64_t>(mr.addr);
+  uintptr_t addr = static_cast<uintptr_t>(mr.addr);
   uint32_t lkey = mr.lkey;
   /*
   printf("\n============ Local setup ===============\n");
