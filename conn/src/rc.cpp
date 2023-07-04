@@ -483,7 +483,7 @@ struct rdma_event_channel *ReliableConnection ::get_event_channel() {
 }
 
 /* Dirty legacy code to communicate the RDMA buffer location */
-void *RelibaleConnection ::getLocalSetup() {
+void *ReliableConnection ::getLocalSetup() {
   // max (2) + direct_pmem (1) + dest_size (1) + Addr (8) + length (8) + key (4)
   // = 24
   void *privateData = malloc(24);
