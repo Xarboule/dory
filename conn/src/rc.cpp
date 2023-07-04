@@ -487,14 +487,15 @@ void *ReliableConnection ::getLocalSetup() {
   void *privateData = malloc(24);
   memset(privateData, 0, 24);
 
-  uintptr_t addr = static_cast<uintptr_t>(mr.addr);
+  uint64_t addr = static_cast<uint64_t>(mr.addr); 
   uint32_t lkey = mr.lkey;
   /*
   printf("\n============ Local setup ===============\n");
   printf("===== LOCAL ADDRESS : %p\n", reinterpret_cast<void*>(addr));
   printf("===== LOCAL KEY : %p\n\n", reinterpret_cast<void*>(lkey));*/
 
-  memcpy(static_cast<uintptr_t*>(privateData) + 4, &addr, 8);   // Address
+
+  memcpy(static_cast<uintptr_t*>(privateData) + 4, &addr, 8);   // Address. On cast en uintptr_t pour faire de l'arithmétique
   memcpy(static_cast<uintptr_t*>(privateData) + 20, &lkey, 4);  // Key
 
   return privateData;
