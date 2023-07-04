@@ -464,14 +464,14 @@ void ReliableConnection ::configure_cm_channel() {
     throw std::runtime_error("Creating cm event channel failed");
     return;
   }
-  LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
+  //LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
 
   int ret = rdma_create_id(cm_event_channel, &cm_id, NULL, RDMA_PS_TCP);
   if (ret) {
     throw std::runtime_error("Creating cm id failed");
     return;
   }
-  LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
+  //LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
 struct rdma_cm_id *ReliableConnection ::get_cm_id() { return this->cm_id; }
