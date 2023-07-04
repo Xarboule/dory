@@ -495,8 +495,8 @@ void *ReliableConnection ::getLocalSetup() {
   printf("===== LOCAL KEY : %p\n\n", reinterpret_cast<void*>(lkey));*/
 
 
-  memcpy(static_cast<uintptr_t*>(privateData) + 4, &addr, 8);   // Address. On cast en uintptr_t pour faire de l'arithmétique
-  memcpy(static_cast<uintptr_t*>(privateData) + 20, &lkey, 4);  // Key
+  memcpy(static_cast<int*>(privateData) + 4, &addr, 8);   // Address. On cast en uintptr_t pour faire de l'arithmétique
+  memcpy(static_cast<int*>(privateData) + 20, &lkey, 4);  // Key
 
   return privateData;
 }
