@@ -99,8 +99,6 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   Avec announce(), on crée la qp puis on échange ses informations via memcached
   Avec *_with_cm(), on crée la qp une fois les infos échangées,et c'est rdma_cm qui
   s'occupe de tout 
-
-  On ne peut pas utiliser les *_loopback, car ils initialisent tout sans cm 
 */
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
@@ -197,7 +195,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   LOGGER_INFO(logger, "{}", print_conn.str());
 
   std::string rdma_mode; 
-  std :: cout << "Which mode : client or server ? "; // Type a number and press enter
+  std :: cout << "Client or server ?   "; // Type a number and press enter
   std :: cin >> rdma_mode; // Get user input from the keyboard
 
   if (rdma_mode == "server"){
@@ -246,7 +244,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
 	}
-	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
+	//LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 	
 
   /*Listening for incoming events*/
@@ -326,7 +324,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 		exit(-1);
 	}
   
-  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ADDR_RESOLVED\n");
+  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ADDR_RESOLVED\n");
   //printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
   ret  = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
 	if (ret) {
@@ -340,7 +338,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
 	}
-  LOGGER_INFO(logger, "RDMA address is resolved \n");
+  //LOGGER_INFO(logger, "RDMA address is resolved \n");
 
 	 /* Resolves an RDMA route to the destination address in order to
 	  * establish a connection */
@@ -349,7 +347,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 		throw std::runtime_error("Failed to resolve route");
 	   exit(-1);
 	}
-  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ROUTE_RESOLVED\n");
+  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ROUTE_RESOLVED\n");
   //printf("cm_id's verbs : %p \n,", reinterpret_cast<void*>(cm_id->verbs) );
 	ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
 	if (ret) {
@@ -364,7 +362,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 		exit(-1);
 	}
 
-	printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+	//printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
   rc.associateWithCQ_for_cm(rc.get_cm_id());
@@ -376,7 +374,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   cm_params.retry_count = 1;
   rdma_connect(rc.get_cm_id(), &cm_params);
 
-  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(rc.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
