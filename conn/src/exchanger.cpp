@@ -84,12 +84,12 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
                                       std::string send_cq_name,
                                       std::string recv_cq_name) {
   loopback_ = std::make_unique<ReliableConnection>(cb);
-  /*loopback_->bindToPD(pd);
+  loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
   loopback_->associateWithCQ(send_cq_name, recv_cq_name);
-  LOGGER_INFO(logger, "Loopback connection was added");*/
+  LOGGER_INFO(logger, "Loopback connection was added");
 
-  LOGGER_INFO(logger, "Loopback add was called ==> does nothing");
+  LOGGER_INFO(logger, "Loopback add was called ==> does the set up ");
 }
 
 void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
