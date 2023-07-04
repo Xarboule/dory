@@ -47,7 +47,7 @@ void ConnectionExchanger::configure_all(std::string const& pd,
     configure(id, pd, mr, send_cq_name, recv_cq_name);
   }*/
   LOGGER_INFO(logger, "configure all was called ==> redirecting to configure_all_with_cm");
-  configure_all_with_cm(pd, mr, send_cq_name, recv_cq_name);
+  configure_all_with_cm(proc_id, pd, mr, send_cq_name, recv_cq_name);
 
 
 }
