@@ -156,7 +156,9 @@ class ReliableConnection {
 
   void configure_cm_channel();
 
-
+  void *ReliableConnection :: getLocalSetup();
+  
+  void ReliableConnection :: setRemoteSetup(const void *network_data);
 
  private:
   bool post_send(ibv_send_wr &wr);

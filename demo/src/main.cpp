@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     throw std::runtime_error("Provide the id of the process as argument");
   }
 
-  constexpr int nr_procs = 3;
+  constexpr int nr_procs = 2;
   constexpr int minimum_id = 1;
   int id = 0;
   switch (argv[1][0]) {

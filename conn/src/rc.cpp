@@ -4,8 +4,6 @@
 #include "rc.hpp"
 #include "wr-builder.hpp"
 
-
-
 // namespace dory {
 //   /**
 //    * Handle the completion status of a WC
@@ -124,11 +122,12 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
   });
 }
 
-/*Pour créer la QP, il faut renseigner des infos dans le champ create_attr de cette instance de 
-ReliableConnection. Ici, on s'occupe des champs cq (send et recv)
-Pour passer par CM, on finalisera la création de qp une fois le cm_id en place*/
+/*Pour créer la QP, il faut renseigner des infos dans le champ create_attr de
+cette instance de ReliableConnection. Ici, on s'occupe des champs cq (send et
+recv) Pour passer par CM, on finalisera la création de qp une fois le cm_id en
+place*/
 void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
-                                         std::string recv_cp_name) {
+                                                     std::string recv_cp_name) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm_prel");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
@@ -136,32 +135,32 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
-void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
+void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
   LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
-  
+
   /* Debugging
-	if (id->qp)
-	  printf("Cas d'erreur 1 : qp de l'id est nulle ");
-  
+        if (id->qp)
+          printf("Cas d'erreur 1 : qp de l'id est nulle ");
+
   if (id->verbs != pd->context)
-	  printf("Cas d'erreur 2 : contexte de id différent de celui du pd de attr\n");
-    printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
+          printf("Cas d'erreur 2 : contexte de id différent de celui du pd de
+  attr\n"); printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
     printf("pd's context : %p \n,", reinterpret_cast<void*>(pd->context) );
     id->verbs = pd->context;
     printf("COPIE\n");
     printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
     printf("pd's context : %p \n,", reinterpret_cast<void*>(pd->context) );
-    
-      
-  if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq) ||
-	    (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
-	  printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
+
+
+  if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq)
+  || (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
+          printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
 
   */
 
-  id->verbs = pd->context;  //nécessaire pour éviter une erreur 
-  int ret = rdma_create_qp(id, pd,  &create_attr);
-  
+  id->verbs = pd->context;  // nécessaire pour éviter une erreur
+  int ret = rdma_create_qp(id, pd, &create_attr);
+
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
     throw std::runtime_error("Failed to create QP due to ...");
@@ -175,14 +174,11 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id* id) {
     auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
       throw std::runtime_error("Could not query device: " +
-                                std::string(std::strerror(errno)));
+                               std::string(std::strerror(errno)));
     }
   });
   LOGGER_INFO(logger, "QP successfully created ! ");
-      
 }
-
-
 
 void ReliableConnection::reset() {
   struct ibv_qp_attr attr;
@@ -232,8 +228,8 @@ void ReliableConnection::connect(RemoteConnection &rc) {
   conn_attr.ah_attr.port_num = static_cast<uint8_t>(cb.port());
 
   conn_attr.dest_qp_num = rc.rci.qpn;
-  //conn_attr.ah_attr.dlid = rc.rci.lid; //original mu code 
-  conn_attr.ah_attr.dlid = 0; //comme RoCE v2, pas besoin ? 
+  // conn_attr.ah_attr.dlid = rc.rci.lid; //original mu code
+  conn_attr.ah_attr.dlid = 0;  // comme RoCE v2, pas besoin ?
 
   conn_attr.max_dest_rd_atomic = 16;
   conn_attr.min_rnr_timer = 12;
@@ -456,30 +452,69 @@ void ReliableConnection::query_qp(ibv_qp_attr &qp_attr,
 }
 
 /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
-struct ibv_pd* ReliableConnection::get_pd(){ return this->pd;}
+struct ibv_pd *ReliableConnection::get_pd() { return this->pd; }
 
-struct ibv_qp_init_attr* ReliableConnection::get_init_attr(){ return &(this->create_attr);}  
+struct ibv_qp_init_attr *ReliableConnection::get_init_attr() {
+  return &(this->create_attr);
+}
 
 /*Méthode pour initialiser rdma event channel et rdma cm id*/
 /*Un rdma event channel et rdma cm id par connexion*/
-void ReliableConnection :: configure_cm_channel(){
+void ReliableConnection ::configure_cm_channel() {
   cm_event_channel = rdma_create_event_channel();
-	if (!cm_event_channel) {
+  if (!cm_event_channel) {
     throw std::runtime_error("Creating cm event channel failed");
-		return;
-	}
+    return;
+  }
   LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
 
-	int ret = rdma_create_id(cm_event_channel, &cm_id, NULL , RDMA_PS_TCP);
-	if (ret) {
+  int ret = rdma_create_id(cm_event_channel, &cm_id, NULL, RDMA_PS_TCP);
+  if (ret) {
     throw std::runtime_error("Creating cm id failed");
-		return;
-	}  
+    return;
+  }
   LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
-struct rdma_cm_id* ReliableConnection ::  get_cm_id(){return this->cm_id;}
+struct rdma_cm_id *ReliableConnection ::get_cm_id() { return this->cm_id; }
 
-struct  rdma_event_channel* ReliableConnection :: get_event_channel(){return this->cm_event_channel;}
+struct rdma_event_channel *ReliableConnection ::get_event_channel() {
+  return this->cm_event_channel;
+}
+
+/* Dirty legacy code to communicate the RDMA buffer location */
+void *RelibaleConnection ::getLocalSetup() {
+  // max (2) + direct_pmem (1) + dest_size (1) + Addr (8) + length (8) + key (4)
+  // = 24
+  void *privateData = malloc(24);
+  memset(privateData, 0, 24);
+
+  uint64_t addr = (uint64_t)this->mr.addr;
+  uint32_t lkey = this->mr.lkey;
+
+  printf("\n============ Local setup ===============\n");
+  printf("===== LOCAL ADDRESS : %d\n", addr);
+  printf("===== LOCAL KEY : %d\n\n", lkey);
+
+  memcpy(privateData + 4, (void *)&addr, 8);   // Address
+  memcpy(privateData + 20, (void *)&lkey, 4);  // Key
+
+  return privateData;
+}
+
+void ReliableConnection ::setRemoteSetup(const void *network_data) {
+  // 4 Bytes of offset to get the address
+  memcpy(&rconn.rci.buf_addr->address, network_data + 4, 8);
+
+  // rconn.buff_addr = BIG_BUFFER_SIZE;  //c'est pas ça ! à trouver
+  rconn.rci.buf_size = mr.size;
+  // 20 Bytes of offset to get KEY
+  memcpy(&rconn.rci.rkey > stag.local_stag, network_data + 20, 4);
+
+  printf("\n============ (received) remote setup ===============\n");
+  printf("===== ADDRESS : %d\n", rconn.rci.buf_addr->address);
+  printf("===== LOCAL KEY : %d\n\n", rconn.rci.rkey);
+
+}
 
 }  // namespace dory
