@@ -193,7 +193,9 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   std::stringstream print_conn;
   print_conn << "[NEW CONNECTION] Handling the connection of "<< my_id << "-to-"<< proc_id;
   LOGGER_INFO(logger, "{}", print_conn.str());
-
+  
+  /*Manual input */
+  /*
   std::string rdma_mode; 
   std :: cout << "Client or server ?   "; // Type a number and press enter
   std :: cin >> rdma_mode; // Get user input from the keyboard
@@ -207,6 +209,14 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
   }
   else{ 
     throw std::runtime_error("Wrong input");
+  }*/
+
+  if (my_id == 1 || (my_id ==3 && proc_id ==2)){
+    start_server(proc_id);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
+    //ça fait un gros bloc qui fait tout (pas terrible)
+  }
+  else {
+    start_client(proc_id);
   }
 }
 
@@ -223,9 +233,30 @@ int ConnectionExchanger:: start_server(int proc_id) {
   /*On donne les infos sur l'IP du server*/
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
+  
+  /*Manual input of the IP*/
+  /*
   std::string str_ip;
   std::cout << "IP of this node ?";
-  std::cin >> str_ip;
+  std::cin >> str_ip;*/
+  
+  std::string str_ip;
+  switch(my_id){
+    case 1:
+      str_ip="10.30.2.1";
+      break;
+    case 2:
+      str_ip="10.30.2.2";
+      break;
+    case 3:
+      str_ip="10.30.2.3";
+      break;
+    default:
+      std::cout << "IP of this node ?";
+      std::cin >> str_ip;
+      break;
+  }
+  
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
   strcpy(char_ip, str_ip.c_str()); 
@@ -298,9 +329,29 @@ int ConnectionExchanger:: start_client(int proc_id){
   /*On donne les infos sur l'IP du server qu'on cherche à atteindre*/
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
+  
+  
   std::string str_ip;
+  /*
   std::cout << "IP of the server ?";
-  std::cin >> str_ip;
+  std::cin >> str_ip;*/
+  
+  switch(proc_id){
+    case 1:
+      str_ip="10.30.2.1";
+      break;
+    case 2:
+      str_ip="10.30.2.2";
+      break;
+    case 3:
+      str_ip="10.30.2.3";
+      break;
+    default:
+      std::cout << "IP of the server ?";
+      std::cin >> str_ip;
+      break;
+  }
+  
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
   strcpy(char_ip, str_ip.c_str()); 
