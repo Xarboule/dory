@@ -290,7 +290,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
         throw std::runtime_error("Failed to receive a valid event");
         return ret;
       } 
-      rc.setRemoteSetup(cm_event->param.conn.private_data);
+      //rc.setRemoteSetup(cm_event->param.conn.private_data);
       ret = rdma_ack_cm_event(cm_event);
       if (ret) {
         throw std::runtime_error("Failed to acknowledge the CM event");
