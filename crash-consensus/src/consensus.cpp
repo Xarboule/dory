@@ -117,15 +117,15 @@ void RdmaConsensus::run() {
       std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
   ce_replication->configure_all("primary", "shared-mr", "cq-replication",
                                 "cq-replication");
-  //ce_replication->announce_all(store, "qp-replication");
-  //ce_replication->announce_ready(store, "qp-replication", "announce");
+  ce_replication->announce_all(store, "qp-replication");
+  ce_replication->announce_ready(store, "qp-replication", "announce");
 
   ce_leader_election =
       std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
   ce_leader_election->configure_all("primary", "shared-mr",
                                     "cq-leader-election", "cq-leader-election");
-  //ce_leader_election->announce_all(store, "qp-leader-election");
-  //ce_leader_election->announce_ready(store, "qp-leader-election", "announce");
+  ce_leader_election->announce_all(store, "qp-leader-election");
+  ce_leader_election->announce_ready(store, "qp-leader-election", "announce");
   ce_leader_election->addLoopback("primary", "shared-mr", "cq-leader-election",
                                   "cq-leader-election");
 
@@ -147,27 +147,27 @@ void RdmaConsensus::run() {
 
   replication_log = std::make_unique<Log>(logmem, logmem_size);
 
-  //ce_replication->wait_ready_all(store, "qp-replication", "announce");
-  //ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
+  ce_replication->wait_ready_all(store, "qp-replication", "announce");
+  ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
   Connection:
   ce_replication->connect_all_with_cm(
       store, "qp-replication",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
-  //ce_replication->announce_ready(store, "qp-replication", "connect");
+  ce_replication->announce_ready(store, "qp-replication", "connect");
 
   ce_leader_election->connect_all_with_cm(
       store, "qp-leader-election",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
           ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
-  //ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
+  ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
 
   std :: string foo;
   std::cout <<"EVERYTHING IS CONNECTED WELL\n";
   std::cout <<"Press anything to continue once all connections are ok";
   std :: cin >> foo;
 
-  //ce_replication->wait_ready_all(store, "qp-replication", "connect");
-  //ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
+  ce_replication->wait_ready_all(store, "qp-replication", "connect");
+  ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
   ce_leader_election->connectLoopback(
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
       ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
@@ -225,6 +225,7 @@ void RdmaConsensus::run() {
 
 int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
   std::unique_lock<std::mutex> lock(follower.lock(), std::defer_lock);
+  
   if (!lock.try_lock()) {
     auto& leader = leader_election->leaderSignal();
     potential_leader = leader.load().requester;
