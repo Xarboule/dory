@@ -25,6 +25,7 @@ void ConnectionExchanger::configure(int proc_id, std::string const& pd,
                                     std::string const& mr,
                                     std::string send_cq_name,
                                     std::string recv_cq_name) {
+  /*
   rcs.insert(
       std::pair<int, ReliableConnection>(proc_id, ReliableConnection(cb)));
 
@@ -33,16 +34,22 @@ void ConnectionExchanger::configure(int proc_id, std::string const& pd,
 
   rc.bindToPD(pd);
   rc.bindToMR(mr);  
-  rc.associateWithCQ(send_cq_name, recv_cq_name);
+  rc.associateWithCQ(send_cq_name, recv_cq_name);*/
+  LOGGER_INFO(logger, "configure was called ==> redirecting to configure_with_cm");
+  configure_with_cm(proc_id, pd, mr, send_cq_name, recv_cq_name);
 }
 
 void ConnectionExchanger::configure_all(std::string const& pd,
                                         std::string const& mr,
                                         std::string send_cq_name,
                                         std::string recv_cq_name) {
-  for (auto const& id : remote_ids) {
+  /*for (auto const& id : remote_ids) {
     configure(id, pd, mr, send_cq_name, recv_cq_name);
-  }
+  }*/
+  LOGGER_INFO(logger, "configure all was called ==> redirecting to configure_all_with_cm");
+  configure_all_with_cm(proc_id, pd, mr, send_cq_name, recv_cq_name);
+
+
 }
 
 
@@ -77,19 +84,20 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
                                       std::string send_cq_name,
                                       std::string recv_cq_name) {
   loopback_ = std::make_unique<ReliableConnection>(cb);
-  loopback_->bindToPD(pd);
+  /*loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
   loopback_->associateWithCQ(send_cq_name, recv_cq_name);
+  LOGGER_INFO(logger, "Loopback connection was added");*/
 
-  LOGGER_INFO(logger, "Loopback connection was added");
+  LOGGER_INFO(logger, "Loopback add was called ==> does nothing");
 }
 
 void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   auto infoForRemoteParty = loopback_->remoteInfo();
-  loopback_->init(rights);
+  /*loopback_->init(rights);
   loopback_->connect(infoForRemoteParty);
-
-  LOGGER_INFO(logger, "Loopback connection was established");
+  LOGGER_INFO(logger, "Loopback connection was established");*/
+  LOGGER_INFO(logger, "Loopback connect was called ==> does nothing");
 }
 
 
@@ -103,40 +111,38 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
   
-  LOGGER_INFO(logger, "Inside announce all");
+  /*
   auto& rc = rcs.find(proc_id)->second;
 
   std::stringstream name;
   name << prefix << "-" << my_id << "-for-" << proc_id;
   auto infoForRemoteParty = rc.remoteInfo();
   store.set(name.str(), infoForRemoteParty.serialize());
-  LOGGER_INFO(logger, "Publishing qp {}", name.str());
-
-  /*
-  std::string info_supp;
-  info_supp = "key=(" + name.str() + "); value=(" + infoForRemoteParty.serialize() + ")";
-  LOGGER_INFO(logger, "[GILLOU]remote info published : {}", info_supp); */
+  LOGGER_INFO(logger, "Publishing qp {}", name.str());*/
+  LOGGER_INFO(logger, "announce() was called ==> does nothing");
 }
 
 void ConnectionExchanger::announce_all(MemoryStore& store,
                                        std::string const& prefix) {
-  for (int pid : remote_ids) {
+  /*for (int pid : remote_ids) {
     announce(pid, store, prefix);
-  }
+  }*/
+  LOGGER_INFO(logger, "announce_all() was called ==> does nothing");
 }
 
 void ConnectionExchanger::announce_ready(MemoryStore& store,
                                          std::string const& prefix,
                                          std::string const& reason) {
-  std::stringstream name;
+  /*std::stringstream name;
   name << prefix << "-" << my_id << "-ready(" << reason << ")";
-  store.set(name.str(), "ready(" + reason + ")");
+  store.set(name.str(), "ready(" + reason + ")");*/
+  LOGGER_INFO(logger, "announce_ready() was called ==> does nothing");
 }
 
 void ConnectionExchanger::wait_ready(int proc_id, MemoryStore& store,
                                      std::string const& prefix,
                                      std::string const& reason) {
-  auto packed_reason = "ready(" + reason + ")";
+  /*auto packed_reason = "ready(" + reason + ")";
   std::stringstream name;
   name << prefix << "-" << proc_id << "-" << packed_reason;
 
@@ -151,21 +157,23 @@ void ConnectionExchanger::wait_ready(int proc_id, MemoryStore& store,
     throw std::runtime_error("Ready announcement of message `" + key +
                              "` does not contain the value `" + packed_reason +
                              "`");
-  }
+  }*/
+  LOGGER_INFO(logger, "wait_ready() was called ==> does nothing");
 }
 
 void ConnectionExchanger::wait_ready_all(MemoryStore& store,
                                          std::string const& prefix,
                                          std::string const& reason) {
-  for (int pid : remote_ids) {
+  /*for (int pid : remote_ids) {
     wait_ready(pid, store, prefix, reason);
-  }
+  }*/
+  LOGGER_INFO(logger, "wait_ready_all() was called ==> does nothing");
 }
 
 void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
                                   std::string const& prefix,
                                   ControlBlock::MemoryRights rights) {
-  auto& rc = rcs.find(proc_id)->second;
+  /*auto& rc = rcs.find(proc_id)->second;
 
   std::stringstream name;
   name << prefix << "-" << proc_id << "-for-" << my_id;
@@ -181,7 +189,10 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
 
   rc.init(rights);
   rc.connect(remoteRC);
-  LOGGER_INFO(logger, "Connected with {}", name.str());
+  LOGGER_INFO(logger, "Connected with {}", name.str());*/
+  LOGGER_INFO(logger, "connect() was called ==> redirecting to connect_with_cm()");
+  connect_with_cm(proc_id, prefix, rights);
+
 }
 
 void ConnectionExchanger:: connect_with_cm(int proc_id,
@@ -351,7 +362,7 @@ int ConnectionExchanger:: start_client(int proc_id){
       std::cin >> str_ip;
       break;
   }
-  
+
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
   strcpy(char_ip, str_ip.c_str()); 
@@ -446,9 +457,12 @@ int ConnectionExchanger:: start_client(int proc_id){
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights) {
+  /*
   for (int pid : remote_ids) {
     connect(pid, store, prefix, rights);
-  }
+  }*/
+  LOGGER_INFO(logger, "connect_all() called...redirecting to connect_all_with_cm() \n");
+  connect_all_with_cm(store, prefix, rights);
 }
 
 void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,

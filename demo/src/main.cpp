@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
   cb.registerCQ("cq");
 
   ConnectionExchanger ce(id, remote_ids, cb);
-  ce.configure_all_with_cm("primary", "shared-mr", "cq", "cq");
+  ce.configure_all("primary", "shared-mr", "cq", "cq");
   //ce.announce_all(store, "qp");
 
   auto shared_memory_addr = reinterpret_cast<uint8_t*>(cb.mr("shared-mr").addr);
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
             << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(10));
   */
-  ce.connect_all_with_cm(store, "qp",
+  ce.connect_all(store, "qp",
                  ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
