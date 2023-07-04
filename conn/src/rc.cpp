@@ -502,7 +502,7 @@ void *ReliableConnection ::getLocalSetup() {
   return privateData;
 }
 
-void ReliableConnection ::setRemoteSetup(const void *network_data) {
+void ReliableConnection ::setRemoteSetup(void *network_data) {
   // 4 Bytes of offset to get the address
   memcpy(&rconn.rci.buf_addr, static_cast<int*>(network_data) + 4, 8);
 
