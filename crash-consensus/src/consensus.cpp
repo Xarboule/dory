@@ -186,7 +186,6 @@ void RdmaConsensus::run() {
       *re_conn_ctx.get(), *replication_log.get(), log_offset);
 
   // Initialize Leader election
-  std::cout<<"leader election";
   leader_election = std::make_unique<LeaderElection>(
       *le_conn_ctx.get(), *scratchpad.get(), threadConfig);
   leader_election->attachReplicatorContext(re_ctx.get());
