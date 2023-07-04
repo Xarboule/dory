@@ -282,12 +282,20 @@ int ConnectionExchanger:: start_server(int proc_id) {
         throw std::runtime_error("Failed to acknowledge the cm event");
         return -1;
       }
-      LOGGER_INFO(logger,"A new RDMA client connection id is stored");
+      LOGGER_INFO(logger,"A new RDMA client connection is set up");
 
-
-      /*COMMENT UTILISER SETREMOTESETUP ICI? Attendre un évènement ?*/
-      
-      
+      LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+      ret = process_rdma_cm_event(rc.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
+      if (ret) {
+        throw std::runtime_error("Failed to receive a valid event");
+        return ret;
+      } 
+      rc.setRemoteSetup(cm_event->param.conn.private_data);
+      ret = rdma_ack_cm_event(cm_event);
+      if (ret) {
+        throw std::runtime_error("Failed to acknowledge the CM event");
+        return -errno;
+      }    
       
       break; //on sort de là, car on n'attend qu'un client 
    } while(1);
