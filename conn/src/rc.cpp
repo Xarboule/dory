@@ -489,15 +489,15 @@ void *RelibaleConnection ::getLocalSetup() {
   void *privateData = malloc(24);
   memset(privateData, 0, 24);
 
-  uint64_t addr = (uint64_t)this->mr.addr;
-  uint32_t lkey = this->mr.lkey;
+  uint64_t addr = static_cast<uint64_t>(mr.addr);
+  uint32_t lkey = mr.lkey;
 
   printf("\n============ Local setup ===============\n");
-  printf("===== LOCAL ADDRESS : %d\n", addr);
-  printf("===== LOCAL KEY : %d\n\n", lkey);
+  printf("===== LOCAL ADDRESS : %p\n", reinterpret_cast<void*>(addr));
+  printf("===== LOCAL KEY : %p\n\n", reinterpret_cast<void*>(lkey));
 
-  memcpy(privateData + 4, (void *)&addr, 8);   // Address
-  memcpy(privateData + 20, (void *)&lkey, 4);  // Key
+  memcpy(privateData + 4, reinterpret_cast<void*>(&addr), 8);   // Address
+  memcpy(privateData + 20, reinterpret_cast<void*>(&lkey), 4);  // Key
 
   return privateData;
 }
@@ -506,14 +506,15 @@ void ReliableConnection ::setRemoteSetup(const void *network_data) {
   // 4 Bytes of offset to get the address
   memcpy(&rconn.rci.buf_addr->address, network_data + 4, 8);
 
-  // rconn.buff_addr = BIG_BUFFER_SIZE;  //c'est pas ça ! à trouver
-  rconn.rci.buf_size = mr.size;
+  rconn.rci.buf_size = mr.size; //en supposant que tous les buffers ont la même taille partout 
+  //on copie la taille de notre local buffer à nous 
+
   // 20 Bytes of offset to get KEY
-  memcpy(&rconn.rci.rkey > stag.local_stag, network_data + 20, 4);
+  memcpy(&rconn.rci.rkey, network_data + 20, 4);
 
   printf("\n============ (received) remote setup ===============\n");
-  printf("===== ADDRESS : %d\n", rconn.rci.buf_addr->address);
-  printf("===== LOCAL KEY : %d\n\n", rconn.rci.rkey);
+  printf("===== ADDRESS : %p\n", reinterpret_cast<void*>(rconn.rci.buf_addr->address));
+  printf("===== LOCAL KEY : %p\n\n", reinterpret_cast<void*>(rconn.rci.rkey));
 
 }
 
