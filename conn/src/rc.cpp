@@ -502,15 +502,15 @@ void *ReliableConnection ::getLocalSetup() {
   return privateData;
 }
 
-void ReliableConnection ::setRemoteSetup(void *network_data) {
+void ReliableConnection ::setRemoteSetup(const void *network_data) {
   // 4 Bytes of offset to get the address
-  memcpy(&rconn.rci.buf_addr, static_cast<int*>(network_data) + 4, 8);
+  memcpy(&rconn.rci.buf_addr, static_cast<const int*>(network_data) + 4, 8);
 
   rconn.rci.buf_size = mr.size; //en supposant que tous les buffers ont la même taille partout 
   //on copie la taille de notre local buffer à nous 
 
   // 20 Bytes of offset to get KEY
-  memcpy(&rconn.rci.rkey, static_cast<int*>(network_data) + 20, 4);
+  memcpy(&rconn.rci.rkey, static_cast<const int*>(network_data) + 20, 4);
 
   printf("\n============ (received) remote setup ===============\n");
   printf("===== ADDRESS : %p\n", reinterpret_cast<void*>(rconn.rci.buf_addr));

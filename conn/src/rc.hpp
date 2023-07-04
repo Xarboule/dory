@@ -158,7 +158,7 @@ class ReliableConnection {
 
   void * getLocalSetup();
   
-  void setRemoteSetup(void *network_data);
+  void setRemoteSetup(const void *network_data);
 
  private:
   bool post_send(ibv_send_wr &wr);
