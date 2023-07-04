@@ -127,7 +127,7 @@ void RdmaConsensus::run() {
   //ce_leader_election->announce_all(store, "qp-leader-election");
   //ce_leader_election->announce_ready(store, "qp-leader-election", "announce");
   ce_leader_election->addLoopback("primary", "shared-mr", "cq-leader-election",
-  //                                "cq-leader-election");
+                                  "cq-leader-election");
 
   auto shared_memory_addr =
       reinterpret_cast<uint8_t*>(cb->mr("shared-mr").addr);

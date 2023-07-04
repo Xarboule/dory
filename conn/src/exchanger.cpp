@@ -224,7 +224,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   std::string str_ip;
-  std::cout << "What's the IP of this node ? (running as a server)";
+  std::cout << "IP of this node ?";
   std::cin >> str_ip;
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -299,7 +299,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   std::string str_ip;
-  std::cout << "What's the IP of the server ? (this node is running as a client)";
+  std::cout << "IP of the server ?";
   std::cin >> str_ip;
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -311,7 +311,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   }
   delete[] char_ip;
   int port_serv;
-  std::cout << "What's the port number of the server ? (this node is running as a client) ";
+  std::cout << "Port number of the server ? ";
   std::cin >> port_serv;
   server_addr.sin_port = htons(static_cast<uint16_t>(port_serv));
   

@@ -128,7 +128,6 @@ recv) Pour passer par CM, on finalisera la création de qp une fois le cm_id en
 place*/
 void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
                                                      std::string recv_cp_name) {
-  LOGGER_INFO(logger, "Inside associateWithCQ_for_cm_prel");
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 }
@@ -136,8 +135,7 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
-  LOGGER_INFO(logger, "Inside associateWithCQ_for_cm");
-
+  
   /* Debugging
         if (id->qp)
           printf("Cas d'erreur 1 : qp de l'id est nulle ");
@@ -177,7 +175,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
                                std::string(std::strerror(errno)));
     }
   });
-  LOGGER_INFO(logger, "QP successfully created ! ");
+  LOGGER_INFO(logger, "QP successfully created (with cm)! ");
 }
 
 void ReliableConnection::reset() {
