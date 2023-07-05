@@ -161,7 +161,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
   printf("pd->context->device->name : %s", id->verbs->device->name);
   */
   
-  id->verbs = pd->context;  // nécessaire pour éviter une erreur (?)
+  id->verbs = pd->context;  // nécessaire pour éviter une erreur 
   int ret = rdma_create_qp(id, pd, &create_attr);
 
   if (ret) {

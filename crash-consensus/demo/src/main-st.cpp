@@ -57,6 +57,8 @@ int main(int argc, char* argv[]) {
 
   const int times =
       static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
+  
+  printf(times);
   benchmark(id, remote_ids, times, payload_size, outstanding_req,
             dory::ThreadBank::A);
 
@@ -142,7 +144,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
             std::cout << "Bug in code. You should only handle errors here"
                       << std::endl;
         }
-        exit(0);
+        //exit(0); //ajouté pour éviter une boucle infinie 
 
       }
     }
