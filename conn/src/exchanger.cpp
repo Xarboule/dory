@@ -317,8 +317,11 @@ int ConnectionExchanger:: start_server(int proc_id) {
       //printf("ONCE AN EVENT IS RECEIVED \n");
       //show_rdma_cmid(rc.get_cm_id());
 
+
+      ConnectionExchanger :: show_rdma_cmid(id);
       rc.associateWithCQ_for_cm(cm_event->id);
 
+      ConnectionExchanger :: show_rdma_cmid(id);
       //TO DO :Poster quelques receive buffers 
 
       //Accepter la connexion
