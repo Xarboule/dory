@@ -343,6 +343,10 @@ int ConnectionExchanger:: start_server(int proc_id) {
       cm_params.retry_count = 1;
       rdma_accept(cm_event->id, &cm_params); 
 
+
+      printf("ONCE ACCEPTED \n");
+      show_rdma_cmid(rc.get_cm_id());
+
       rc.setRemoteSetup(cm_event->param.conn.private_data);
       
       /*Une fois que la connection est bien finie, on ack l'event du début*/
