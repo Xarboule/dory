@@ -136,8 +136,9 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
           case dory::ProposeError::MutexUnavailable:
           case dory::ProposeError::FollowerMode:
-            //std::cout << "Error: in follower mode. Potential leader: "
-            //          << consensus.potentialLeader() << std::endl;
+            std::cout << "Error: in follower mode. Potential leader: "
+                       << consensus.potentialLeader() << std::endl;
+            std::cout << i << endl;
             break;
 
           default:
