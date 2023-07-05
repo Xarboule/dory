@@ -114,7 +114,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       // std::cout << "Proposing " << i << std::endl;
       if ((err = consensus.propose(&(payloads[i % 8192][0]), payload_size)) !=
           dory::ProposeError::NoError) {
-        // std::cout << "Proposal failed at index " << i << std::endl;
+         std::cout << "Proposal failed at index " << i << std::endl;
         i -= 1;
         switch (err) {
           case dory::ProposeError::FastPath:
@@ -138,13 +138,14 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
           case dory::ProposeError::FollowerMode:
             std::cout << "Error: in follower mode. Potential leader: "
                        << consensus.potentialLeader() << std::endl;
+  
             break;
 
           default:
             std::cout << "Bug in code. You should only handle errors here"
                       << std::endl;
         }
-        //exit(0); //ajouté pour éviter une boucle infinie 
+        exit(0); //ajouté pour éviter une boucle infinie 
 
       }
     }
