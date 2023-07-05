@@ -186,7 +186,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
 }
 
 void ReliableConnection::reset() {
-  printf("ATTENTION appel d'une fonction de RC interdite: reset()");
+  printf("ATTENTION appel d'une fonction de RC interdite: reset()\n");
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
@@ -201,7 +201,7 @@ void ReliableConnection::reset() {
 }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC interdite: init()");
+  printf("ATTENTION appel d'une fonction de RC interdite: init()\n");
   struct ibv_qp_attr init_attr;
   memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
   init_attr.qp_state = IBV_QPS_INIT;
@@ -222,12 +222,12 @@ void ReliableConnection::init(ControlBlock::MemoryRights rights) {
 }
 
 void ReliableConnection::reinit() { 
-  printf("ATTENTION appel d'une fonction de RC interdite: reinit()");
+  printf("ATTENTION appel d'une fonction de RC interdite: reinit()\n");
   init(init_rights); 
 }
 
 void ReliableConnection::connect(RemoteConnection &rc) {
-  printf("ATTENTION appel d'une fonction de RC interdite: connect()");
+  printf("ATTENTION appel d'une fonction de RC interdite: connect()\n");
   memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
   conn_attr.qp_state = IBV_QPS_RTR;
   conn_attr.path_mtu = IBV_MTU_4096;
@@ -298,7 +298,7 @@ void ReliableConnection::connect(RemoteConnection &rc) {
 
 bool ReliableConnection::needsReset() {
   
-  printf("ATTENTION appel d'une fonction de RC interdite: needsReset()");
+  printf("ATTENTION appel d'une fonction de RC interdite: needsReset()\n");
   struct ibv_qp_attr attr;
   struct ibv_qp_init_attr init_attr;
 
@@ -311,7 +311,7 @@ bool ReliableConnection::needsReset() {
 }
 
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()");
+  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
@@ -323,7 +323,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
 
 bool ReliableConnection::changeRightsIfNeeded(
     ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()");
+  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
   auto converted_rights = static_cast<unsigned>(rights);
 
   struct ibv_qp_attr attr;
@@ -347,7 +347,7 @@ bool ReliableConnection::changeRightsIfNeeded(
 }
 
 bool ReliableConnection::post_send(ibv_send_wr &wr) {
-  printf("ATTENTION : post_send() appelé");
+  printf("ATTENTION : post_send() appelé\n");
   struct ibv_send_wr *bad_wr = nullptr;
 
   auto ret = ibv_post_send(uniq_qp.get(), &wr, &bad_wr);
@@ -370,7 +370,7 @@ bool ReliableConnection::post_send(ibv_send_wr &wr) {
 bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
                                               uintptr_t remote_addr) {
-  printf("ATTENTION : postSendSingleCached() appelé");
+  printf("ATTENTION : postSendSingleCached() appelé\n");
   wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
   wr_cached->sg_list->length = len;
 
@@ -405,7 +405,7 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
 
 bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uintptr_t remote_addr) {
-  printf("ATTENTION : postSendSingle appelé");
+  printf("ATTENTION : postSendSingle appelé\n");
   return postSendSingle(req, req_id, buf, len, mr.lkey, remote_addr);
 }
 
@@ -413,7 +413,7 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uint32_t lkey,
                                         uintptr_t remote_addr) {
   // TODO(Kristian): if not used concurrently, we could reuse the same wr
-  printf("ATTENTION : postSendSingle() appelé");
+  printf("ATTENTION : postSendSingle() appelé\n");
   struct ibv_send_wr wr;
   struct ibv_sge sg;
 
@@ -432,7 +432,7 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
 }
 
 void ReliableConnection::reconnect() { 
-  printf("ATTENTION appel d'une fonction de RC interdite: reconnect()");
+  printf("ATTENTION appel d'une fonction de RC interdite: reconnect()\n");
   connect(rconn); 
 }
 
@@ -462,7 +462,7 @@ bool ReliableConnection::pollCqIsOK(CQ cq,
 }
 
 RemoteConnection ReliableConnection::remoteInfo() const {
-  printf("ATTENTION appel d'une fonction de RC dangereuse: remoteInfo()");
+  printf("ATTENTION appel d'une fonction de RC dangereuse: remoteInfo()\n");
   
   RemoteConnection rc(static_cast<uint16_t>(cb.lid()), uniq_qp->qp_num, mr.addr,
                       mr.size, mr.rkey);
