@@ -331,7 +331,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
       printf("cm_event: his listen rdma_cm_id %p\n", 
       reinterpret_cast<void*>(cm_event->listen_id));
       
-      rc.associateWithCQ_for_cm(cm_event->id);
+      rc.associateWithCQ_for_cm(rc.get_cm_id());
 
       //TO DO :Poster quelques receive buffers 
 
