@@ -23,5 +23,5 @@ echo liquibook > eRPC/scripts/autorun_app_file
 
 cd eRPC
 cp -r ../../../libgen/exported/ apps/liquibook/dory-export
-cmake . -DPERF=ON -DTRANSPORT=infiniband
+cmake . -DPERF=ON -DTRANSPORT=dpdk
 make -j
