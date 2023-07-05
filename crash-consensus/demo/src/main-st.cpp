@@ -58,7 +58,6 @@ int main(int argc, char* argv[]) {
   const int times =
       static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
   
-  std::cout << "times = "<< times;
   benchmark(id, remote_ids, times, payload_size, outstanding_req,
             dory::ThreadBank::A);
 
@@ -103,7 +102,8 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     }
 
     std::cout << "Started" << std::endl;
-
+    std::cout << "times = "<< times <<std::endl;
+  
     TIMESTAMP_T start_meas, end_meas;
 
     GET_TIMESTAMP(start_meas);
