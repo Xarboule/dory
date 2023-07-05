@@ -156,7 +156,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
 
   */
 
-  id->verbs = pd->context;  // nécessaire pour éviter une erreur
+  id->verbs = pd->context;  // nécessaire pour éviter une erreur (?)
   int ret = rdma_create_qp(id, pd, &create_attr);
 
   if (ret) {
@@ -471,6 +471,11 @@ void ReliableConnection ::configure_cm_channel() {
     throw std::runtime_error("Creating cm id failed");
     return;
   }
+
+  printf("===========Testing CREATION OF CM_ID===============\n");
+  printf("rc's cm_id's verbs field %p\n",reinterpret_cast<void*>(cm_id->verbs));
+  printf("pd's context field:  %p\n",reinterpret_cast<void*>(pd->context));
+
   //LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 

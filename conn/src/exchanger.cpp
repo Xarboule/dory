@@ -305,13 +305,13 @@ int ConnectionExchanger:: start_server(int proc_id) {
       if (ret) {continue;}
       auto& rc = rcs.find(proc_id)->second;
 
-      printf("===========Testing EVENT===============");
+      printf("===========Testing EVENT===============\n");
       printf("rc's cm_id : his event field %p\n", 
             reinterpret_cast<void*>(rc.get_cm_id()->event));
       printf("cm_event: his event field %p\n", 
             reinterpret_cast<void*>(cm_event));
 
-      printf("===========Testing EVENT ID===============");
+      printf("===========Testing EVENT ID===============\n");
       printf("rc's cm_id : %p\n", 
             reinterpret_cast<void*>(rc.get_cm_id()));
       printf("cm_event: his rdma_cm_id %p\n", 
