@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   const int times =
       static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
   
-  printf(times);
+  std::cout << "times = "<< times;
   benchmark(id, remote_ids, times, payload_size, outstanding_req,
             dory::ThreadBank::A);
 
