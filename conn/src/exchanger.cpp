@@ -269,7 +269,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
   }
   
   printf("AFTER INITIALISATION \n");
-  show_rdma_cmid(rc.get_cm_id);
+  show_rdma_cmid(rc.get_cm_id());
 
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -292,7 +292,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 	//LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 	
   printf("AFTER BIND ADDR \n");
-  show_rdma_cmid(rc.get_cm_id);
+  show_rdma_cmid(rc.get_cm_id());
 
   /*Listening for incoming events*/
   ret = rdma_listen(rc.get_cm_id(), 8); /* backlog = 8 clients, same as TCP*/
@@ -305,7 +305,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 
 
   printf("AFTER LISTEN \n");
-  show_rdma_cmid(rc.get_cm_id);
+  show_rdma_cmid(rc.get_cm_id());
   
   do {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
@@ -315,7 +315,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 
 
       printf("ONCE AN EVENT IS RECEIVED \n");
-      show_rdma_cmid(rc.get_cm_id);
+      show_rdma_cmid(rc.get_cm_id());
 
       printf("===========Testing EVENT===============\n");
       printf("rc's cm_id : his event field %p\n", 
