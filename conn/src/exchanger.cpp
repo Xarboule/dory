@@ -318,11 +318,9 @@ int ConnectionExchanger:: start_server(int proc_id) {
       //show_rdma_cmid(rc.get_cm_id());
 
 
-      ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
+      //ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
       rc.associateWithCQ_for_cm(cm_event->id);
-
-      ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
-      //TO DO :Poster quelques receive buffers 
+      //ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
 
       //Accepter la connexion
       struct rdma_conn_param cm_params;

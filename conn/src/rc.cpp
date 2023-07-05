@@ -155,11 +155,11 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
           printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
 
   */
-  printf("pd->context : %p \n", reinterpret_cast<void*>(pd->context));
+  /*printf("pd->context : %p \n", reinterpret_cast<void*>(pd->context));
   printf("on voit que pd et id n'ont pas le même context (pas la même adresse)");
   printf("mais qu'en est-t-il du contenu ?");
   printf("pd->context->device->name : %s", id->verbs->device->name);
-  
+  */
   
   id->verbs = pd->context;  // nécessaire pour éviter une erreur (?)
   int ret = rdma_create_qp(id, pd, &create_attr);
