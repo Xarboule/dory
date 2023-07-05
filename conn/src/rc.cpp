@@ -157,7 +157,7 @@ void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
   */
   printf("pd->context : %p \n", reinterpret_cast<void*>(pd->context));
   printf("on voit que pd et id n'ont pas le même context (pas la même adresse)");
-  printf("mais qu'en est-t-il du contenu ?")
+  printf("mais qu'en est-t-il du contenu ?");
   printf("pd->context->device->name : %s", id->verbs->device->name);
   
   
