@@ -304,6 +304,21 @@ int ConnectionExchanger:: start_server(int proc_id) {
       //printf("Caught something ! ");
       if (ret) {continue;}
       auto& rc = rcs.find(proc_id)->second;
+
+      printf("===========Testing EVENT===============");
+      printf("rc's cm_id : his event field %p\n", 
+            reinterpret_cast<void*>(rc.get_cm_id()->event));
+      printf("cm_event: his event field %p\n", 
+            reinterpret_cast<void*>(cm_event));
+
+      printf("===========Testing EVENT ID===============");
+      printf("rc's cm_id : %p\n", 
+            reinterpret_cast<void*>(rc.get_cm_id()));
+      printf("cm_event: his rdma_cm_id %p\n", 
+            reinterpret_cast<void*>(cm_event->id));
+      printf("cm_event: his listen rdma_cm_id %p\n", 
+      reinterpret_cast<void*>(cm_event->listen_id));
+      
       rc.associateWithCQ_for_cm(cm_event->id);
 
       //TO DO :Poster quelques receive buffers 
