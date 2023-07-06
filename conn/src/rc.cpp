@@ -565,7 +565,7 @@ void ReliableConnection :: print_all_infos(){
   printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(&uniq_qp));
   printf("\t qp-> context : %p \n", reinterpret_cast<void*>(uniq_qp->context));
   printf("\t qp-> pd : %p \n", reinterpret_cast<void*>(uniq_qp->pd));
-  printf("\t qp-> context : %d \n",uniq_qp->qpn);
+  printf("\t qp-> context : %d \n",uniq_qp->qp_num);
     //??
 
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
