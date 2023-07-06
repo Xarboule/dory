@@ -550,7 +550,6 @@ void ReliableConnection ::setRemoteSetup(const void *network_data) {
 
 void ReliableConnection :: print_all_infos(){
   //ajouter tes tests pour les null
-  //afficher le contenu, et pas juste l'adresse ==> regarder la doc 
   
   printf("======Informations about this rc ======\n");
   
@@ -564,6 +563,9 @@ void ReliableConnection :: print_all_infos(){
   printf("\t lkey : %d \n",  mr.lkey );
   
   printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(&uniq_qp));
+  printf("\t qp-> context : %p \n", reinterpret_cast<void*>(uniq_qp.context));
+  printf("\t qp-> pd : %p \n", reinterpret_cast<void*>(uniq_qp.pd));
+  printf("\t qp-> context : %d \n",uniq_qp.qpn);
     //??
 
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
