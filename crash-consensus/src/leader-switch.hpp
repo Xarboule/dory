@@ -81,10 +81,14 @@ class LeaderHeartbeat {
       *counter_from += 1;
       printf("ATTENTION, postSendSinge() utilisé à partir de loopback ==> c'est la merde");
       assert(0);
+      /*auto post_ret = loopback->postSendSingle(
+          ReliableConnection::RdmaWrite,
+          quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
+          sizeof(uint64_t), loopback->remoteBuf() + offset);*/
       auto post_ret = loopback->postSendSingle(
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
-          sizeof(uint64_t), loopback->remoteBuf() + offset);
+          sizeof(uint64_t), loopback->get_mr().addr + offset);
 
       if (!post_ret) {
         std::cout << "Post returned " << post_ret << std::endl;
@@ -143,7 +147,8 @@ class LeaderHeartbeat {
 
         volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]);
         if (pid == my_id) {
-          val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset);
+          //val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset);
+          val = reinterpret_cast<uint64_t *>(loopback->get_mr().addr + offset);
         }
 
         // std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id
