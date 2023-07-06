@@ -569,7 +569,7 @@ void ReliableConnection :: print_all_infos(){
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
   printf("\t qpn : %d \n", rconn.rci.qpn );
   printf("\t buff addr : %p \n", rconn.rci.buf_addr);
-  printf("\t buf size : %u \n", rconn.rci.buf_size);
+  printf("\t buf size : %t \n", rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
 
   /*
