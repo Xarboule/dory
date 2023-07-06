@@ -84,8 +84,8 @@ class LeaderHeartbeat {
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
           sizeof(uint64_t), loopback->remoteBuf() + offset);*/
-      memcpy(loopback->get_mr().addr + offset, counter_from, 64);
-      int post_red = 0; 
+      memcpy(reinterpret_cast<void*>(looopback->get_mr().addr + offset), reinterpret_cast<void*>(counter_from), 64);
+      int post_ret = 0; 
       
 
       if (!post_ret) {
