@@ -309,7 +309,7 @@ bool ReliableConnection::needsReset() {
 
   return attr.qp_state == IBV_QPS_RTS;
 }
-X
+
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
   struct ibv_qp_attr attr;
