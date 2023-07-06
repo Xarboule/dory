@@ -85,10 +85,8 @@ class LeaderHeartbeat {
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
           sizeof(uint64_t), loopback->remoteBuf() + offset);*/
-      auto post_ret = loopback->postSendSingle(
-          ReliableConnection::RdmaWrite,
-          quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
-          sizeof(uint64_t), loopback->get_mr().addr + offset);
+      memcpy(loopback->get_mr().addr + offset, counter_from, sizeof(uint_64_t));
+      
 
       if (!post_ret) {
         std::cout << "Post returned " << post_ret << std::endl;
