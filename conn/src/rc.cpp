@@ -560,16 +560,16 @@ void ReliableConnection :: print_all_infos(){
   printf("\t pd-> context : %p \n", reinterpret_cast<void*>(pd->context));
   
   printf("MemoryRegion mr : %p \n", reinterpret_cast<void*>(&mr));
-  printf("\t addr : %d \n", mr.addr );
+  printf("\t addr : %x \n", mr.addr );
   printf("\t qpn : %d \n", mr.lkey );
   
   printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(&uniq_qp));
     //??
 
-  printf("Remote connection rconn: %d \n", reinterpret_cast<void*>(&rconn));
+  printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
   printf("\t qpn : %d \n", rconn.rci.qpn );
-  printf("\t buff addr : %d \n", rconn.rci.buf_addr);
-  printf("\t buf size : %d \n", rconn.rci.buf_size);
+  printf("\t buff addr : %x \n", rconn.rci.buf_addr);
+  printf("\t buf size : %x \n", rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
 
   /*
