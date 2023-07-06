@@ -184,7 +184,7 @@ class ReliableConnection {
 
 
   struct rdma_event_channel *cm_event_channel;
-  struct rdma_cm_id *cm_id
+  struct rdma_cm_id *cm_id;
   //TO DO : add cm_id_listen et corriger le reste ;
 
   RemoteConnection rconn;
