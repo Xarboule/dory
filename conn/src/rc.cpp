@@ -309,7 +309,7 @@ bool ReliableConnection::needsReset() {
 
   return attr.qp_state == IBV_QPS_RTS;
 }
-
+X
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
   struct ibv_qp_attr attr;
@@ -565,7 +565,7 @@ void ReliableConnection :: print_all_infos(){
   printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(&uniq_qp));
   printf("\t qp-> context : %p \n", reinterpret_cast<void*>(uniq_qp->context));
   printf("\t qp-> pd : %p \n", reinterpret_cast<void*>(uniq_qp->pd));
-  printf("\t qp-> context : %d \n",uniq_qp->qp_num);
+  printf("\t qp-> qp_num : %d \n",uniq_qp->qp_num);
     //??
 
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
