@@ -80,13 +80,13 @@ class LeaderHeartbeat {
       // Update my heartbeat
       *counter_from += 1;
       printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback ==> c'est la merde\n");
-      auto post_ret = loopback->postSendSingle(
+      /*auto post_ret = loopback->postSendSingle(
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
-          sizeof(uint64_t), loopback->remoteBuf() + offset);
-      /*printf("writing heartbeat (maison)");
+          sizeof(uint64_t), loopback->remoteBuf() + offset);*/
+      printf("writing heartbeat (maison)");
       memcpy(reinterpret_cast<void*>(loopback->get_mr().addr + offset), reinterpret_cast<void*>(counter_from), 64);
-      int post_ret = 0; */
+      int post_ret = 0; 
       
 
       if (!post_ret) {
