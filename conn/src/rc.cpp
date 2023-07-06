@@ -565,10 +565,10 @@ void ReliableConnection :: print_all_infos(){
     //??
 
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
-  printf("\t qpn : %p", reinterpret_cast<void*>(rconn.rci.qpn) );
-  printf("\t qpn : %p", reinterpret_cast<void*>(rconn.rci.buf_addr));
-  printf("\t qpn : %p", reinterpret_cast<void*>(rconn.rci.buf_size) );
-  printf("\t qpn : %p", reinterpret_cast<void*>(rconn.rci.rkey));
+  printf("\t qpn : %p \n", reinterpret_cast<void*>(rconn.rci.qpn) );
+  printf("\t qpn : %p \n", reinterpret_cast<void*>(rconn.rci.buf_addr));
+  printf("\t qpn : %p \n", reinterpret_cast<void*>(rconn.rci.buf_size) );
+  printf("\t qpn : %p \n", reinterpret_cast<void*>(rconn.rci.rkey));
 
   /*
   cm_id_listen;
