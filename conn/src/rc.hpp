@@ -24,10 +24,7 @@ struct RemoteConnection {
 
   RemoteConnection() {
     rci.lid = 0;
-    rci.qpn = 0;
-    rci.buf_addr = 0;
-    rci.buf_size = 0;
-    rci.rkey = 0;
+
   }
 
   RemoteConnection(uint16_t lid, uint32_t qpn, uintptr_t buf_addr,
@@ -160,6 +157,8 @@ class ReliableConnection {
   
   void setRemoteSetup(const void *network_data);
 
+  void print_all_infos();
+
  private:
   bool post_send(ibv_send_wr &wr);
 
@@ -174,18 +173,21 @@ class ReliableConnection {
     return numToRound + multiple - remainder;
   }
 
-  ControlBlock &cb;
+  ControlBlock &cb;   //?? 
   struct ibv_pd *pd;
+  ControlBlock::MemoryRegion mr;
+  deleted_unique_ptr<struct ibv_qp> uniq_qp;
+
   struct ibv_qp_init_attr create_attr;
+  struct ibv_qp_attr conn_attr;   //normalement inutile 
+  ControlBlock::MemoryRights init_rights;
+
 
   struct rdma_event_channel *cm_event_channel;
-  struct rdma_cm_id *cm_id;
+  struct rdma_cm_id *cm_id
+  //TO DO : add cm_id_listen et corriger le reste ;
 
-  struct ibv_qp_attr conn_attr;
-  deleted_unique_ptr<struct ibv_qp> uniq_qp;
-  ControlBlock::MemoryRegion mr;
   RemoteConnection rconn;
-  ControlBlock::MemoryRights init_rights;
   deleted_unique_ptr<struct ibv_send_wr> wr_cached;
   
   LOGGER_DECL(logger);

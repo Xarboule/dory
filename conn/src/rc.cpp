@@ -548,4 +548,33 @@ void ReliableConnection ::setRemoteSetup(const void *network_data) {
 
 }
 
+void ReliableConnection :: print_all_infos(){
+  //ajouter tes tests pour les null
+  
+  printf("======Informations about this rc ======\n");
+  
+  printf("ControlBlock cb : %p \n", reinterpret_cast<void*>(cb));
+  
+  printf("Protection Domain pd : %p \n", reinterpret_cast<void*>(pd));
+  printf("\t pd-> context : %p \n", reinterpret_cast<void*>(pd->verbs));
+  
+  printf("MemoryRegion mr : %p \n", reinterpret_cast<void*>(mr));
+  //??
+  
+  printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(uniq_qp));
+    //??
+
+  printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(rconn));
+  printf("\t qpn : %p", reinterpret_cast<void*>(rci.qpn) );
+  printf("\t qpn : %p", reinterpret_cast<void*>(rci.buf_addr));
+  printf("\t qpn : %p", reinterpret_cast<void*>(rci.buf_size) );
+  printf("\t qpn : %p", reinterpret_cast<void*>(rci.rkey));
+
+  /*
+  cm_id_listen;
+  cm_id;*/
+
+
+}
+
 }  // namespace dory

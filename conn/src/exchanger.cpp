@@ -311,14 +311,8 @@ int ConnectionExchanger:: start_server(int proc_id) {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       //printf("Caught something ! ");
       if (ret) {continue;}
-      auto& rc = rcs.find(proc_id)->second;
+      
 
-
-      //printf("ONCE AN EVENT IS RECEIVED \n");
-      //show_rdma_cmid(rc.get_cm_id());
-
-
-      //ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
       rc.associateWithCQ_for_cm(cm_event->id);
       //ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
 
@@ -336,6 +330,8 @@ int ConnectionExchanger:: start_server(int proc_id) {
 
       rc.setRemoteSetup(cm_event->param.conn.private_data);
       
+      rc.print_all_infos();
+
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
       if (ret) {
