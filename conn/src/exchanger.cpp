@@ -450,6 +450,9 @@ int ConnectionExchanger:: start_client(int proc_id){
   cm_params.retry_count = 1;
   rdma_connect(rc.get_cm_id(), &cm_params);
 
+  rc.print_all_infos();
+
+
   //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(rc.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
