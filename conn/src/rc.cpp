@@ -135,7 +135,7 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm() {
-  cm_id->verbs = pd->context; 
+  //cm_id->verbs = pd->context; 
 
   int ret = rdma_create_qp(cm_id, pd, &create_attr);
 
@@ -486,10 +486,11 @@ struct rdma_event_channel *ReliableConnection ::get_event_channel() {
 
 void ReliableConnection :: set_cm_id(rdma_cm_id* id){
   cm_id = id;
-  cm_id->verbs = pd->context;  // nécessaire pour éviter une erreur 
+  cm_id->verbs = pd->context;  
   /*Comme le pd a été crée avec cm_id, leur ibv_context n'est pas le même (pas la même adresse, mais le même contenu)
   Donc on modifie le contexte de cm_id pour qu'il soit le même que celui de pd
-  Comme ça, rdma_create_qp() n'indiquera pas d'erreur.*/
+  Comme ça, rdma_create_qp() n'indiquera pas d'erreur.
+  */
 }
 
 /* Dirty legacy code to communicate the RDMA buffer location */

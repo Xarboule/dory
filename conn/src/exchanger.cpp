@@ -387,9 +387,8 @@ int ConnectionExchanger:: start_client(int proc_id){
   auto& rc = rcs.find(proc_id)->second;
 
   rc.configure_cm_channel();
-  rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
 
-  ret = rdma_resolve_addr(rc.get_cm_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
+  ret = rdma_resolve_addr(rc.get_cm_listen_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
   if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
@@ -413,7 +412,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 
 	 /* Resolves an RDMA route to the destination address in order to
 	  * establish a connection */
-	ret = rdma_resolve_route(rc.get_cm_id(), 2000);
+	ret = rdma_resolve_route(rc.get_cm_listen_id(), 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve route");
 	   exit(-1);
@@ -436,6 +435,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 	//printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
+  rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
   rc.associateWithCQ_for_cm();
   /*Connecting*/
   struct rdma_conn_param cm_params;
