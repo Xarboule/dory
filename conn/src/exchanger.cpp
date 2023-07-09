@@ -286,7 +286,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
   incr_num_conn();
   
   /* Explicit binding of rdma cm id to the socket credentials */
-	ret = rdma_bind_addr(rc.get_cm_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
+	ret = rdma_bind_addr(rc.get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
@@ -295,7 +295,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 
 
   /*Listening for incoming events*/
-  ret = rdma_listen(rc.get_cm_id(), 8); /* backlog = 8 clients, same as TCP*/
+  ret = rdma_listen(rc.get_cm_listen_id(), 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return -1;
