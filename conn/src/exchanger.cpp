@@ -222,6 +222,11 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
     throw std::runtime_error("Wrong input");
   }*/
 
+  /*Dans le cas où il y a trois replica : qui fait quoi (serveur ou client) déterminé arbitrairement
+      node 1 toujours le serveur 
+      node 3 toujours le client 
+      node 2 une fois le client (avec node 1) et une fois le serveur (avec node 2) 
+      */
   if (my_id == 1 || (my_id ==3 && proc_id ==2)){
     start_server(proc_id);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
     //ça fait un gros bloc qui fait tout (pas terrible)
@@ -267,9 +272,6 @@ int ConnectionExchanger:: start_server(int proc_id) {
       std::cin >> str_ip;
       break;
   }
-  
-  //printf("AFTER INITIALISATION \n");
-  //show_rdma_cmid(rc.get_cm_id());
 
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -290,9 +292,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 		return -1;
 	}
 	//LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
-	
-  //printf("AFTER BIND ADDR \n");
-  //show_rdma_cmid(rc.get_cm_id());
+
 
   /*Listening for incoming events*/
   ret = rdma_listen(rc.get_cm_id(), 8); /* backlog = 8 clients, same as TCP*/
@@ -304,17 +304,14 @@ int ConnectionExchanger:: start_server(int proc_id) {
           ntohs(server_addr.sin_port));
 
 
-  //printf("AFTER LISTEN \n");
-  //show_rdma_cmid(rc.get_cm_id());
   
   do {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       //printf("Caught something ! ");
       if (ret) {continue;}
       
-
-      rc.associateWithCQ_for_cm(cm_event->id);
-      //ConnectionExchanger :: show_rdma_cmid(cm_event-> id);
+      rc.set_cm_id(cm_event->id);
+      rc.associateWithCQ_for_cm();
 
       //Accepter la connexion
       struct rdma_conn_param cm_params;
@@ -322,14 +319,10 @@ int ConnectionExchanger:: start_server(int proc_id) {
       cm_params.private_data = rc.getLocalSetup(); //dirty hack, vient mettre les infos de la mr de rc dans cm_params
       cm_params.private_data_len = 24;
       cm_params.retry_count = 1;
-      rdma_accept(cm_event->id, &cm_params); 
+      rdma_accept(rc.get_cm_id(), &cm_params); 
 
-
-      //printf("ONCE ACCEPTED \n");
-      //show_rdma_cmid(rc.get_cm_id());
-
-      rc.setRemoteSetup(cm_event->param.conn.private_data);
-      
+    
+      rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
       rc.print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
@@ -392,7 +385,9 @@ int ConnectionExchanger:: start_client(int proc_id){
   server_addr.sin_port = htons(static_cast<uint16_t>(port_serv));
   
   auto& rc = rcs.find(proc_id)->second;
+
   rc.configure_cm_channel();
+  rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
 
   ret = rdma_resolve_addr(rc.get_cm_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
   if (ret) {
@@ -441,7 +436,7 @@ int ConnectionExchanger:: start_client(int proc_id){
 	//printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
-  rc.associateWithCQ_for_cm(rc.get_cm_id());
+  rc.associateWithCQ_for_cm();
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));

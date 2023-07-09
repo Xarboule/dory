@@ -142,14 +142,18 @@ class ReliableConnection {
 
   struct ibv_qp_init_attr* get_init_attr();
 
+  struct rdma_cm_id* get_cm_listen_id();
+
   struct rdma_cm_id* get_cm_id();
   
+  void set_cm_id(rdma_cm_id* id);
+
   struct rdma_event_channel* get_event_channel();
   
   void associateWithCQ_for_cm_prel(std::string send_cp_name,
                                          std::string recv_cp_name);
 
-  void associateWithCQ_for_cm(rdma_cm_id* id);
+  void associateWithCQ_for_cm();
 
   void configure_cm_channel();
 
@@ -184,6 +188,7 @@ class ReliableConnection {
 
 
   struct rdma_event_channel *cm_event_channel;
+  struct rdma_cm_id *cm_listen_id;
   struct rdma_cm_id *cm_id;
   //TO DO : add cm_id_listen et corriger le reste ;
 

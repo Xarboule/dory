@@ -134,35 +134,8 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
-void ReliableConnection::associateWithCQ_for_cm(rdma_cm_id *id) {
-  
-  /* Debugging
-        if (id->qp)
-          printf("Cas d'erreur 1 : qp de l'id est nulle ");
-
-  if (id->verbs != pd->context)
-          printf("Cas d'erreur 2 : contexte de id différent de celui du pd de
-  attr\n"); printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
-    printf("pd's context : %p \n,", reinterpret_cast<void*>(pd->context) );
-    id->verbs = pd->context;
-    printf("COPIE\n");
-    printf("id's verbs : %p \n,", reinterpret_cast<void*>(id->verbs) );
-    printf("pd's context : %p \n,", reinterpret_cast<void*>(pd->context) );
-
-
-  if ((id->recv_cq && create_attr.recv_cq && id->recv_cq != create_attr.recv_cq)
-  || (id->send_cq && create_attr.send_cq && id->send_cq != create_attr.send_cq))
-          printf("Cas d'erreur 3 : id et attr n'ont pas les même cq");
-
-  */
-  /*printf("pd->context : %p \n", reinterpret_cast<void*>(pd->context));
-  printf("on voit que pd et id n'ont pas le même context (pas la même adresse)");
-  printf("mais qu'en est-t-il du contenu ?");
-  printf("pd->context->device->name : %s", id->verbs->device->name);
-  */
-  
-  id->verbs = pd->context;  // nécessaire pour éviter une erreur 
-  int ret = rdma_create_qp(id, pd, &create_attr);
+void ReliableConnection::associateWithCQ_for_cm() {
+  int ret = rdma_create_qp(cm_id, pd, &create_attr);
 
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
@@ -492,7 +465,7 @@ void ReliableConnection ::configure_cm_channel() {
   }
   //LOGGER_INFO(logger, "RDMA CM event channel is created successfully");
 
-  int ret = rdma_create_id(cm_event_channel, &cm_id, NULL, RDMA_PS_TCP);
+  int ret = rdma_create_id(cm_event_channel, &cm_listen_id, NULL, RDMA_PS_TCP);
   if (ret) {
     throw std::runtime_error("Creating cm id failed");
     return;
@@ -505,10 +478,20 @@ void ReliableConnection ::configure_cm_channel() {
   //LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
+struct rdma_cm_id *ReliableConnection ::get_cm_listen_id() { return this->cm_listen_id; }
+
 struct rdma_cm_id *ReliableConnection ::get_cm_id() { return this->cm_id; }
 
 struct rdma_event_channel *ReliableConnection ::get_event_channel() {
   return this->cm_event_channel;
+}
+
+void ReliableConnection :: set_cm_id(rdma_cm_id* id){
+  cm_id = id;
+  cm_id->verbs = pd->context;  // nécessaire pour éviter une erreur 
+  /*Comme le pd a été crée avec cm_id, leur ibv_context n'est pas le même (pas la même adresse, mais le même contenu)
+  Donc on modifie le contexte de cm_id pour qu'il soit le même que celui de pd
+  Comme ça, rdma_create_qp() n'indiquera pas d'erreur.*/
 }
 
 /* Dirty legacy code to communicate the RDMA buffer location */
