@@ -470,11 +470,6 @@ void ReliableConnection ::configure_cm_channel() {
     throw std::runtime_error("Creating cm id failed");
     return;
   }
-
-  printf("===========Testing CREATION OF CM_ID===============\n");
-  printf("rc's cm_id's verbs field %p\n",reinterpret_cast<void*>(cm_id->verbs));
-  printf("pd's context field:  %p\n",reinterpret_cast<void*>(pd->context));
-
   //LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
