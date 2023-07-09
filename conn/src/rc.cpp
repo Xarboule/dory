@@ -145,7 +145,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
 
   /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
   Il est notamment utilisé dans les send et receive */
-  auto qp = id->qp;
+  auto qp = cm_id->qp;
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
