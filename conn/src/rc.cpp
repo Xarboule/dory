@@ -135,6 +135,8 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
 void ReliableConnection::associateWithCQ_for_cm() {
+  cm_id->verbs = pd->context; 
+
   int ret = rdma_create_qp(cm_id, pd, &create_attr);
 
   if (ret) {
@@ -143,6 +145,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
     return;
   }
 
+  
   /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
   Il est notamment utilisé dans les send et receive */
   auto qp = cm_id->qp;
