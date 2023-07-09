@@ -87,17 +87,15 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
   loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
   //loopback_->associateWithCQ(send_cq_name, recv_cq_name);
-  LOGGER_INFO(logger, "Loopback connection was added (but no qp)");
-
-  LOGGER_INFO(logger, "Loopback add was called ==> does the set up ");
+  LOGGER_INFO(logger, "Add Loopback  was called ==> does the binding (pd and mr) (but no qp)");
 }
 
 void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
-  auto infoForRemoteParty = loopback_->remoteInfo();
-  /*loopback_->init(rights);
+  /*auto infoForRemoteParty = loopback_->remoteInfo();
+  loopback_->init(rights);
   loopback_->connect(infoForRemoteParty);
   LOGGER_INFO(logger, "Loopback connection was established");*/
-  LOGGER_INFO(logger, "Loopback connect was called ==> does nothing");
+  LOGGER_INFO(logger, "Loopback connect was called ==> does nothing : NO QP WAS CREATED !");
 }
 
 
