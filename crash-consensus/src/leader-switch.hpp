@@ -109,7 +109,7 @@ class LeaderHeartbeat {
 
       // std::cout << "Posting PID: " << pid << ", PostID: " << post_id <<
       // std::endl;
-      printf("Scanning hearbeat\n");
+      printf("Scanning hearbeat of %d ...\n", pid);
       auto post_ret = rc.postSendSingle(
           ReliableConnection::RdmaRead,
           quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), slots[pid],
@@ -485,11 +485,11 @@ class LeaderPermissionAsker {
       *temp = req_nr;
     }
 
-    // std::cout << "AskForPermissions_Write" << std::endl;
+    std::cout << "AskForPermissions_Write" << std::endl;
     // Wait for the request to reach all followers
     auto err = leaderWriter.write(temp, sizeof(req_nr), remote_mem_locations,
                                   ask_perm_poller);
-    // std::cout << "AskForPermissions_WriteDone" << std::endl;
+     std::cout << "AskForPermissions_WriteDone" << std::endl;
 
     if (!err->ok()) {
       return err;
@@ -560,14 +560,14 @@ class LeaderSwitcher {
     // If you discovered a new request for a leader, notify the main event loop
     // to give permissions to him and switch to follower.
     if (requester > 0) {
-      // std::cout << "Process with pid " << requester
-      //           << " asked for permissions" << std::endl;
+       std::cout << "Process with pid " << requester
+                 << " asked for permissions" << std::endl;
       leader.store(dory::Leader(requester, reading[requester], force_reset));
       want_leader->store(false);
     } else {
       // Check if my leader election declared me as leader
       if (want_leader->load()) {
-        // std::cout << "Want leader" << std::endl;
+         std::cout << "My leader elections wants me as a leader" << std::endl;
         // want_leader->store(false);
 
         auto expected = leader.load();
@@ -977,6 +977,7 @@ class LeaderElection {
   }
 
   void stopHeartbreat() {
+    std::cout <<"stopHeartbeat() called" << std::endl;
     if (hb_started) {
       hb_exit_signal.set_value();
       heartbeat_thd.join();

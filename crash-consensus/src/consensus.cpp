@@ -149,13 +149,15 @@ void RdmaConsensus::run() {
 
   ce_replication->wait_ready_all(store, "qp-replication", "announce");
   ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
-  Connection:
-  ce_replication->connect_all_with_cm(
+  
+  
+  Connection: //?????
+  ce_replication->connect_all(
       store, "qp-replication",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
   ce_replication->announce_ready(store, "qp-replication", "connect");
 
-  ce_leader_election->connect_all_with_cm(
+  ce_leader_election->connect_all(
       store, "qp-leader-election",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
           ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
@@ -192,7 +194,6 @@ void RdmaConsensus::run() {
   response_blocked = &(leader_election->response_blocked);
 
   // Initialize replication
-  std::cout<<"replication";
   auto quorum_size = quorum::majority(remote_ids.size() + 1) - 1;
   auto next_log_entry_offset = re_ctx->log.headerFirstUndecidedOffset();
 

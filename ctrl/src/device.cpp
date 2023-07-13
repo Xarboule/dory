@@ -143,7 +143,7 @@ bool ResolvedPort::bindTo(size_t index) {
     }
     
     if (skipped_active_ports == index) {
-      /*
+      /* Dans notre cas, comme c'est du RoCE v2, on s'en fiche des attributs port_id et port_lid 
       if (port_attr.link_layer != IBV_LINK_LAYER_INFINIBAND) {
         throw std::runtime_error(
             "Transport type required is InfiniBand but port link layer is " +

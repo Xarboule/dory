@@ -64,13 +64,14 @@ class ControlBlock {
                          std::vector<struct ibv_wc> &entries);
 
  private:
-  ResolvedPort resolved_port;
+  ResolvedPort resolved_port; //une device et un contexte associé 
 
-  std::vector<deleted_unique_ptr<struct ibv_pd>> pds;
-  std::map<std::string, size_t> pd_map;
+  std::vector<deleted_unique_ptr<struct ibv_pd>> pds; 
+  std::map<std::string, size_t> pd_map; //le nom (string) et l'indice correspondant 
 
   std::vector<std::unique_ptr<uint8_t[], DeleteAligned<uint8_t>>> raw_bufs;
   std::map<std::string, std::pair<size_t, size_t>> buf_map;
+  //string = nom du buffer, et la paire = (indice du buffer dans le vecteur; taille du buffer)
 
   std::vector<deleted_unique_ptr<struct ibv_mr>> mrs;
   std::map<std::string, size_t> mr_map;

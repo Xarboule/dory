@@ -48,7 +48,7 @@ void ControlBlock::allocateBuffer(std::string name, size_t length,
                                   int alignment) {
   if (buf_map.find(name) != buf_map.end()) {
     throw std::runtime_error("Already registered protection domain named " +
-                             name);
+                             name); //"protection domain" ? Ca devrait plutôt être "buffer name" je pense
   }
 
   std::unique_ptr<uint8_t[], DeleteAligned<uint8_t>> data(
@@ -69,7 +69,7 @@ void ControlBlock::registerMR(std::string name, std::string pd_name,
                               size_t buf_len, MemoryRights rights) {
   if (mr_map.find(name) != mr_map.end()) {
     throw std::runtime_error("Already registered protection domain named " +
-                             name);
+                             name); // pareil, ça devrait être "mr name"
   }
   auto pd = pd_map.find(pd_name);
   if (pd == pd_map.end()) {
@@ -105,6 +105,7 @@ void ControlBlock::registerMR(std::string name, std::string pd_name,
               name, pd_name, buffer_name, offset, buf_len, rights);
 }
 
+//si on ne précise pas buf_len : 
 void ControlBlock::registerMR(std::string name, std::string pd_name,
                               std::string buffer_name, MemoryRights rights) {
   if (mr_map.find(name) != mr_map.end()) {
@@ -143,6 +144,9 @@ void ControlBlock::registerMR(std::string name, std::string pd_name,
               name, pd_name, buffer_name, rights);
 }
 
+
+//Quand on lui demande la memory region, il va crée un objet spécialement 
+//(MemoryRegion) pour nous indiquer les champs pertinents 
 ControlBlock::MemoryRegion ControlBlock::mr(std::string name) const {
   auto mr = mr_map.find(name);
   if (mr == mr_map.end()) {
@@ -160,24 +164,6 @@ ControlBlock::MemoryRegion ControlBlock::mr(std::string name) const {
   return m;
 }
 
-// void ControlBlock::withdrawMRRight(std::string name) const {
-//   auto mr = mr_map.find(name);
-//   if (mr == mr_map.end()) {
-//     throw std::runtime_error("Memory region named " + name + " does not
-//     exist");
-//   }
-
-//   auto const& region = mrs[mr->second];
-
-//   auto ret = ibv_rereg_mr(region.get(), IBV_REREG_MR_CHANGE_ACCESS, NULL,
-//   NULL,
-//                           region->length, IBV_ACCESS_LOCAL_WRITE);
-
-//   if (ret != 0) {
-//     throw std::runtime_error("Memory region named " + name + " cannot be
-//     withdrawn");
-//   }
-// }
 
 void ControlBlock::registerCQ(std::string name) {
   if (cq_map.find(name) != cq_map.end()) {
@@ -215,8 +201,8 @@ deleted_unique_ptr<struct ibv_cq> &ControlBlock::cq(std::string name) {
   return cqs[cq->second];
 }
 
-int ControlBlock::port() const { return resolved_port.portID(); }
 
+int ControlBlock::port() const { return resolved_port.portID(); }
 int ControlBlock::lid() const { return resolved_port.portLID(); }
 
 bool ControlBlock::pollCqIsOK(deleted_unique_ptr<struct ibv_cq> &cq,
