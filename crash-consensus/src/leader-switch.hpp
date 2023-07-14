@@ -94,6 +94,7 @@ class LeaderHeartbeat {
 
       outstanding_pids.insert(my_id);
 
+      volatile uint64_t *val;
       val = reinterpret_cast<uint64_t *>(loopback->get_mr().addr + offset);
       printf("Value written : %d", static_cast<int>(*val));
     }
