@@ -147,7 +147,7 @@ class LeaderHeartbeat {
         if (pid == my_id) {
           //val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset);
           val = reinterpret_cast<uint64_t *>(loopback->get_mr().addr + offset);
-          printf("Value read : %d", reinterpret_cast<int>(*val));
+          printf("Value read : %d", static_cast<int>(*val));
         }
 
         // std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id
