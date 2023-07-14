@@ -79,15 +79,15 @@ class ConnectionExchanger {
                                         std::string recv_cq_name);
 
   void connect_with_cm(int proc_id,std::string const& prefix,
-                                    ControlBlock::MemoryRights rights);
+      ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
   void connect_all_with_cm(MemoryStore& store,
                                       std::string const& prefix,
-                                      ControlBlock::MemoryRights rights);
+      ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
-  int start_server(int proc_id);
+  int start_server(int proc_id, ControlBlock::MemoryRights rights);
 
-  int start_client(int proc_id); 
+  int start_client(int proc_id, ControlBlock::MemoryRights rights); 
 
   int process_rdma_cm_event(struct rdma_event_channel *echannel,
 		enum rdma_cm_event_type expected_event,

@@ -163,6 +163,8 @@ class ReliableConnection {
 
   void print_all_infos();
 
+  void set_init_with_cm(ControlBlock :: MemoryRights rights);
+
  private:
   bool post_send(ibv_send_wr &wr);
 

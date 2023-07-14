@@ -115,5 +115,13 @@ int main(int argc, char* argv[]) {
                  ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
+
+  std :: cout << "Connection went well ! " << std :: endl; 
+
+  
+  std :: cout << "Testing the modification of access flags " << std :: endl; 
+
+  
+
   return 0;
 }

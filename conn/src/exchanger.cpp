@@ -226,16 +226,16 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
       node 2 une fois le client (avec node 1) et une fois le serveur (avec node 2) 
       */
   if (my_id == 1 || (my_id ==3 && proc_id ==2)){
-    start_server(proc_id);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
+    start_server(proc_id, rights);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
     //ça fait un gros bloc qui fait tout (pas terrible)
   }
   else {
-    start_client(proc_id);
+    start_client(proc_id, rights);
   }
 }
 
 /* Starts an RDMA server by allocating basic (CM) connection resources */
-int ConnectionExchanger:: start_server(int proc_id) {
+int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights rights ) {
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -310,6 +310,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
       
       rc.set_cm_id(cm_event->id);
       rc.associateWithCQ_for_cm();
+      rc.set_init_with_cm(rights);
 
       //Accepter la connexion
       struct rdma_conn_param cm_params;
@@ -337,7 +338,7 @@ int ConnectionExchanger:: start_server(int proc_id) {
 }
 
 
-int ConnectionExchanger:: start_client(int proc_id){
+int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights rights){
   //destination à renseigner 
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
@@ -435,6 +436,7 @@ int ConnectionExchanger:: start_client(int proc_id){
   /* Creating the QP */      
   rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
   rc.associateWithCQ_for_cm();
+  rc.set_init_with_cm(rights);
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));

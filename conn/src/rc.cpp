@@ -120,6 +120,7 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
                                std::string(std::strerror(errno)));
     }
   });
+  std :: cout << "QP created with ibv_create_qp() ==> Be careful about its state !" << std :: endl;
 }
 
 /*Pour créer la QP, il faut renseigner des infos dans le champ create_attr de
@@ -131,6 +132,8 @@ void ReliableConnection::associateWithCQ_for_cm_prel(std::string send_cp_name,
   create_attr.send_cq = cb.cq(send_cp_name).get();
   create_attr.recv_cq = cb.cq(recv_cp_name).get();
 }
+
+
 
 /*Une fois le connection manager prêt, on peut enfin créer une qp
 C'est comme ça qu'on évite de devoir nous même utiliser les ibv_modify_qp()*/
@@ -175,6 +178,23 @@ void ReliableConnection::reset() {
                              std::string(std::strerror(errno)));
   }
 }
+
+
+  void set_init_with_cm(ControlBlock :: MemoryRights rights){
+    std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
+    struct ibv_qp_attr init_attr;
+    memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
+    init_attr.qp_access_flags = rights;
+
+    auto ret = ibv_modify_qp(uniq_qp.get(), &init_attr, IBV_QP_ACCESS_FLAGS);
+
+    if (ret != 0) {
+      throw std::runtime_error("Failed to bring conn QP to INIT: " +
+                               std::string(std::strerror(errno)));
+    }
+
+    init_rights = rights;
+  }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
   printf("ATTENTION appel d'une fonction de RC interdite: init()\n");
