@@ -180,7 +180,7 @@ void ReliableConnection::reset() {
 }
 
 
-  void set_init_with_cm(ControlBlock :: MemoryRights rights){
+  void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights){
     std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
     struct ibv_qp_attr init_attr;
     memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
