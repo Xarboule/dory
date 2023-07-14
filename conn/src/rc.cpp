@@ -189,7 +189,7 @@ void ReliableConnection::reset() {
     auto ret = ibv_modify_qp(uniq_qp.get(), &init_attr, IBV_QP_ACCESS_FLAGS);
 
     if (ret != 0) {
-      throw std::runtime_error("Failed to bring conn QP to INIT: " +
+      throw std::runtime_error("Failed to change the access flag of QP : " +
                                std::string(std::strerror(errno)));
     }
 
