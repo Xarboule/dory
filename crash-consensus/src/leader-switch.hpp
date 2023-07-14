@@ -567,7 +567,7 @@ class LeaderSwitcher {
     } else {
       // Check if my leader election declared me as leader
       if (want_leader->load()) {
-         std::cout << "My leader elections wants me as a leader" << std::endl;
+        //std::cout << "My leader elections wants me as a leader" << std::endl;
         // want_leader->store(false);
 
         auto expected = leader.load();
