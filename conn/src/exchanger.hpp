@@ -64,7 +64,7 @@ class ConnectionExchanger {
                    std::string send_cq_name, std::string recv_cq_name);
 
   void connectLoopback(ControlBlock::MemoryRights rights);
-  //ReliableConnection& loopback() { return *(loopback_.get()); }
+  ReliableConnection& loopback() { return *(loopback_.get()); }
 
 
     //nouvelles fonctions pour utiliser CM 
@@ -108,7 +108,7 @@ class ConnectionExchanger {
 
     void connectLoopback_with_cm(ControlBlock::MemoryRights rights);
 
-    void threaded_client(ControlBlock::MemoryRights rights);
+    void threaded_client();
 
     int start_loopback_server(ControlBlock::MemoryRights rights);
 
@@ -128,12 +128,13 @@ class ConnectionExchanger {
   int max_id;
   std::map<int, ReliableConnection> rcs;
   
-  ReliableConnection loopback_;
-  ReliableConnection remote_loopback_;
+  std::unique_ptr<ReliableConnection> loopback_;
+  std::unique_ptr<ReliableConnection> remote_loopback_;
   int loopback_port;
 
   LOGGER_DECL(logger);
 
   static int num_conn;
+
 };
 }  // namespace dory

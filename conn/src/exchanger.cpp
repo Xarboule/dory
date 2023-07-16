@@ -19,9 +19,6 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
   }
 
   max_id = maximum_id;
-
-  loopback_(cb);
-  remote_loopback_(cb);   
 }
 
 void ConnectionExchanger::configure(int proc_id, std::string const& pd,
@@ -97,16 +94,18 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
                                       std::string const& mr,
                                       std::string send_cq_name,
                                       std::string recv_cq_name) {
-  loopback_.bindToPD(pd);
-  loopback_.bindToMR(mr);
-  loopback_.associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
+  loopback_ = std::make_unique<ReliableConnection>(cb);
+  loopback_->bindToPD(pd);
+  loopback_->bindToMR(mr);
+  loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
   LOGGER_INFO(logger, "LoopBack added with_cm ");
   
 
   //remote_loopback est identique à loopback
-  remote_loopback_.bindToPD(pd);
-  remote_loopback_.bindToMR(mr);
-  remote_loopback_.associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
+  remote_loopback_ = std::make_unique<ReliableConnection>(cb);
+  remote_loopback_->bindToPD(pd);
+  remote_loopback_->bindToMR(mr);
+  remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
   LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
 
   loopback_port = 80000;
@@ -177,16 +176,16 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
 
-  loopback_.configure_cm_channel();
+  loopback().configure_cm_channel();
 
 
-	ret = rdma_bind_addr(loopback_.get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
+	ret = rdma_bind_addr(loopback_->get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return -1;
 	}
 
-  ret = rdma_listen(loopback_.get_cm_listen_id(), 8); /* backlog = 8 clients, same as TCP*/
+  ret = rdma_listen(loopback_->get_cm_listen_id(), 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return -1;
@@ -196,23 +195,23 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
   
   do {
-      ret = process_rdma_cm_event(loopback_.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+      ret = process_rdma_cm_event(loopback_->get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       if (ret) {continue;}
       
-      loopback_.set_cm_id(cm_event->id);
-      loopback_.associateWithCQ_for_cm();
-      loopback_.set_init_with_cm(rights);
+      loopback_->set_cm_id(cm_event->id);
+      loopback_->associateWithCQ_for_cm();
+      loopback_->set_init_with_cm(rights);
 
       struct rdma_conn_param cm_params;
       memset(&cm_params, 0, sizeof(cm_params));
-      cm_params.private_data = loopback_.getLocalSetup(); 
+      cm_params.private_data = loopback_->getLocalSetup(); 
       cm_params.private_data_len = 24;
       cm_params.retry_count = 1;
-      rdma_accept(loopback_.get_cm_id(), &cm_params); 
+      rdma_accept(loopback_->get_cm_id(), &cm_params); 
 
     
-      loopback_.setRemoteSetup(cm_event->param.conn.private_data); 
-      loopback_.print_all_infos();
+      loopback_->setRemoteSetup(cm_event->param.conn.private_data); 
+      loopback_->print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
@@ -265,15 +264,15 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   delete[] char_ip;
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
   
-  remote_loopback_.configure_cm_channel();
+  remote_loopback_->configure_cm_channel();
 
-  ret = rdma_resolve_addr(remote_loopback_.get_cm_listen_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
+  ret = rdma_resolve_addr(remote_loopback_->get_cm_listen_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
   if (ret) {
 		throw std::runtime_error("Failed to resolve address");
 		exit(-1);
 	}
   
-  ret  = process_rdma_cm_event(remote_loopback_.get_event_channel(),RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
+  ret  = process_rdma_cm_event(remote_loopback_->get_event_channel(),RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
 		exit(-1);
@@ -285,13 +284,13 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 		exit(-1);
 	}
 
-  ret = rdma_resolve_route(remote_loopback_.get_cm_listen_id(), 2000);
+  ret = rdma_resolve_route(remote_loopback_->get_cm_listen_id(), 2000);
 	if (ret) {
 		throw std::runtime_error("Failed to resolve route");
 	   exit(-1);
 	}
   
-  ret = process_rdma_cm_event(remote_loopback_.get_event_channel(),RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
+  ret = process_rdma_cm_event(remote_loopback_->get_event_channel(),RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
 	if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
 		exit(-1);
@@ -306,32 +305,32 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 	printf("[LoopBack client] Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
-  remote_loopback_.set_cm_id(remote_loopback_.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
-  remote_loopback_.associateWithCQ_for_cm();
-  remote_loopback_.set_init_with_cm(rights);
+  remote_loopback_->set_cm_id(remote_loopback_->get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
+  remote_loopback_->associateWithCQ_for_cm();
+  remote_loopback_->set_init_with_cm(rights);
 
   /*Connecting*/
   struct rdma_conn_param cm_params;
   memset(&cm_params, 0, sizeof(cm_params));
-  cm_params.private_data = remote_loopback_.getLocalSetup();
+  cm_params.private_data = remote_loopback_->getLocalSetup();
   cm_params.private_data_len = 24;
   cm_params.retry_count = 1;
-  rdma_connect(remote_loopback_.get_cm_id(), &cm_params);
+  rdma_connect(remote_loopback_->get_cm_id(), &cm_params);
 
   //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
-  ret = process_rdma_cm_event(remote_loopback_.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
+  ret = process_rdma_cm_event(remote_loopback_->get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
     return ret;
   } 
-  remote_loopback_.setRemoteSetup(cm_event->param.conn.private_data);
+  remote_loopback_->setRemoteSetup(cm_event->param.conn.private_data);
   ret = rdma_ack_cm_event(cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
   }
     
-  remote_loopback_.print_all_infos();
+  remote_loopback_->print_all_infos();
 
 
   LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
