@@ -108,7 +108,7 @@ class ConnectionExchanger {
 
     void connectLoopback_with_cm(ControlBlock::MemoryRights rights);
 
-    void threaded_client();
+    void threaded_client(ControlBlock::MemoryRights rights);
 
     int start_loopback_server(ControlBlock::MemoryRights rights);
 
