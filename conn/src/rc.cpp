@@ -496,12 +496,12 @@ void ReliableConnection ::configure_cm_channel() {
   //LOGGER_INFO(logger, "A RDMA connection id for the node is created ");
 }
 
-struct rdma_cm_id *ReliableConnection ::get_cm_listen_id() { return this->cm_listen_id; }
+struct rdma_cm_id *ReliableConnection ::get_cm_listen_id() { return cm_listen_id; }
 
-struct rdma_cm_id *ReliableConnection ::get_cm_id() { return this->cm_id; }
+struct rdma_cm_id *ReliableConnection ::get_cm_id() { return cm_id; }
 
 struct rdma_event_channel *ReliableConnection ::get_event_channel() {
-  return this->cm_event_channel;
+  return cm_event_channel;
 }
 
 void ReliableConnection :: set_cm_id(rdma_cm_id* id){
