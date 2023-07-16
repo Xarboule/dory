@@ -11,8 +11,7 @@ int ConnectionExchanger :: num_conn = 0;
 
 ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
                                          ControlBlock& cb)
-    : my_id{my_id}, remote_ids{remote_ids}, cb{cb}, LOGGER_INIT(logger, "CE"), 
-    loopback_(cb), remote_loopback_(cb) {
+    : my_id{my_id}, remote_ids{remote_ids}, cb{cb}, LOGGER_INIT(logger, "CE") {
   auto [valid, maximum_id] = valid_ids();
   if (!valid) {
     throw std::runtime_error(
@@ -20,7 +19,9 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
   }
 
   max_id = maximum_id;
-   
+
+  loopback_(cb);
+  remote_loopback_(cb);   
 }
 
 void ConnectionExchanger::configure(int proc_id, std::string const& pd,
