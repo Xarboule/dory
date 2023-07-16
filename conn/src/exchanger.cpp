@@ -88,6 +88,7 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
   loopback_->bindToMR(mr);
   loopback_->associateWithCQ(send_cq_name, recv_cq_name);*/
   LOGGER_INFO(logger, "Add Loopback  was called ==> redirecting to AddLoopback_with_cm()");
+  addLoopback_with_cm(pd, mr, send_cq_name, recv_cq_name);
 }
 
 void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
@@ -176,7 +177,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
 
-  loopback().configure_cm_channel();
+  loopback_->configure_cm_channel();
 
 
 	ret = rdma_bind_addr(loopback_->get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
