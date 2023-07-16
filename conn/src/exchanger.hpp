@@ -135,5 +135,7 @@ class ConnectionExchanger {
   LOGGER_DECL(logger);
 
   static int num_conn;
+
+  ControlBlock :: MemoryRights myrights;
 };
 }  // namespace dory
