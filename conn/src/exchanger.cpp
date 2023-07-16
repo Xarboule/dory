@@ -19,6 +19,14 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
   }
 
   max_id = maximum_id;
+  
+  ReliableConnection temp1(cb);
+  loopback_ = temp1;
+  
+  ReliableConnection temp2(cb);
+  remote_loopback_ = temp2;
+  
+  
 }
 
 void ConnectionExchanger::configure(int proc_id, std::string const& pd,
@@ -94,7 +102,6 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
                                       std::string const& mr,
                                       std::string send_cq_name,
                                       std::string recv_cq_name) {
-  loopback_ = ReliableConnection(cb);
   loopback_.bindToPD(pd);
   loopback_.bindToMR(mr);
   loopback_.associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
@@ -102,7 +109,6 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
   
 
   //remote_loopback est identique à loopback
-  remote_loopback_ = ReliableConnection(cb);
   remote_loopback_.bindToPD(pd);
   remote_loopback_.bindToMR(mr);
   remote_loopback_.associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
