@@ -83,11 +83,32 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
                                       std::string const& mr,
                                       std::string send_cq_name,
                                       std::string recv_cq_name) {
+  /*loopback_ = std::make_unique<ReliableConnection>(cb);
+  loopback_->bindToPD(pd);
+  loopback_->bindToMR(mr);
+  loopback_->associateWithCQ(send_cq_name, recv_cq_name);*/
+  LOGGER_INFO(logger, "Add Loopback  was called ==> redirecting to AddLoopback_with_cm()");
+}
+
+void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
+                                      std::string const& mr,
+                                      std::string send_cq_name,
+                                      std::string recv_cq_name) {
   loopback_ = std::make_unique<ReliableConnection>(cb);
   loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
-  //loopback_->associateWithCQ(send_cq_name, recv_cq_name);
-  LOGGER_INFO(logger, "Add Loopback  was called ==> does the binding (pd and mr) (but no qp)");
+  loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
+  LOGGER_INFO(logger, "LoopBack added with_cm ");
+  
+
+  //remote_loopback est identique à loopback
+  remote_loopback_ = std::make_unique<ReliableConnection>(cb);
+  remote_loopback_->bindToPD(pd);
+  remote_loopback_->bindToMR(mr);
+  remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
+  LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
+
+  loopback_port = 80000;
 }
 
 void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
@@ -95,17 +116,227 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   loopback_->init(rights);
   loopback_->connect(infoForRemoteParty);
   LOGGER_INFO(logger, "Loopback connection was established");*/
-  LOGGER_INFO(logger, "Loopback connect was called ==> does nothing : NO QP WAS CREATED !");
+  LOGGER_INFO(logger, "Loopback connect was called ==> redirecting to connectLoopBack_with_cm");
+  connectLoopback_with_cm(rights);
 }
 
 
-/*
-  ATTENTION : on ne peut plus utiliser les fonctions announce
-  ni announce_all avec les *_with_cm()
-  Avec announce(), on crée la qp puis on échange ses informations via memcached
-  Avec *_with_cm(), on crée la qp une fois les infos échangées,et c'est rdma_cm qui
-  s'occupe de tout 
-*/
+void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
+  std::thread client(threaded_client, rights);
+  start_loopback_server(rights);
+  LOGGER_INFO(logger, "Loopback connected with cm !");
+}
+
+
+
+void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
+  //-attendre quelques secondes
+  std :: cout << "Client thread sleeping" << std :: endl;
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
+  //se comporter comme un client ! 
+  start_loopback_client(rights);
+
+  while(1){continue;} // just doing nothing, until the main thread makes it stop
+}
+
+void ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rights){
+  struct sockaddr_in server_addr;
+  struct rdma_cm_event *cm_event = NULL;
+	int ret = -1;
+  
+  memset(&server_addr, 0, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
+  
+  std::string str_ip;
+  switch(my_id){
+    case 1:
+      str_ip="10.30.2.1";
+      break;
+    case 2:
+      str_ip="10.30.2.2";
+      break;
+    case 3:
+      str_ip="10.30.2.3";
+      break;
+    default:
+      std::cout << "IP of this node ?";
+      std::cin >> str_ip;
+      break;
+  }
+
+  char* char_ip = new char[str_ip.length() + 1];
+  strcpy(char_ip, str_ip.c_str()); 
+  ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
+  if (ret) {
+    throw std::runtime_error("Wrong input");
+    return ret;
+  }
+  delete[] char_ip;
+
+  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+
+	ret = rdma_bind_addr(loopback_->get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
+	if (ret) {
+    throw std::runtime_error("Failed to bind the channel to the addr");
+		return -1;
+	}
+
+  ret = rdma_listen(loopback_->get_cm_listen_id(), 8); /* backlog = 8 clients, same as TCP*/
+	if (ret) {
+    throw std::runtime_error("rdma_listen failed to listen on server address");
+		return -1;
+	}
+	printf("Loopback (server) is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr),
+          ntohs(server_addr.sin_port));
+
+  
+  do {
+      ret = process_rdma_cm_event(loopback_->get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+      if (ret) {continue;}
+      
+      loopback_->set_cm_id(cm_event->id);
+      loopback_->associateWithCQ_for_cm();
+      loopback_->set_init_with_cm(rights);
+
+      struct rdma_conn_param cm_params;
+      memset(&cm_params, 0, sizeof(cm_params));
+      cm_params.private_data = loopback_->getLocalSetup(); 
+      cm_params.private_data_len = 24;
+      cm_params.retry_count = 1;
+      rdma_accept(loopback_->get_cm_id(), &cm_params); 
+
+    
+      loopback_->setRemoteSetup(cm_event->param.conn.private_data); 
+      loopback_->print_all_infos();
+
+      /*Une fois que la connection est bien finie, on ack l'event du début*/
+      ret = rdma_ack_cm_event(cm_event);
+      if (ret) {
+        throw std::runtime_error("Failed to acknowledge the cm event");
+        return -1;
+      }
+      LOGGER_INFO(logger,"A new RDMA client connection is set up");      
+      break; //on sort de là, car on n'attend qu'un client 
+   } while(1);
+
+	return ret;
+}
+
+
+
+void ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights rights){
+  struct sockaddr_in server_addr;
+  struct rdma_cm_event *cm_event = NULL;
+
+  memset(&server_addr, 0, sizeof(server_addr));
+  server_addr.sin_family = AF_INET;
+  
+  
+  std::string str_ip;
+  switch(my_id){
+    case 1:
+      str_ip="10.30.2.1";
+      break;
+    case 2:
+      str_ip="10.30.2.2";
+      break;
+    case 3:
+      str_ip="10.30.2.3";
+      break;
+    default:
+      std::cout << "IP of the server ?";
+      std::cin >> str_ip;
+      break;
+  }
+
+  //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
+  char* char_ip = new char[str_ip.length() + 1];
+  strcpy(char_ip, str_ip.c_str()); 
+  int ret = get_addr(char_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
+  if (ret) {
+    throw std::runtime_error("Wrong input");
+    return ret;
+  }
+  delete[] char_ip;
+  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+  
+  remote_loopback_->configure_cm_channel();
+
+  ret = rdma_resolve_addr(remote_loopback_->get_cm_listen_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
+  if (ret) {
+		throw std::runtime_error("Failed to resolve address");
+		exit(-1);
+	}
+  
+  ret  = process_rdma_cm_event(remote_loopback_->get_event_channel(),RDMA_CM_EVENT_ADDR_RESOLVED,	&cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+		exit(-1);
+	}
+	
+  ret = rdma_ack_cm_event(cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+		exit(-1);
+	}
+
+  ret = rdma_resolve_route(remote_loopback_->get_cm_listen_id(), 2000);
+	if (ret) {
+		throw std::runtime_error("Failed to resolve route");
+	   exit(-1);
+	}
+  
+  ret = process_rdma_cm_event(remote_loopback_->get_event_channel(),RDMA_CM_EVENT_ROUTE_RESOLVED,&cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+		exit(-1);
+	}
+
+	ret = rdma_ack_cm_event(cm_event);
+	if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+		exit(-1);
+	}
+
+	printf("[LoopBack client] Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+  
+  /* Creating the QP */      
+  remote_loopback_->set_cm_id(remote_loopback_->get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
+  remote_loopback_->associateWithCQ_for_cm();
+  remote_loopback_->set_init_with_cm(rights);
+
+  /*Connecting*/
+  struct rdma_conn_param cm_params;
+  memset(&cm_params, 0, sizeof(cm_params));
+  cm_params.private_data = remote_loopback_->getLocalSetup();
+  cm_params.private_data_len = 24;
+  cm_params.retry_count = 1;
+  rdma_connect(remote_loopback_->get_cm_id(), &cm_params);
+
+  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+  ret = process_rdma_cm_event(remote_loopback_->get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
+  if (ret) {
+		throw std::runtime_error("Failed to receive a valid event");
+    return ret;
+  } 
+  remote_loopback_->setRemoteSetup(cm_event->param.conn.private_data);
+  ret = rdma_ack_cm_event(cm_event);
+  if (ret) {
+		throw std::runtime_error("Failed to acknowledge the CM event");
+    return -errno;
+  }
+    
+  remote_loopback_->print_all_infos();
+
+
+  LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
+ 
+  return 0 ;
+}
+
+
+
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
   
@@ -235,7 +466,7 @@ void ConnectionExchanger:: connect_with_cm(int proc_id,
 }
 
 /* Starts an RDMA server by allocating basic (CM) connection resources */
-int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights rights ) {
+int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights rights) {
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -280,9 +511,10 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
     return ret;
   }
   delete[] char_ip;
+
   server_addr.sin_port = htons(static_cast<uint16_t>((20886 + get_num_conn())));
   incr_num_conn();
-  
+
   /* Explicit binding of rdma cm id to the socket credentials */
 	ret = rdma_bind_addr(rc.get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
