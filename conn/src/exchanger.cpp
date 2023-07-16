@@ -124,6 +124,8 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 
 void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
   std::thread client_thread(&ConnectionExchanger::threaded_client,this,rights);
+  client_thread.detach();
+
   start_loopback_server(rights);
   LOGGER_INFO(logger, "Loopback connected with cm !");
 }
