@@ -176,6 +176,9 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
 
+  loopback_-> configure_cm_channel();
+
+
 	ret = rdma_bind_addr(loopback_->get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");

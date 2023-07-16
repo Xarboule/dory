@@ -576,10 +576,6 @@ void ReliableConnection :: print_all_infos(){
   //printf("\t buf size : %d \n",  rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
 
-  /*
-  cm_id_listen;
-  cm_id;*/
-
 
 }
 
