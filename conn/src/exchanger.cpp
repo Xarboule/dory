@@ -122,7 +122,7 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 
 
 void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
-  std::thread client(threaded_client, rights);
+  //std::thread client(threaded_client, rights);
   start_loopback_server(rights);
   LOGGER_INFO(logger, "Loopback connected with cm !");
 }
@@ -140,7 +140,7 @@ void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
   while(1){continue;} // just doing nothing, until the main thread makes it stop
 }
 
-void ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rights){
+int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rights){
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -225,7 +225,7 @@ void ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rig
 
 
 
-void ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights rights){
+int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights rights){
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
 
