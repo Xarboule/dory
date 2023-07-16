@@ -128,8 +128,8 @@ class ConnectionExchanger {
   int max_id;
   std::map<int, ReliableConnection> rcs;
   
-  std::unique_ptr<ReliableConnection> loopback_;
-  std::unique_ptr<ReliableConnection> remote_loopback_;
+  ReliableConnection loopback_;
+  ReliableConnection remote_loopback_;
   int loopback_port;
 
   LOGGER_DECL(logger);
