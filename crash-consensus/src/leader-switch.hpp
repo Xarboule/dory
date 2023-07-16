@@ -79,7 +79,7 @@ class LeaderHeartbeat {
     if (outstanding_pids.find(my_id) == outstanding_pids.end()) {
       // Update my heartbeat
       *counter_from += 1;
-      //printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback\n");
+      printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback\n");
       auto post_ret = loopback->postSendSingle(
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
