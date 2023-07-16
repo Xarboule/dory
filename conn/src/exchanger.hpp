@@ -64,7 +64,7 @@ class ConnectionExchanger {
                    std::string send_cq_name, std::string recv_cq_name);
 
   void connectLoopback(ControlBlock::MemoryRights rights);
-  ReliableConnection& loopback() { return *(loopback_.get()); }
+  //ReliableConnection& loopback() { return *(loopback_.get()); }
 
 
     //nouvelles fonctions pour utiliser CM 
