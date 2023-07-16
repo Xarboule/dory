@@ -123,16 +123,14 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 
 void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
 
-  std::thread client_thread([rights](){
-        threaded_client(rights);
-  });
+  std::thread client_thread(threaded_client,&rights);
   start_loopback_server(rights);
   LOGGER_INFO(logger, "Loopback connected with cm !");
 }
 
 
 
-void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
+void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights* rights){
   //-attendre quelques secondes
   std :: cout << "Client thread sleeping" << std :: endl;
   std::this_thread::sleep_for(std::chrono::seconds(2));
