@@ -32,8 +32,7 @@ class ParsedSlot {
   }
 
   inline std::pair<uint8_t*, size_t> payload() {
-    auto length =
-        *reinterpret_cast<uint64_t*>(ptr + offsets[0]) - 2 * sizeof(uint64_t);
+    auto length = *reinterpret_cast<uint64_t*>(ptr + offsets[0]) - 2 * sizeof(uint64_t);
     auto buf = ptr + offsets[3];
     return std::make_pair(buf, length);
   }

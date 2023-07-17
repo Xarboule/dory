@@ -307,7 +307,7 @@ bool ReliableConnection::needsReset() {
 }
 
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
+  //printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
@@ -319,7 +319,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
 
 bool ReliableConnection::changeRightsIfNeeded(
     ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
+  //printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
   auto converted_rights = static_cast<unsigned>(rights);
 
   struct ibv_qp_attr attr;
@@ -366,7 +366,7 @@ bool ReliableConnection::post_send(ibv_send_wr &wr) {
 bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
                                               uintptr_t remote_addr) {
-  printf("ATTENTION : postSendSingleCached() appelé\n");
+  //printf("ATTENTION : postSendSingleCached() appelé\n");
   wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
   wr_cached->sg_list->length = len;
 
@@ -401,7 +401,7 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
 
 bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uintptr_t remote_addr) {
-  printf("ATTENTION : postSendSingle appelé\n");
+  //printf("ATTENTION : postSendSingle appelé\n");
   return postSendSingle(req, req_id, buf, len, mr.lkey, remote_addr);
 }
 
@@ -409,7 +409,7 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uint32_t lkey,
                                         uintptr_t remote_addr) {
   // TODO(Kristian): if not used concurrently, we could reuse the same wr
-  printf("ATTENTION : postSendSingle() appelé\n");
+  //printf("ATTENTION : postSendSingle() appelé\n");
   struct ibv_send_wr wr;
   struct ibv_sge sg;
 
@@ -507,10 +507,6 @@ struct rdma_event_channel *ReliableConnection ::get_event_channel() {
 void ReliableConnection :: set_cm_id(rdma_cm_id* id){
   cm_id = id;
   cm_id->verbs = pd->context;  
-  /*Comme le pd a été crée avec cm_id, leur ibv_context n'est pas le même (pas la même adresse, mais le même contenu)
-  Donc on modifie le contexte de cm_id pour qu'il soit le même que celui de pd
-  Comme ça, rdma_create_qp() n'indiquera pas d'erreur.
-  */
 }
 
 /* Dirty legacy code to communicate the RDMA buffer location */
@@ -575,8 +571,6 @@ void ReliableConnection :: print_all_infos(){
   printf("\t buff addr : %p \n",  reinterpret_cast<void*>(rconn.rci.buf_addr));
   //printf("\t buf size : %d \n",  rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
-
-
 }
 
 }  // namespace dory

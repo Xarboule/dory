@@ -66,8 +66,7 @@ static constexpr int kind_shift = sizeof(Kind) * 8 - kind_size;
 static constexpr int pid_shift = kind_shift - pid_size;
 static constexpr int seq_erase_shift = kind_size + pid_size;
 static constexpr uint64_t pid_mask = numberOfOnes(pid_size) << pid_shift;
-static constexpr uint64_t seq_mask =
-    numberOfOnes(sizeof(uint64_t) * 8 - kind_size - pid_size);
+static constexpr uint64_t seq_mask = numberOfOnes(sizeof(uint64_t) * 8 - kind_size - pid_size);
 
 template <typename T, typename U>
 inline constexpr uint64_t pack(Kind k, T pid, U seq) {

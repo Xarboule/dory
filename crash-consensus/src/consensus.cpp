@@ -129,14 +129,12 @@ void RdmaConsensus::run() {
   ce_leader_election->addLoopback("primary", "shared-mr", "cq-leader-election",
                                   "cq-leader-election");
 
-  auto shared_memory_addr =
-      reinterpret_cast<uint8_t*>(cb->mr("shared-mr").addr);
+  auto shared_memory_addr = reinterpret_cast<uint8_t*>(cb->mr("shared-mr").addr);
 
-  overlay =
-      std::make_unique<OverlayAllocator>(shared_memory_addr, allocated_size);
+  overlay = std::make_unique<OverlayAllocator>(shared_memory_addr, allocated_size);
 
-  scratchpad =
-      std::make_unique<ScratchpadMemory>(ids, *overlay.get(), alignment);
+  scratchpad =  std::make_unique<ScratchpadMemory>(ids, *overlay.get(), alignment);
+  
   auto [logmem_ok, logmem, logmem_size] = overlay->allocateRemaining(alignment);
 
   LOGGER_INFO(logger, "Log allocation... {}", logmem_ok ? "OK" : "FAILED");
@@ -277,7 +275,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     return ret_no_error();
   }
 
-  if (am_I_leader.load()) {  // Leader (slow and fast-path)
+  //if (am_I_leader.load()) {  // Leader (slow and fast-path)
+  if (true) {  // Leader (slow and fast-path) 
     if (unlikely(became_leader)) {
       fast_path = false;
       became_leader = false;

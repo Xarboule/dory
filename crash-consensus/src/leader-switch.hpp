@@ -84,19 +84,12 @@ class LeaderHeartbeat {
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
           sizeof(uint64_t), loopback->remoteBuf() + offset);
-      /*printf("writing heartbeat (maison)\n");
-      memcpy(reinterpret_cast<void*>(loopback->get_mr().addr + offset), reinterpret_cast<void*>(counter_from), 8);
-      int post_ret = 0; */
 
       if (!post_ret) {
         std::cout << "Post returned " << post_ret << std::endl;
       }
 
       outstanding_pids.insert(my_id);
-
-      /*volatile uint64_t *val;
-      val = reinterpret_cast<uint64_t *>(loopback->get_mr().addr + offset);
-      printf("Value written : %d", static_cast<int>(*val));*/
     }
 
     bool did_work = false;
@@ -150,7 +143,6 @@ class LeaderHeartbeat {
         volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]);
         if (pid == my_id) {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset);
-          //val = reinterpret_cast<uint64_t *>(loopback->get_mr().addr + offset);
         }
 
         // std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id
