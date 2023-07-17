@@ -287,6 +287,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     // Hanging workaround
     auto& leader = leader_election->leaderSignal();
 
+    std :: cout << "in the propose "<< std :: endl;
     if (likely(fast_path)) {  // Fast-path
       if (unlikely(re_ctx->log.spaceLeftCritical())) {
         return ret_error(lock, ProposeError::FastPathRecyclingTriggered);

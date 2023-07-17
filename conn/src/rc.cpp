@@ -343,7 +343,7 @@ bool ReliableConnection::changeRightsIfNeeded(
 }
 
 bool ReliableConnection::post_send(ibv_send_wr &wr) {
-  printf("ATTENTION : post_send() appelé\n");
+  //printf("ATTENTION : post_send() appelé\n");
   struct ibv_send_wr *bad_wr = nullptr;
 
   auto ret = ibv_post_send(uniq_qp.get(), &wr, &bad_wr);

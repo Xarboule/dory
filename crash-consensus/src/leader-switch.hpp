@@ -79,7 +79,7 @@ class LeaderHeartbeat {
     if (outstanding_pids.find(my_id) == outstanding_pids.end()) {
       // Update my heartbeat
       *counter_from += 1;
-      printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback\n");
+      //printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback\n");
       auto post_ret = loopback->postSendSingle(
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
@@ -105,7 +105,7 @@ class LeaderHeartbeat {
 
       // std::cout << "Posting PID: " << pid << ", PostID: " << post_id <<
       // std::endl;
-      printf("Scanning hearbeat of %d ...\n", pid);
+      //printf("Scanning hearbeat of %d ...\n", pid);
       auto post_ret = rc.postSendSingle(
           ReliableConnection::RdmaRead,
           quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), slots[pid],
