@@ -80,6 +80,11 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
   std::this_thread::sleep_for(std::chrono::seconds(5 + 3 - id));
 
   if (id == 1) {
+
+    std::cout << "Waiting some time to take over" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+
     TIMESTAMP_INIT;
 
     std::vector<uint8_t> payload_buffer(payload_size + 2);
