@@ -275,8 +275,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     return ret_no_error();
   }
 
-  //if (am_I_leader.load()) {  // Leader (slow and fast-path)
-  if (true) {  // Leader (slow and fast-path) 
+  if (am_I_leader.load()) {  // Leader (slow and fast-path)
     if (unlikely(became_leader)) {
       fast_path = false;
       became_leader = false;
