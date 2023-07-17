@@ -289,6 +289,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
     std :: cout << "in the propose "<< std :: endl;
     if (likely(fast_path)) {  // Fast-path
+      std :: cout << "in the fast path "<< std :: endl;
       if (unlikely(re_ctx->log.spaceLeftCritical())) {
         return ret_error(lock, ProposeError::FastPathRecyclingTriggered);
       }
@@ -310,7 +311,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
           LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                        pslot.acceptedProposal(), pslot.firstUndecidedOffset());
           // auto [buf, len] = pslot.payload();
-
+          printf("Proposal accepted in ok \n");
           // Now that I got something, I will use the commit iterator
           while (commit_iter.hasNext(fuo)) {
             commit_iter.next();
@@ -319,6 +320,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
             auto [buf, len] = pslot.payload();
             commit(true, buf, len);
           }
+          printf("Commited \n");
         }
       } else {
         LOGGER_TRACE(logger,
@@ -329,6 +331,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         return ret_error(lock, ProposeError::FastPath, true);
       }
     } else {  // Slow-path
+      printf("In slow path \n");
       auto update_followers_fuo_err = catchup->catchFUO(leader);
       if (!update_followers_fuo_err->ok()) {
         LOGGER_TRACE(logger,

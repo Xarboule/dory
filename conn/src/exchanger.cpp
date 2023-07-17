@@ -139,11 +139,11 @@ void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
 
   //se comporter comme un client ! 
   start_loopback_client(rights);
-
+  /*
   while(1){
     std :: cout << "Client thread sleeping for 10s" << std :: endl;
     std::this_thread::sleep_for(std::chrono::seconds(10));
-  } // just doing nothing, until the main thread makes it stop
+  } // just doing nothing, until the main thread makes it stop*/
 }
 
 int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rights){
