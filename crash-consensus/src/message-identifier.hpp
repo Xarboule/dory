@@ -68,13 +68,11 @@ static constexpr int seq_erase_shift = kind_size + pid_size;
 static constexpr uint64_t pid_mask = numberOfOnes(pid_size) << pid_shift;
 static constexpr uint64_t seq_mask = numberOfOnes(sizeof(uint64_t) * 8 - kind_size - pid_size);
 
-template <typename T, typename U>
-inline constexpr uint64_t pack(Kind k, T pid, U seq) {
+template <typename T, typename U> inline constexpr uint64_t pack(Kind k, T pid, U seq) {
   return (k << kind_shift) | (static_cast<uint64_t>(pid) << pid_shift) | seq;
 }
 
-template <typename T>
-inline constexpr T unpackPID(uint64_t packed) {
+template <typename T> inline constexpr T unpackPID(uint64_t packed) {
   return (packed & pid_mask) >> pid_shift;
 }
 
@@ -82,24 +80,19 @@ inline constexpr Kind unpackKind(uint64_t packed) {
   return static_cast<Kind>(packed >> (kind_shift));
 }
 
-template <typename T>
-inline constexpr T unpackSEQ(uint64_t packed) {
+template <typename T> inline constexpr T unpackSEQ(uint64_t packed) {
   return (packed & seq_mask);
 }
 
-template <typename T, typename U>
-inline std::tuple<Kind, T, U> unpackAll(uint64_t packed) {
-  return std::make_tuple(unpackKind(packed), unpackPID<T>(packed),
-                         unpackSEQ<U>(packed));
+template <typename T, typename U> inline std::tuple<Kind, T, U> unpackAll(uint64_t packed) {
+  return std::make_tuple(unpackKind(packed), unpackPID<T>(packed),unpackSEQ<U>(packed));
 }
 
-template <typename T>
-inline constexpr T majority(T quorum_size) {
+template <typename T> inline constexpr T majority(T quorum_size) {
   return (quorum_size + 1) / 2;
 }
 
-template <typename T>
-inline constexpr T minority(T quorum_size) {
+template <typename T> inline constexpr T minority(T quorum_size) {
   return (quorum_size + 1) / 2 - 1;
 }
 
