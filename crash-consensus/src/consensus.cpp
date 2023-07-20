@@ -35,7 +35,10 @@ RdmaConsensus::RdmaConsensus(int my_id, std::vector<int>& remote_ids,
 
 RdmaConsensus::~RdmaConsensus() { consensus_thd.join(); }
 
+
+/*thread qui va demander en boucle les permissions*/
 void RdmaConsensus::spawn_follower() {
+  std::cout << "launching follower" << std::endl;
   consensus_thd = std::thread([this]() {
     follower.spawn();
 
