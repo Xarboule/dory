@@ -50,12 +50,11 @@ void RdmaConsensus::spawn_follower() {
         am_I_leader.store(false);
       }
 
-      std::cout << "Am I leader ? :" << reinterpret_cast<char*>(am_I_leader.load()) <<std::endl;
       // It should internally block/unblock the follower
       auto apply_ok = leader_election->checkAndApplyConnectionPermissionsOK(
           follower, am_I_leader, force_permission_request);
       
-      std::cout << "asked for permissions (if needed)" << std ::endl;
+      std::cout << "asked for permissions as a follower" << std ::endl;
 
       if (apply_ok){
         std::cout << "it worked ! "<<std::endl;
