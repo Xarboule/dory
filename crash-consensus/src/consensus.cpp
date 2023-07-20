@@ -254,7 +254,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                      pslot.acceptedProposal(), pslot.firstUndecidedOffset());
 
-        printf("fast write is ok ! ")
+        printf("fast write is ok ! ");
         // auto [buf, len] = pslot.payload();
 
         // Now that I got something, I will use the commit iterator
@@ -273,7 +273,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
       auto err = majW->fastWriteError();
       majW->recoverFromError(err);
 
-      printf("Error in fast write ! ")
+      printf("Error in fast write ! ");
 
       return ret_error(lock, ProposeError::FastPath, true);
     }
