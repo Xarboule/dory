@@ -4,9 +4,10 @@
 #include <cstdlib>
 void mkrndstr_ipa(int length, uint8_t* randomString);
 
+
+/*generates a random string of size length, stored in randomString*/
 void mkrndstr_ipa(int length, uint8_t* randomString) {
-  static uint8_t charset[] =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  static uint8_t charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
   if (length) {
     if (randomString) {

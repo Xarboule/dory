@@ -39,6 +39,8 @@ int main(int argc, char* argv[]) {
       throw std::runtime_error("Invalid id");
   }
 
+  std::cout << "USING ID = " << id << std :: endl;
+
   int payload_size = atoi(argv[2]);
   std::cout << "USING PAYLOAD SIZE = " << payload_size << std::endl;
 
@@ -55,11 +57,9 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  const int times =
-      static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
+  const int times = static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
   
-  benchmark(id, remote_ids, times, payload_size, outstanding_req,
-            dory::ThreadBank::A);
+  benchmark(id, remote_ids, times, payload_size, outstanding_req, dory::ThreadBank::A);
 
   while (true) {
     std::this_thread::sleep_for(std::chrono::seconds(60));
@@ -68,23 +68,19 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
-               int outstanding_req, dory::ThreadBank threadBank) {
+void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size, int outstanding_req, dory::ThreadBank threadBank) {
   dory::Consensus consensus(id, remote_ids, outstanding_req, threadBank);
   consensus.commitHandler([]([[maybe_unused]] bool leader,
                              [[maybe_unused]] uint8_t* buf,
                              [[maybe_unused]] size_t len) {});
 
   // Wait enough time for the consensus to become ready
-  std::cout << "Wait some time" << std::endl;
+  std::cout << "Wait some time (" << (5+3-id) << "seconds)"<< std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(5 + 3 - id));
 
   if (id == 1) {
-    /*
-    std::cout << "Waiting some time to take over" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));*/
-
-
+    std :: cout << "ID 1 is doing something ! " << std :: endl;
+    
     TIMESTAMP_INIT;
 
     std::vector<uint8_t> payload_buffer(payload_size + 2);
@@ -96,18 +92,30 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     TIMESTAMP_T loop_time;
 
     mkrndstr_ipa(payload_size, payload);
-    consensus.propose(payload, payload_size);
+    std :: cout << "A random payload was generated : " << static_cast<char*>(payload) << std :: endl;
+    auto ret = consensus.propose(payload, payload_size);
+
+
+    if (ret != dory::ProposeError::NoError){
+      std::cout << "Error in the first propose, with err = "<< dory :: MaybeError :: type_str(ret)<<std::endl;
+    }
+    
+
+    std :: string foo;
+    std::cout <<"First propose done\n";
+    std::cout <<"Press anything to launch the bench \n";
+    std :: cin >> foo;
 
     int offset = 2;
 
-    std::vector<std::vector<uint8_t>> payloads(8192);
+    std::vector<std::vector<uint8_t>> payloads(8192); //all the payloads, jsp pk 8192
     for (size_t i = 0; i < payloads.size(); i++) {
-      payloads[i].resize(payload_size);
-      mkrndstr_ipa(payload_size, &(payloads[i][0]));
+      payloads[i].resize(payload_size);   //chaque payload doit bien avoir la taille demandée
+      mkrndstr_ipa(payload_size, &(payloads[i][0])); // on génère aléatoirement le contenu de chaque payload 
     }
 
-    std::cout << "Started" << std::endl;
-    std::cout << "times = "<< times <<std::endl;
+    std::cout << "The bench is starting !" << std::endl;
+    std::cout << "Number of proposals = "<< times <<std::endl;
   
     TIMESTAMP_T start_meas, end_meas;
 
@@ -116,11 +124,12 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       // GET_TIMESTAMP(timestamps_start[i]);
       // Encode process doing the proposal
       dory::ProposeError err;
-      std::cout << "Proposing " << i << std::endl;
-      if ((err = consensus.propose(&(payloads[i % 8192][0]), payload_size)) !=
-          dory::ProposeError::NoError) {
-         std::cout << "Proposal failed at index " << i << std::endl;
-        //i -= 1;
+      std::cout << "Proposing " << i << "th" <<std::endl;
+      
+      //on parcourt les payloads, en proposant chacun 
+      if ((err = consensus.propose(&(payloads[i % 8192][0]), payload_size)) != dory::ProposeError::NoError) {
+        std::cout << "Proposal failed at index " << i << std::endl;
+        i -= 1;
         switch (err) {
           case dory::ProposeError::FastPath:
           case dory::ProposeError::FastPathRecyclingTriggered:
@@ -131,24 +140,18 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
           case dory::ProposeError::SlowPathReadRemoteLogs:
           case dory::ProposeError::SlowPathWriteAdoptedValue:
           case dory::ProposeError::SlowPathWriteNewValue:
-            std::cout << "Error: in leader mode. Code: "
-                      << static_cast<int>(err) << std::endl;
+            std::cout << "Error: in leader mode. Code: "<< static_cast<int>(err) << std::endl;
             break;
           case dory::ProposeError::SlowPathLogRecycled:
             std::cout << "Log recycled, waiting a bit..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
             break;
-
           case dory::ProposeError::MutexUnavailable:
           case dory::ProposeError::FollowerMode:
-            std::cout << "Error: in follower mode. Potential leader: "
-                       << consensus.potentialLeader() << std::endl;
-  
+            std::cout << "Error: in follower mode. Potential leader: "<< consensus.potentialLeader() << std::endl;
             break;
-
           default:
-            std::cout << "Bug in code. You should only handle errors here"
-                      << std::endl;
+            std::cout << "Bug in code. You should only handle errors here" << std::endl;
         }
       }
     }
