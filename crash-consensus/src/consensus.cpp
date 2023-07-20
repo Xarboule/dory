@@ -38,8 +38,10 @@ RdmaConsensus::~RdmaConsensus() { consensus_thd.join(); }
 
 /*thread qui va demander en boucle les permissions*/
 void RdmaConsensus::spawn_follower() {
-  std::cout << "launching follower" << std::endl;
+  std::cout << "launching consensus_thd" << std::endl;
   consensus_thd = std::thread([this]() {
+    std::cout << "inside consensus_thd" << std::endl;
+
     follower.spawn();
 
     bool force_permission_request = false;
@@ -53,11 +55,13 @@ void RdmaConsensus::spawn_follower() {
         am_I_leader.store(false);
       }
 
+      std::cout << "about to ask for permissions for the leader election" << std ::endl;
+
       // It should internally block/unblock the follower
       auto apply_ok = leader_election->checkAndApplyConnectionPermissionsOK(
           follower, am_I_leader, force_permission_request);
       
-      std::cout << "asked for permissions as a follower" << std ::endl;
+      std::cout << "asked for permissions for the leader election" << std ::endl;
 
       if (apply_ok){
         std::cout << "it worked ! "<<std::endl;
