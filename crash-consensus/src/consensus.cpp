@@ -50,10 +50,19 @@ void RdmaConsensus::spawn_follower() {
         am_I_leader.store(false);
       }
 
+      std::cout << "Am I leader ? :" << reinterpret_cast<char*> am_I_leader.load() <<std::endl;
       // It should internally block/unblock the follower
       auto apply_ok = leader_election->checkAndApplyConnectionPermissionsOK(
           follower, am_I_leader, force_permission_request);
+      
+      std::cout << "asked for permissions (if needed)" << std ::endl;
 
+      if (apply_ok){
+        std::cout << "it worked ! "<<std::endl;
+      }
+      else{
+        std::cout << "it failed...(somebody else is probably trying as well)" << std::endl;
+      }
       // If apply is not ok, means that I tried to become a leader, but failed
       // because somebody else tried to become as well.
       if (unlikely(!apply_ok)) {
@@ -198,8 +207,7 @@ void RdmaConsensus::run() {
   LOGGER_TRACE(logger, "My first undecided offset is {}",
                next_log_entry_offset);
 
-  catchup =
-      std::make_unique<CatchUpWithFollowers>(re_ctx.get(), *scratchpad.get());
+  catchup =  std::make_unique<CatchUpWithFollowers>(re_ctx.get(), *scratchpad.get());
   lsr = std::make_unique<LogSlotReader>(re_ctx.get(), *scratchpad.get(),
                                         next_log_entry_offset);
 

@@ -26,6 +26,8 @@ enum class ProposeError {
 
 enum class ThreadBank { A, B };
 
+/*La classe Consensus est juste un wrapper autour de la classe RdmaConsensus. 
+Elle permet de spécifier des paramètres (ThreadBank, commitHandler, etc..)*/
 class Consensus {
  public:
   Consensus(int my_id, std::vector<int> &remote_ids, int outstanding_req = 0,

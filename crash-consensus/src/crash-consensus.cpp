@@ -10,17 +10,17 @@ Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
 
   switch (threadBank) {
     case ThreadBank::A:
-      impl =
-          std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req);
+      std::cout << "RdmaConsensus object created with default ThreadBank settings (A)" << std::cout;
+      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req);
       break;
     case ThreadBank::B:
+      std::cout << "RdmaConsensus object created with ThreadBank settings" << std::cout;
       config.consensusThreadCoreID = ConsensusConfig::consensusThreadBankB_ID;
       config.switcherThreadCoreID = ConsensusConfig::switcherThreadBankB_ID;
       config.heartbeatThreadCoreID = ConsensusConfig::heartbeatThreadBankB_ID;
       config.followerThreadCoreID = ConsensusConfig::followerThreadBankB_ID;
       config.prefix = "Secondary-";
-      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req,
-                                             config);
+      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req,config);
       break;
     default:
       throw std::runtime_error("Unreachable, software bug");
@@ -29,11 +29,14 @@ Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
 
 Consensus::~Consensus() {}
 
-void Consensus::commitHandler(
-    std::function<void(bool leader, uint8_t *buf, size_t len)> committer) {
+/*commitHandler prend en argument une fonction (a callable object, of type std::function), qui return void et prend 3 paramètres : 
+bool leader, uint8_t buf, et size_t commiter
+Cette fonction sera le commitHandler des followers de impl*/
+void Consensus::commitHandler( std::function<void(bool leader, uint8_t *buf, size_t len)> committer) {
   impl->commitHandler(committer);
 }
 
+/*wrapper autour du propose() de RdmaConsensus*/
 ProposeError Consensus::propose(uint8_t *buf, size_t len) {
   int ret = impl->propose(buf, len);
   return static_cast<ProposeError>(ret);

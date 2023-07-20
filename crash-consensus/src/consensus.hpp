@@ -1,41 +1,5 @@
 #pragma once
 
-// #include <ios>
-// #include <iostream>
-
-// #include <thread>
-// #include <random>
-// #include <chrono>
-
-// #include <array>
-// #include <atomic>
-// #include <map>
-// #include <sstream>
-
-// #include <dory/conn/exchanger.hpp>
-// #include <dory/conn/rc.hpp>
-// #include <dory/ctrl/block.hpp>
-// #include <dory/ctrl/device.hpp>
-// #include <dory/shared/unused-suppressor.hpp>
-// #include <dory/store.hpp>
-
-// #include <algorithm>
-// #include <functional>
-
-// #include <dory/shared/units.hpp>
-
-// #include "log.hpp"
-// #include "response-tracker.hpp"
-// #include "memory.hpp"
-
-// #include "slow-path.hpp"
-// #include "leader-switch.hpp"
-// #include "timers.h"
-// #include "branching.hpp"
-// #include "pinning.hpp"
-// #include "config.hpp"
-// // #include "readerwriterqueue.h"
-
 #include <atomic>
 #include <cstdint>
 #include <thread>
@@ -73,11 +37,10 @@ class RdmaConsensus {
                     ConsensusConfig::ThreadConfig());
   ~RdmaConsensus();
 
-  template <typename Func>
-  void commitHandler(Func f) {
+  template <typename Func> void commitHandler(Func f) {
     commit = std::move(f);
     follower.commitHandler(commit);
-    spawn_follower();
+    spawn_follower(); //launches consensus_thd
   }
 
   int propose(uint8_t *buf, size_t len);
@@ -137,8 +100,8 @@ class RdmaConsensus {
   int my_id;
   std::vector<int> remote_ids;
 
-  size_t allocated_size;
-  int alignment;
+  size_t allocated_size; //par défaut (dans le constructeurs, dans consensus.cpp) à 2GiB
+  int alignment; //par défaut à 64
 
   std::thread consensus_thd;
   std::thread permissions_thd;
@@ -169,7 +132,7 @@ class RdmaConsensus {
       majW;
 
   std::vector<uintptr_t> to_remote_memory, dest;
-  BlockingIterator iter;
+  BlockingIterator iter; 
   LiveIterator commit_iter;
 
   Follower follower;
