@@ -92,12 +92,12 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     TIMESTAMP_T loop_time;
 
     mkrndstr_ipa(payload_size, payload);
-    std :: cout << "A random payload was generated : " << static_cast<char*>(payload) << std :: endl;
+    std :: cout << "A random payload was generated : " << reinterpret_cast<char*>(payload) << std :: endl;
     auto ret = consensus.propose(payload, payload_size);
 
 
     if (ret != dory::ProposeError::NoError){
-      std::cout << "Error in the first propose, with err = "<< dory :: MaybeError :: type_str(ret)<<std::endl;
+      std::cout << "Error in the first propose"<<std::endl;
     }
     
 
