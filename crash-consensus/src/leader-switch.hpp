@@ -560,7 +560,7 @@ class LeaderSwitcher {
     } else {
       // Check if my leader election declared me as leader
       if (want_leader->load()) {
-        std::cout << "My leader elections wants me as a leader" << std::endl;
+        //std::cout << "My leader elections wants me as a leader" << std::endl;
         // want_leader->store(false);
 
         auto expected = leader.load();
@@ -870,7 +870,7 @@ class LeaderElection {
     }
     hb_started = true;
 
-    std::cout << "Starting heartbeat ! " << std::endl;
+    std::cout << "Starting heartbeat thread ! " << std::endl;
     leader_heartbeat = LeaderHeartbeat(&ctx);
     std::future<void> ftr = hb_exit_signal.get_future();
     heartbeat_thd = std::thread([this, ftr = std::move(ftr)]() {
@@ -909,6 +909,7 @@ class LeaderElection {
       std::atomic<char> command{'c'};  // 'p' for pause, 'c' for continue
       char prev_command = 'c';
 
+      std::cout << "Starting FileWatcher thread ! " << std::endl;
       auto file_watcher_thd = std::thread([&command, &fd]() {
         while (true) {
           char tmp;
@@ -982,7 +983,7 @@ class LeaderElection {
       throw std::runtime_error("Already started");
     }
     switcher_started = true;
-    std::cout << "Starting leader switcher ! " << std::endl;
+    std::cout << "Starting leader switcher thread ! " << std::endl;
 
     leader_switcher = LeaderSwitcher(&ctx, &leader_heartbeat);
     std::future<void> ftr = switcher_exit_signal.get_future();  //permet de gérer des évènements de manière asynchrone 

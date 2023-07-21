@@ -28,6 +28,7 @@ class Follower {
         threadConfig{threadConfig} {}
 
   void spawn() {
+    std::cout << "Launching follower thread " << std::endl;
     follower_thd = std::thread([this] { run(); });
 
     if (threadConfig.pinThreads) {

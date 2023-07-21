@@ -154,6 +154,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
           default:
             std::cout << "Bug in code. You should only handle errors here" << std::endl;
         }
+        break;
       }
     }
     GET_TIMESTAMP(end_meas);
