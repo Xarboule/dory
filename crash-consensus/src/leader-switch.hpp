@@ -571,8 +571,7 @@ class LeaderSwitcher {
           dory::Leader desired(c_ctx->my_id, permission_asker.requestNr());
           auto ret = leader.compare_exchange_strong(expected, desired);
           if (ret) {
-            std::cout << "Process " << c_ctx->my_id << " wants to become
-            leader"<< std::endl;
+            std::cout << "Process " << c_ctx->my_id << " wants to become leader"<< std::endl;
             want_leader->store(false);
           }
         }
