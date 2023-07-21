@@ -365,7 +365,7 @@ void ConnectionExchanger::announce_all(MemoryStore& store,
   /*for (int pid : remote_ids) {
     announce(pid, store, prefix);
   }*/
-  LOGGER_INFO(logger, "announce_all() was called ==> does nothing");
+  //LOGGER_INFO(logger, "announce_all() was called ==> does nothing");
 }
 
 void ConnectionExchanger::announce_ready(MemoryStore& store,
@@ -374,7 +374,7 @@ void ConnectionExchanger::announce_ready(MemoryStore& store,
   /*std::stringstream name;
   name << prefix << "-" << my_id << "-ready(" << reason << ")";
   store.set(name.str(), "ready(" + reason + ")");*/
-  LOGGER_INFO(logger, "announce_ready() was called ==> does nothing");
+  //LOGGER_INFO(logger, "announce_ready() was called ==> does nothing");
 }
 
 void ConnectionExchanger::wait_ready(int proc_id, MemoryStore& store,
@@ -396,7 +396,7 @@ void ConnectionExchanger::wait_ready(int proc_id, MemoryStore& store,
                              "` does not contain the value `" + packed_reason +
                              "`");
   }*/
-  LOGGER_INFO(logger, "wait_ready() was called ==> does nothing");
+  //LOGGER_INFO(logger, "wait_ready() was called ==> does nothing");
 }
 
 void ConnectionExchanger::wait_ready_all(MemoryStore& store,
@@ -405,7 +405,7 @@ void ConnectionExchanger::wait_ready_all(MemoryStore& store,
   /*for (int pid : remote_ids) {
     wait_ready(pid, store, prefix, reason);
   }*/
-  LOGGER_INFO(logger, "wait_ready_all() was called ==> does nothing");
+  //LOGGER_INFO(logger, "wait_ready_all() was called ==> does nothing");
 }
 
 void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
@@ -428,7 +428,7 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
   rc.init(rights);
   rc.connect(remoteRC);
   LOGGER_INFO(logger, "Connected with {}", name.str());*/
-  LOGGER_INFO(logger, "connect() was called ==> redirecting to connect_with_cm()");
+  //LOGGER_INFO(logger, "connect() was called ==> redirecting to connect_with_cm()");
   connect_with_cm(proc_id, prefix, rights);
 
 }
