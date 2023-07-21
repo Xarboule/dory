@@ -120,7 +120,7 @@ void ReliableConnection::associateWithCQ(std::string send_cp_name,
                                std::string(std::strerror(errno)));
     }
   });
-  std :: cout << "QP created with ibv_create_qp() ==> Be careful about its state !" << std :: endl;
+  //std :: cout << "QP created with ibv_create_qp() ==> Be careful about its state !" << std :: endl;
 }
 
 /*Pour créer la QP, il faut renseigner des infos dans le champ create_attr de
@@ -159,7 +159,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
                                std::string(std::strerror(errno)));
     }
   });
-  LOGGER_INFO(logger, "QP successfully created (with cm)! ");
+  //LOGGER_INFO(logger, "QP successfully created (with cm)! ");
 
 
 }
@@ -181,7 +181,7 @@ void ReliableConnection::reset() {
 
 
   void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights){
-    std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
+    //std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
     struct ibv_qp_attr init_attr;
     memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
     init_attr.qp_access_flags = rights;

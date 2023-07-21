@@ -217,7 +217,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
     
       loopback_->setRemoteSetup(cm_event->param.conn.private_data); 
-      loopback_->print_all_infos();
+      //loopback_->print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
@@ -336,7 +336,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
     return -errno;
   }
     
-  remote_loopback_->print_all_infos();
+  //remote_loopback_->print_all_infos();
 
 
   LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
@@ -563,7 +563,7 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
 
     
       rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
-      rc.print_all_infos();
+      //rc.print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
@@ -699,7 +699,7 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
     return -errno;
   }
     
-  rc.print_all_infos();
+  //rc.print_all_infos();
 
 
   LOGGER_INFO(logger, "The client is connected successfully \n");
@@ -714,7 +714,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
   for (int pid : remote_ids) {
     connect(pid, store, prefix, rights);
   }*/
-  LOGGER_INFO(logger, "connect_all() called...redirecting to connect_all_with_cm() \n");
+  //LOGGER_INFO(logger, "connect_all() called...redirecting to connect_all_with_cm() \n");
   connect_all_with_cm(store, prefix, rights);
 }
 
@@ -752,7 +752,7 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* lets see, if it was a good event */
 	if(0 != (*cm_event)->status){
-		LOGGER_INFO(logger,"CM event has non zero status");
+		//LOGGER_INFO(logger,"CM event has non zero status");
 		ret = -((*cm_event)->status);
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
@@ -761,7 +761,7 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* if it was a good event, was it of the expected type */
 	if ((*cm_event)->event != expected_event) {
-		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+		//LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
 				rdma_event_str((*cm_event)->event));
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
