@@ -484,7 +484,7 @@ class LeaderPermissionAsker {
     std::cout << "AskForPermissions_Write Done" << std::endl;
 
     if (!err->ok()) {
-      std::cout << "The AskForPermissions failed" << std::cout;
+      std::cout << "The AskForPermissions failed" << std::endl;
       return err;
     }
 
