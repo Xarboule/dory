@@ -295,11 +295,9 @@ class LeaderPermissionAsker {
     // We assume that these writes can never fail
     SequentialQuorumWaiter waiterLeaderWrite(quorum::LeaderReqWr,
                                              c_ctx->remote_ids, quorum_size, 1);
-    leaderWriter =
-        MajorityWriter(c_ctx, waiterLeaderWrite, c_ctx->remote_ids, 0);
+    leaderWriter = MajorityWriter(c_ctx, waiterLeaderWrite, c_ctx->remote_ids, 0);
 
-    auto remote_slot_offset =
-        scratchpad->writeLeaderChangeSlotsOffsets()[c_ctx->my_id];
+    auto remote_slot_offset = scratchpad->writeLeaderChangeSlotsOffsets()[c_ctx->my_id];
     remote_mem_locations.resize(Identifiers::maxID(c_ctx->remote_ids) + 1);
     std::fill(remote_mem_locations.begin(), remote_mem_locations.end(),
               remote_slot_offset);
@@ -472,8 +470,7 @@ class LeaderPermissionAsker {
   }
 
   std::unique_ptr<MaybeError> askForPermissions(bool hard_reset = false) {
-    uint64_t *temp =
-        reinterpret_cast<uint64_t *>(scratchpad->leaderRequestSlot());
+    uint64_t *temp =  reinterpret_cast<uint64_t *>(scratchpad->leaderRequestSlot());
     if (hard_reset) {
       *temp = (1UL << 63) | req_nr;
     } else {
@@ -484,9 +481,10 @@ class LeaderPermissionAsker {
     // Wait for the request to reach all followers
     auto err = leaderWriter.write(temp, sizeof(req_nr), remote_mem_locations,
                                   ask_perm_poller);
-     std::cout << "AskForPermissions_WriteDone" << std::endl;
+    std::cout << "AskForPermissions_Write Done" << std::endl;
 
     if (!err->ok()) {
+      std::cout << "The AskForPermissions failed" << std::cout;
       return err;
     }
 
@@ -562,7 +560,7 @@ class LeaderSwitcher {
     } else {
       // Check if my leader election declared me as leader
       if (want_leader->load()) {
-        //std::cout << "My leader elections wants me as a leader" << std::endl;
+        std::cout << "My leader elections wants me as a leader" << std::endl;
         // want_leader->store(false);
 
         auto expected = leader.load();
@@ -573,9 +571,8 @@ class LeaderSwitcher {
           dory::Leader desired(c_ctx->my_id, permission_asker.requestNr());
           auto ret = leader.compare_exchange_strong(expected, desired);
           if (ret) {
-            // std::cout << "Process " << c_ctx->my_id << " wants to become
-            // leader"
-            // << std::endl;
+            std::cout << "Process " << c_ctx->my_id << " wants to become
+            leader"<< std::endl;
             want_leader->store(false);
           }
         }
@@ -989,17 +986,22 @@ class LeaderElection {
     std::cout << "Starting leader switcher ! " << std::endl;
 
     leader_switcher = LeaderSwitcher(&ctx, &leader_heartbeat);
-    std::future<void> ftr = switcher_exit_signal.get_future();
+    std::future<void> ftr = switcher_exit_signal.get_future();  //permet de gérer des évènements de manière asynchrone 
     switcher_thd = std::thread([this, ftr = std::move(ftr)]() {
       leader_switcher.startPoller();
+      
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
         leader_switcher.scanPermissions();
         if (i == 0) {
-          if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) {
-            break;
+          //vérifie le résultat sans bloquer 
+          if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) { 
+            std::cout << "the leader switcher thread is about the exit " << std::endl;
+            break; //sort totalement de la boucle ?? (pk pas juste "continue" ? )
+            //ça veut dire que si le résultat n'est pas disponible, on quitte 
           }
         }
       }
+
     });
 
     if (threadConfig.pinThreads) {
