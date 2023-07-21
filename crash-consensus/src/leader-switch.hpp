@@ -874,6 +874,7 @@ class LeaderElection {
     }
     hb_started = true;
 
+    std::cout << "Starting heartbeat ! " << std:endl;
     leader_heartbeat = LeaderHeartbeat(&ctx);
     std::future<void> ftr = hb_exit_signal.get_future();
     heartbeat_thd = std::thread([this, ftr = std::move(ftr)]() {
@@ -985,6 +986,7 @@ class LeaderElection {
       throw std::runtime_error("Already started");
     }
     switcher_started = true;
+    std::cout << "Starting leader switcher ! " << std:endl;
 
     leader_switcher = LeaderSwitcher(&ctx, &leader_heartbeat);
     std::future<void> ftr = switcher_exit_signal.get_future();
@@ -993,8 +995,7 @@ class LeaderElection {
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
         leader_switcher.scanPermissions();
         if (i == 0) {
-          if (ftr.wait_for(std::chrono::seconds(0)) !=
-              std::future_status::timeout) {
+          if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) {
             break;
           }
         }

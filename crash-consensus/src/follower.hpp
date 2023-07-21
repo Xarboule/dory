@@ -60,8 +60,7 @@ class Follower {
     }
   }
 
-  template <typename Func>
-  void commitHandler(Func f) {
+  template <typename Func> void commitHandler(Func f) {
     commit = std::move(f);
   }
 
@@ -100,20 +99,20 @@ class Follower {
     constexpr unsigned mask = (1 << 14) - 1;  // Must be power of 2 minus 1
 
     while (true) {
-      loops = (loops + 1) & mask;
+      loops = (loops + 1) & mask; //ça limite la valeur de loop, jusqu'à 2**14-1
 
-      if (loops == 0) {
-        if (block_thread_req.load()) {
-          blocked_thread.store(true);
-          block_thread_req.store(false);
-          log_mutex.unlock();
+      if (loops == 0) {         //cad si on a fait un tour complet des valeurs de 0 à 2**14-1 ==> de temps en temps, on check 
+        if (block_thread_req.load()) {    
+          blocked_thread.store(true);   //blocking the thread
+          block_thread_req.store(false);  //ack the request 
+          log_mutex.unlock();             //release the access to the critical region
 
-          while (blocked_thread.load()) {
+          while (blocked_thread.load()) {   //the thread is blocked ! 
             // // This is necessary to make the call to `block` idempotent
             // if (block_thread_req.load()) {
             //   block_thread_req.store(false);
             // }
-          }
+          }   
           log_mutex.lock();
         }
       }
@@ -139,7 +138,7 @@ class Follower {
       auto fuo = pslot.firstUndecidedOffset();
       bool recycling_requested = false;
 
-      if (unlikely(fuo == 0)) {
+      if (unlikely(fuo == 0)) {   //log plein ? ==> besoin de recycler
         auto [buf, len] = pslot.payload();
 
         if (len != sizeof(LogRecyclingRequest)) {
@@ -155,7 +154,7 @@ class Follower {
         // std::cout << "Fuo encoded inside the 0: " << fuo << std::endl;
       }
 
-      // std::cout << "Commit up to " << fuo << std::endl;
+      std::cout << "Commit up to " << fuo << std::endl;
 
       while (commit_iter->hasNext(fuo)) {
         commit_iter->next();
@@ -212,8 +211,7 @@ class Follower {
       throw std::runtime_error("Coding bug: connection does not exist");
     }
 
-    uint64_t *temp =
-        reinterpret_cast<uint64_t *>(scratchpad->logRecyclingResponseSlot());
+    uint64_t *temp = reinterpret_cast<uint64_t *>(scratchpad->logRecyclingResponseSlot());
     *temp = recycling_done_id;
 
     auto &rc = rc_it->second;
@@ -254,10 +252,13 @@ class Follower {
  private:
   ReplicationContext *ctx;
   LeaderContext *le_ctx;
+
   BlockingIterator *iter;
   LiveIterator *commit_iter;
+  
   std::unique_ptr<LogSlotReader> *lsr;
   ScratchpadMemory *scratchpad;
+  
   std::function<void(bool, uint8_t *, size_t)> commit;
 
   std::thread follower_thd;

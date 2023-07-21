@@ -58,8 +58,7 @@ void RdmaConsensus::spawn_follower() {
       std::cout << "about to ask for permissions for the leader election" << std ::endl;
 
       // It should internally block/unblock the follower
-      auto apply_ok = leader_election->checkAndApplyConnectionPermissionsOK(
-          follower, am_I_leader, force_permission_request);
+      auto apply_ok = leader_election->checkAndApplyConnectionPermissionsOK(follower, am_I_leader, force_permission_request);
       
       std::cout << "asked for permissions for the leader election" << std ::endl;
 
@@ -92,15 +91,15 @@ void RdmaConsensus::spawn_follower() {
   }
 }
 
+
+/*C'est là que tout s'initialise : connexions, contextes etc. */
 void RdmaConsensus::run() {
   std::vector<int> ids(remote_ids);
   ids.push_back(my_id);
 
   // Get the last device
+  //Dans notre cas, comme on n'a qu'une seule device, ça va
   {
-    // TODO: The copy constructor is invoked here if we use auto and then
-    // iterate on the dev_lst
-    // auto dev_lst = d.list();
     for (auto& dev : d.list()) {
       od = std::move(dev);
     }
@@ -110,6 +109,7 @@ void RdmaConsensus::run() {
               "Device name: {}, Device verbs name: {}, Extra info: {} {}",
               od.name(), od.dev_name(), OpenDevice::type_str(od.node_type()),
               OpenDevice::type_str(od.transport_type()));
+
 
   rp = std::make_unique<ResolvedPort>(od);
   auto binded = rp->bindTo(0);
@@ -128,28 +128,28 @@ void RdmaConsensus::run() {
   cb->registerCQ("cq-replication");
   cb->registerCQ("cq-leader-election");
 
-  ce_replication =
-      std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
+  // Configure the connection exchanger for the replication plane
+  ce_replication = std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
   ce_replication->configure_all("primary", "shared-mr", "cq-replication",
                                 "cq-replication");
   ce_replication->announce_all(store, "qp-replication");
   ce_replication->announce_ready(store, "qp-replication", "announce");
 
-  ce_leader_election =
-      std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
+
+  // Configure the connection exchanger for background plane
+  ce_leader_election = std::make_unique<ConnectionExchanger>(my_id, remote_ids, *cb.get());
   ce_leader_election->configure_all("primary", "shared-mr",
                                     "cq-leader-election", "cq-leader-election");
   ce_leader_election->announce_all(store, "qp-leader-election");
   ce_leader_election->announce_ready(store, "qp-leader-election", "announce");
   ce_leader_election->addLoopback("primary", "shared-mr", "cq-leader-election",
-                                  "cq-leader-election");
+                                  "cq-leader-election"); //loopback sert pour incrémenter le heartbeat
 
+
+  // Configure the log 
   auto shared_memory_addr = reinterpret_cast<uint8_t*>(cb->mr("shared-mr").addr);
-
   overlay = std::make_unique<OverlayAllocator>(shared_memory_addr, allocated_size);
-
   scratchpad =  std::make_unique<ScratchpadMemory>(ids, *overlay.get(), alignment);
-  
   auto [logmem_ok, logmem, logmem_size] = overlay->allocateRemaining(alignment);
 
   LOGGER_INFO(logger, "Log allocation... {}", logmem_ok ? "OK" : "FAILED");
@@ -160,11 +160,11 @@ void RdmaConsensus::run() {
 
   replication_log = std::make_unique<Log>(logmem, logmem_size);
 
+  //Establishing the connections 
   ce_replication->wait_ready_all(store, "qp-replication", "announce");
   ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
   
-  
-  Connection: //?????
+  //Connection: //?? 
   ce_replication->connect_all(
       store, "qp-replication",
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
@@ -176,42 +176,45 @@ void RdmaConsensus::run() {
           ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
   ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
 
-  std :: string foo;
-  std::cout <<"EVERYTHING IS CONNECTED WELL\n";
-  std::cout <<"Press anything to continue once all connections are ok";
-  std :: cin >> foo;
-
   ce_replication->wait_ready_all(store, "qp-replication", "connect");
   ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
   ce_leader_election->connectLoopback(
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
       ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
-  // Initialize the contexts
+  std :: string foo;
+  std::cout <<"EVERYTHING IS CONNECTED WELL\n";
+  std::cout <<"Press anything to continue once all connections are ok";
+  std :: cin >> foo;
+
+  //Un "context", c'est rien d'autre qu'un struct qui contient tout ce qui est pertinent, pour faciliter l'accès
+
+
+  // Initialize the context of replication plane (ConnectionContext and ReplicationContext) 
+  auto& cq_replication = cb->cq("cq-replication");
+  re_conn_ctx = std::make_unique<ConnectionContext>(
+      *cb.get(), *ce_replication.get(), cq_replication, remote_ids, my_id);
+  re_ctx = std::make_unique<ReplicationContext>(
+      *re_conn_ctx.get(), *replication_log.get(), log_offset);
+
+
+  // Initialize the context of background plane : 
   auto& cq_leader_election = cb->cq("cq-leader-election");
   le_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_leader_election.get(), cq_leader_election, remote_ids,
       my_id);
 
-  auto& cq_replication = cb->cq("cq-replication");
-  re_conn_ctx = std::make_unique<ConnectionContext>(
-      *cb.get(), *ce_replication.get(), cq_replication, remote_ids, my_id);
-
-  re_ctx = std::make_unique<ReplicationContext>(
-      *re_conn_ctx.get(), *replication_log.get(), log_offset);
 
   // Initialize Leader election
-  leader_election = std::make_unique<LeaderElection>(
-      *le_conn_ctx.get(), *scratchpad.get(), threadConfig);
+  leader_election = std::make_unique<LeaderElection>(*le_conn_ctx.get(), *scratchpad.get(), threadConfig);
   leader_election->attachReplicatorContext(re_ctx.get());
   response_blocked = &(leader_election->response_blocked);
+
 
   // Initialize replication
   auto quorum_size = quorum::majority(remote_ids.size() + 1) - 1;
   auto next_log_entry_offset = re_ctx->log.headerFirstUndecidedOffset();
-
-  LOGGER_TRACE(logger, "My first undecided offset is {}",
-               next_log_entry_offset);
+  LOGGER_TRACE(logger, "My first undecided offset is {}",next_log_entry_offset);
 
   catchup =  std::make_unique<CatchUpWithFollowers>(re_ctx.get(), *scratchpad.get());
   lsr = std::make_unique<LogSlotReader>(re_ctx.get(), *scratchpad.get(),
@@ -219,11 +222,9 @@ void RdmaConsensus::run() {
 
   follower.attach(&lsr, scratchpad.get());
 
-  log_recycling =
-      std::make_unique<LogRecycling>(re_ctx.get(), *scratchpad.get());
+  log_recycling =  std::make_unique<LogRecycling>(re_ctx.get(), *scratchpad.get());
 
-  sqw = std::make_unique<SequentialQuorumWaiter>(
-      quorum::EntryWr, re_ctx->cc.remote_ids, quorum_size, 1);
+  sqw = std::make_unique<SequentialQuorumWaiter>(  quorum::EntryWr, re_ctx->cc.remote_ids, quorum_size, 1);
   majW = std::make_unique<FixedSizeMajorityOperation<SequentialQuorumWaiter,
                                                      WriteLogMajorityError>>(
       &re_ctx->cc, *sqw.get(), re_ctx->cc.remote_ids);

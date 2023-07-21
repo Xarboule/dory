@@ -7,7 +7,6 @@ namespace dory {
 Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
                      int outstanding_req, ThreadBank threadBank) {
   ConsensusConfig::ThreadConfig config;
-
   switch (threadBank) {
     case ThreadBank::A:
       std::cout << "RdmaConsensus object created with default ThreadBank settings (A)" << std::endl;
