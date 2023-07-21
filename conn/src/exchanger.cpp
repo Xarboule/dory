@@ -35,7 +35,7 @@ void ConnectionExchanger::configure(int proc_id, std::string const& pd,
   rc.bindToPD(pd);
   rc.bindToMR(mr);  
   rc.associateWithCQ(send_cq_name, recv_cq_name);*/
-  LOGGER_INFO(logger, "configure was called ==> redirecting to configure_with_cm");
+  //LOGGER_INFO(logger, "configure was called ==> redirecting to configure_with_cm");
   configure_with_cm(proc_id, pd, mr, send_cq_name, recv_cq_name);
 }
 
@@ -46,7 +46,7 @@ void ConnectionExchanger::configure_all(std::string const& pd,
   /*for (auto const& id : remote_ids) {
     configure(id, pd, mr, send_cq_name, recv_cq_name);
   }*/
-  LOGGER_INFO(logger, "configure all was called ==> redirecting to configure_all_with_cm");
+  //LOGGER_INFO(logger, "configure all was called ==> redirecting to configure_all_with_cm");
   configure_all_with_cm(pd, mr, send_cq_name, recv_cq_name);
 
 
@@ -87,7 +87,7 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
   loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
   loopback_->associateWithCQ(send_cq_name, recv_cq_name);*/
-  LOGGER_INFO(logger, "Add Loopback  was called ==> redirecting to AddLoopback_with_cm()");
+  //LOGGER_INFO(logger, "Add Loopback  was called ==> redirecting to AddLoopback_with_cm()");
   addLoopback_with_cm(pd, mr, send_cq_name, recv_cq_name);
 }
 
@@ -99,7 +99,7 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
   loopback_->bindToPD(pd);
   loopback_->bindToMR(mr);
   loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
-  LOGGER_INFO(logger, "LoopBack added with_cm ");
+  //LOGGER_INFO(logger, "LoopBack added with_cm ");
   
 
   //remote_loopback est identique à loopback
@@ -107,7 +107,7 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
   remote_loopback_->bindToPD(pd);
   remote_loopback_->bindToMR(mr);
   remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
-  LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
+  //LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
 
   loopback_port = 80000;
 }
@@ -117,7 +117,7 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   loopback_->init(rights);
   loopback_->connect(infoForRemoteParty);
   LOGGER_INFO(logger, "Loopback connection was established");*/
-  LOGGER_INFO(logger, "Loopback connect was called ==> redirecting to connectLoopBack_with_cm");
+  //LOGGER_INFO(logger, "Loopback connect was called ==> redirecting to connectLoopBack_with_cm");
   connectLoopback_with_cm(rights);
 }
 
@@ -127,14 +127,14 @@ void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rig
   client_thread.detach();
 
   start_loopback_server(rights);
-  LOGGER_INFO(logger, "Loopback connected with cm !");
+  //LOGGER_INFO(logger, "Loopback connected with cm !");
 }
 
 
 
 void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
   //-attendre quelques secondes
-  std :: cout << "Client thread sleeping" << std :: endl;
+  //std :: cout << "Client thread sleeping" << std :: endl;
   std::this_thread::sleep_for(std::chrono::seconds(2));
 
   //se comporter comme un client ! 

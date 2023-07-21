@@ -307,7 +307,7 @@ bool ReliableConnection::needsReset() {
 }
 
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
-  //printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
+  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
@@ -319,7 +319,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
 
 bool ReliableConnection::changeRightsIfNeeded(
     ControlBlock::MemoryRights rights) {
-  //printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
+  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
   auto converted_rights = static_cast<unsigned>(rights);
 
   struct ibv_qp_attr attr;
@@ -343,7 +343,7 @@ bool ReliableConnection::changeRightsIfNeeded(
 }
 
 bool ReliableConnection::post_send(ibv_send_wr &wr) {
-  //printf("ATTENTION : post_send() appelé\n");
+  printf("ATTENTION : post_send() appelé\n");
   struct ibv_send_wr *bad_wr = nullptr;
 
   auto ret = ibv_post_send(uniq_qp.get(), &wr, &bad_wr);
@@ -366,7 +366,7 @@ bool ReliableConnection::post_send(ibv_send_wr &wr) {
 bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
                                               uintptr_t remote_addr) {
-  //printf("ATTENTION : postSendSingleCached() appelé\n");
+  printf("ATTENTION : postSendSingleCached() appelé\n");
   wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
   wr_cached->sg_list->length = len;
 
@@ -401,7 +401,7 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
 
 bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uintptr_t remote_addr) {
-  //printf("ATTENTION : postSendSingle appelé\n");
+  printf("ATTENTION : postSendSingle appelé\n");
   return postSendSingle(req, req_id, buf, len, mr.lkey, remote_addr);
 }
 
@@ -409,7 +409,7 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uint32_t lkey,
                                         uintptr_t remote_addr) {
   // TODO(Kristian): if not used concurrently, we could reuse the same wr
-  //printf("ATTENTION : postSendSingle() appelé\n");
+  printf("ATTENTION : postSendSingle() appelé\n");
   struct ibv_send_wr wr;
   struct ibv_sge sg;
 
