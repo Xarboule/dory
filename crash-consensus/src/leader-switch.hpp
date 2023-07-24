@@ -118,7 +118,7 @@ class LeaderHeartbeat {
       }
 
       std::cout << "The following request has been posted" << std::endl;
-      std::cout << "polling PID = " << pid <<"; my id = ", my_id << std::endl;
+      std::cout << "polling PID = " << pid <<"; my id = "<< my_id << std::endl;
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
       std::cout << "Where to read : " << rc.remoteBuf() + offset << std :: endl;
