@@ -705,6 +705,7 @@ class LeaderSwitcher {
           // Hard reset every connection
 
           // Reset everybody
+          std::cout << "hard reset" << std::endl;
           for (auto &[pid, rc] : *replicator_rcs) {
             IGNORE(pid);
             rc.reset();
