@@ -41,29 +41,28 @@ class LeaderHeartbeat {
   void startPoller() {
     read_seq = 0;
 
+    //extraction des infos à partir du contexte de connexion 
     rcs = &(ctx->cc.ce.connections());
     my_id = ctx->cc.my_id;
     loopback = &(ctx->cc.ce.loopback());
-
-    offset = ctx->scratchpad.leaderHeartbeatSlotOffset();
-    counter_from = reinterpret_cast<uint64_t *>(
-        ctx->scratchpad.leaderHeartbeatSlot() + 64);
-    *counter_from = 0;
-
-    slots = ctx->scratchpad.readLeaderHeartbeatSlots();
-
     ids = ctx->cc.remote_ids;
     ids.push_back(ctx->cc.my_id);
+    
+    //extraction des infos à partir du scratchpad
+    offset = ctx->scratchpad.leaderHeartbeatSlotOffset();
+    counter_from = reinterpret_cast<uint64_t *>(ctx->scratchpad.leaderHeartbeatSlot() + 64);
+    *counter_from = 0;
+    slots = ctx->scratchpad.readLeaderHeartbeatSlots();
+
     std::sort(ids.begin(), ids.end());
-
     max_id = *(std::minmax_element(ids.begin(), ids.end()).second);
-    status = std::vector<ReadingStatus>(max_id + 1);
 
+    status = std::vector<ReadingStatus>(max_id + 1);
     status[ids[0]].consecutive_updates = history_length;
 
+    //??
     ctx->poller.registerContext(quorum::LeaderHeartbeat);
     ctx->poller.endRegistrations(4);
-
     heartbeat_poller = ctx->poller.getContext(quorum::LeaderHeartbeat);
 
     post_id = 0;
@@ -73,22 +72,20 @@ class LeaderHeartbeat {
     }
   }
 
-  void retract() { want_leader.store(false); }
+  void retract() { want_leader.store(false); } //==> je ne veux plus être leader
 
   void scanHeartbeats() {
     if (outstanding_pids.find(my_id) == outstanding_pids.end()) {
       // Update my heartbeat
       *counter_from += 1;
-      //printf("ATTENTION, postSendSinge() utilisé (heartbeat write)  à partir de loopback\n");
       auto post_ret = loopback->postSendSingle(
           ReliableConnection::RdmaWrite,
           quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
           sizeof(uint64_t), loopback->remoteBuf() + offset);
 
       if (!post_ret) {
-        std::cout << "Post returned " << post_ret << std::endl;
+        std::cout << "(Error in update of heartbeat) Post returned " << post_ret << std::endl;
       }
-
       outstanding_pids.insert(my_id);
     }
 
@@ -230,13 +227,14 @@ class LeaderHeartbeat {
 
     int outstanding;
     uint64_t value;
-    int consecutive_updates;
+    int consecutive_updates; 
     int failed_attempts;
     int loop_modulo;
     bool freshly_updated;
   };
 
  private:
+ /*D'après cette fonction, le leader est celui dont l'id est le plus petit ET avec plus de 2 consecutive_updates*/
   int leader_pid() {
     int leader_id = -1;
 
@@ -253,7 +251,8 @@ class LeaderHeartbeat {
   }
 
   LeaderContext *ctx;
-  std::atomic<bool> want_leader;
+  std::atomic<bool> want_leader;  
+
   std::map<int, ReliableConnection> *rcs;
   ReliableConnection *loopback;
 
@@ -656,8 +655,7 @@ class LeaderSwitcher {
             auto old_leader = replicator_rcs->find(orig_leader.requester);
             if (old_leader != replicator_rcs->end()) {
               auto &rc = old_leader->second;
-              auto rights =
-                  ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
+              auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
 
               if (!rc.changeRights(rights)) {
                 rc.reset();
@@ -879,14 +877,13 @@ class LeaderElection {
       std::string fifo("/tmp/fifo-" + std::to_string(ctx.cc.my_id));
       if (unlink(fifo.c_str())) {
         if (errno != ENOENT) {
-          throw std::runtime_error("Could not delete the fifo: " +
-                                   std::string(std::strerror(errno)));
+          throw std::runtime_error("Could not delete the fifo: " + std::string(std::strerror(errno)));
         }
       }
-
+      
+      // Create a named pipe with read and write permissions for all users (0666)
       if (mkfifo(fifo.c_str(), 0666)) {
-        throw std::runtime_error("Could not create the fifo: " +
-                                 std::string(std::strerror(errno)));
+        throw std::runtime_error("Could not create the fifo: " + std::string(std::strerror(errno)));
       }
 
       int fd = open(fifo.c_str(), O_RDWR);
@@ -894,17 +891,6 @@ class LeaderElection {
         throw std::runtime_error("Could not open the fifo: " +
                                  std::string(std::strerror(errno)));
       }
-
-      // int flags = fcntl(fd, F_GETFL, 0);
-      // if (flags == -1) {
-      //   throw std::runtime_error("Could not get the fifo flags: " +
-      //                           std::string(std::strerror(errno)));
-      // }
-
-      // if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-      //   throw std::runtime_error("Could not set the fifo to non-blocking: " +
-      //                           std::string(std::strerror(errno)));
-      // }
 
       std::atomic<char> command{'c'};  // 'p' for pause, 'c' for continue
       char prev_command = 'c';
@@ -920,6 +906,7 @@ class LeaderElection {
                                      std::string(std::strerror(errno)));
             // }
           } else if (ret == 1) {
+            std::cout <<"[FILEWATCHER] Storing in command : " << tmp << std::endl;
             command.store(tmp);
           }
         }
@@ -934,7 +921,9 @@ class LeaderElection {
       }
 
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
+
         char current_command = command.load();
+        std::cout <<"Previous command :" << prev_command << "; Current command : " << current_command << std::endl;
         if (current_command == 'c') {
           response_blocked.store(false);
           leader_heartbeat.scanHeartbeats();
