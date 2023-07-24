@@ -106,8 +106,8 @@ class LeaderHeartbeat {
         loopback->remoteBuf() + offset); //where to read
 
       if (!post_ret) {
-        std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;*/
-      }
+        std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;
+      }*/
     }
 
 
