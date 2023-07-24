@@ -123,7 +123,8 @@ class LeaderHeartbeat {
       std::cout << "polling PID = " << pid <<"; my id = "<< my_id << std::endl;
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
-      std::cout << "Where to read : " << reinterpret_cast<char*>(rc.remoteBuf() + offset) << std :: endl;
+      std::cout << "Where to read (without offset): " << reinterpret_cast<char*>(rc.remoteBuf()) << std :: endl;
+      std::cout << "Offset : " << offset << std::endl;
     }
 
     if (did_work) { //?? 
