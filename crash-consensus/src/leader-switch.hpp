@@ -174,7 +174,7 @@ class LeaderHeartbeat {
 
         std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
         std::cout << "About the associated work request'opcode : "<< entry.opcode << std::endl;        
-        }
+        
 
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
