@@ -173,12 +173,7 @@ class LeaderHeartbeat {
         }
         std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
 
-        std::cout << "ABout the associated work request" << std::endl;
-        if (entry.status != IBV_WC_SUCCESS){
-          std::cout <<"NOT WC SUCCESS" << std::endl;
-        }
-        else {
-          std::cout << "WC SUCCESS" << std::endl;
+        std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;        
         }
 
 
