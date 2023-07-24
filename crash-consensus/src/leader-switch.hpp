@@ -112,10 +112,16 @@ class LeaderHeartbeat {
           slots[pid], //where to store the content read
           sizeof(uint64_t),
           rc.remoteBuf() + offset); //where to read
-
+    
       if (!post_ret) {
         std::cout << "(Error in posting the reading of the heartbeats) Post returned " << post_ret << std::endl;
       }
+
+      std::cout << "The following request has been posted" << std::endl;
+      std::cout << "polling PID = " << pid <<"; my id = ", my_id << std::endl;
+      std::cout << "About the rc : " << std::endl; 
+      rc.print_all_infos();
+      std::cout << "Where to read : " << rc.remoteBuf() + offset << std :: endl;
     }
 
     if (did_work) { //?? 
@@ -894,6 +900,7 @@ class LeaderElection {
         //std::cout <<"Previous command :" << prev_command << "; Current command : " << current_command << std::endl;
         if (current_command == 'c') {
           response_blocked.store(false);
+          std::cout << "=======================New scanHeartBeat()============================" << std::endl;
           leader_heartbeat.scanHeartbeats(); //important !
         } else if (prev_command == 'c') {
           response_blocked.store(true);
