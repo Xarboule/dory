@@ -93,6 +93,8 @@ class LeaderHeartbeat {
       }
       std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << loopback->remoteBuf() + offset << std::endl;
       outstanding_pids.insert(my_id);
+      std::cout << "State of the qp I just posted to (loopback) : " << loopback->query_qp_state() << std::endl;
+    
     }
 
 
@@ -143,9 +145,11 @@ class LeaderHeartbeat {
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
       std::cout << "Where to read : " << rc.remoteBuf()+offset<< std :: endl;
-      
+
       std::cout << "State of the qp I just posted to : " << rc.query_qp_state() << std::endl;
     }
+
+    
 
     if (did_work) { //?? 
       post_id += 1;
