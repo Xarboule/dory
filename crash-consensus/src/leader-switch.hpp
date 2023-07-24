@@ -840,7 +840,7 @@ class LeaderElection {
         switcher_started{false},
         response_blocked{false} {
     startHeartbeat();
-    //startLeaderSwitcher();
+    startLeaderSwitcher();
   }
 
   LeaderContext *context() { return &ctx; }
@@ -976,7 +976,7 @@ class LeaderElection {
       leader_switcher.startPoller();
       
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
-        leader_switcher.scanPermissions();
+        //leader_switcher.scanPermissions();
         if (i == 0) {
           //vérifie le résultat sans bloquer 
           if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) { 
