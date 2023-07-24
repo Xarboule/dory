@@ -332,6 +332,11 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   attr.qp_access_flags = static_cast<unsigned>(rights);
 
   auto ret = ibv_modify_qp(uniq_qp.get(), &attr, IBV_QP_ACCESS_FLAGS);
+
+  if (ret == 0){
+    std::cout << "changeRights() worked ! " << std::endl;
+  }
+
   return ret == 0;
 }
 
