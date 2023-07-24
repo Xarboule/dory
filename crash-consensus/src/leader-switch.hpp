@@ -172,9 +172,9 @@ class LeaderHeartbeat {
         auto proc_post_id = post_ids[pid];
 
         volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]); //on récupère la valeur
-        /*if (pid == my_id) {
+        if (pid == my_id) {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
-        }*/
+        }
         std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
 
         std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
