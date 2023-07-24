@@ -91,6 +91,8 @@ class LeaderHeartbeat {
       if (!post_ret) {
         std::cout << "(Error in posting the update of heartbeat) Post returned " << post_ret << std::endl;
       }
+
+      std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << reinterpret_cast<char*>(loopback->remoteBuf() + offset) << std::endl;
       outstanding_pids.insert(my_id);
     }
 
@@ -121,7 +123,7 @@ class LeaderHeartbeat {
       std::cout << "polling PID = " << pid <<"; my id = "<< my_id << std::endl;
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
-      std::cout << "Where to read : " << rc.remoteBuf() + offset << std :: endl;
+      std::cout << "Where to read : " << reinterpret_cast<char*>(rc.remoteBuf() + offset) << std :: endl;
     }
 
     if (did_work) { //?? 
