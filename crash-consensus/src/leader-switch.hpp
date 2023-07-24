@@ -91,7 +91,6 @@ class LeaderHeartbeat {
       if (!post_ret) {
         std::cout << "(Error in posting the update of heartbeat) Post returned " << post_ret << std::endl;
       }
-
       std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << loopback->remoteBuf() + offset << std::endl;
       outstanding_pids.insert(my_id);
     }
@@ -276,7 +275,7 @@ class LeaderHeartbeat {
   int my_id;
 
   uint64_t *counter_from;
-};
+}
 }  // namespace dory
 
 namespace dory {
