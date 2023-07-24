@@ -75,130 +75,99 @@ class LeaderHeartbeat {
   void retract() { want_leader.store(false); } //==> je ne veux plus être leader
 
   void scanHeartbeats() {
+    //outstanding_pids = liste des noeuds en cours de vérification (requête envoyée)
+
+    //si mon id n'est pas en cours de vérification (avec un Write envoyé), alors je l'envoie maintenant
     if (outstanding_pids.find(my_id) == outstanding_pids.end()) {
       // Update my heartbeat
       *counter_from += 1;
       auto post_ret = loopback->postSendSingle(
-          ReliableConnection::RdmaWrite,
-          quorum::pack(quorum::LeaderHeartbeat, my_id, 0), counter_from,
-          sizeof(uint64_t), loopback->remoteBuf() + offset);
+          ReliableConnection::RdmaWrite, //request type
+          quorum::pack(quorum::LeaderHeartbeat, my_id, 0), //request id 
+          counter_from, //buffer sent 
+          sizeof(uint64_t),  //size of the buffer
+          loopback->remoteBuf() + offset); //where to write 
 
       if (!post_ret) {
-        std::cout << "(Error in update of heartbeat) Post returned " << post_ret << std::endl;
+        std::cout << "(Error in posting the update of heartbeat) Post returned " << post_ret << std::endl;
       }
       outstanding_pids.insert(my_id);
     }
 
     bool did_work = false;
     auto &rcs_ = *rcs;
-    for (auto &[pid, rc] : rcs_) {
+    for (auto &[pid, rc] : rcs_) { 
       if (outstanding_pids.find(pid) != outstanding_pids.end()) {
-        continue;
-      }
+        continue; //si une requête est déjà envoyé pour ce pid, alors je passe au suivant
+      } 
 
+      //sinon, je m'en occupe : je l'ajoute à la liste oustanding_pids et j'envoie la requête (READ)
       did_work = true;
       outstanding_pids.insert(pid);
       post_ids[pid] = post_id;
 
-      // std::cout << "Posting PID: " << pid << ", PostID: " << post_id <<
-      // std::endl;
-      //printf("Scanning hearbeat of %d ...\n", pid);
       auto post_ret = rc.postSendSingle(
-          ReliableConnection::RdmaRead,
-          quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), slots[pid],
-          sizeof(uint64_t), rc.remoteBuf() + offset);
+          ReliableConnection::RdmaRead, 
+          quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), 
+          slots[pid], //where to store the content read
+          sizeof(uint64_t),
+          rc.remoteBuf() + offset); //where to read
 
       if (!post_ret) {
-        std::cout << "Post returned " << post_ret << std::endl;
+        std::cout << "(Error in posting the reading of the heartbeats) Post returned " << post_ret << std::endl;
       }
     }
 
-    if (did_work) {
+    if (did_work) { //?? 
       post_id += 1;
     }
 
     read_seq += 1;
 
-    // If the number of outstanding requests goes out of hand, go slower
-    // do {
+    // If the number of outstanding requests goes out of hand, go slower    
     entries.resize(outstanding_pids.size());
-    // std::vector<struct ibv_wc> entries(outstanding);
-    // std::cout << "I have " << outstanding << " requests to be polled, max_id
-    // " << max_id << std::endl;
-
+    
+    //on récupère les entrées qui concernent le heartbeat
     if (heartbeat_poller(ctx->cc.cq, entries)) {
-      // std::cout << "Polled " << entries.size() << " entries" << std::endl;
+      std::cout << "Polled " << entries.size() << " entries" << std::endl;
 
       for (auto const &entry : entries) {
         auto [k, pid, seq] = quorum::unpackAll<int, uint64_t>(entry.wr_id);
         IGNORE(k);
         IGNORE(seq);
 
-        outstanding_pids.erase(pid);
+        outstanding_pids.erase(pid); //on enlève le pid concerné de la liste car on vient de récupérer l'ack de la requête 
         auto proc_post_id = post_ids[pid];
 
-        volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]);
+        volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]); //on récupère la valeur
         if (pid == my_id) {
-          val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset);
+          val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
         }
+        std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
 
-        // std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id
-        // << ", Value: " << *val << std::endl;
-
-        if (status[pid].value == *val) {
-          // status[pid].same_value += 1;
-          // std::cout << "Same value" << std::endl;
-
-          // if (status[pid].same_value == )
-          status[pid].consecutive_updates =
-              std::max(status[pid].consecutive_updates, 1) - 1;
+        if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
+          status[pid].consecutive_updates = std::max(status[pid].consecutive_updates, 1) - 1; //score décrémenté
         } else {
-          if (post_id < proc_post_id + 3) {
-            status[pid].consecutive_updates =
-                std::min(status[pid].consecutive_updates, history_length - 3) +
-                3;
+          if (post_id < proc_post_id + 3) { 
+            status[pid].consecutive_updates = std::min(status[pid].consecutive_updates, history_length - 3) + 3;
           }
         }
 
-        // if (status[pid].value != *val) {
-        //   std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id
-        //   << ", Value: " << *val << std::endl;
-        // }
-
-        status[pid].value = *val;
-        // std::cout << "Received (pid, seq) = (" << pid << ", " << seq << "),
-        // value = " << *val << std::endl;
+        status[pid].value = *val; //maj de la valeur
       }
-
-      // // Penalize the outstanding that are way behind
-      // for (auto pid : outstanding_pids) {
-      //   auto proc_post_id = post_ids[pid];
-
-      //   if (post_id > proc_post_id + 3 ) {
-      //     // std::cout << "Penalizing " << pid << std::endl;
-      //     status[pid].consecutive_updates =
-      //     std::max(status[pid].consecutive_updates - 2, 0);
-      //   }
-      // }
     }
 
-    // bool ok = false;
-    // for (auto& pid: ids) {
-    //   if (status[pid].consecutive_updates < 7) {
-    //     ok = true;
-    //     std::cout << "PID:" << pid << ", score: " <<
-    //     status[pid].consecutive_updates << std::endl;
-    //   }
-    // }
-    // if (ok) {
-    //   std::cout << std::endl;
-    // }
-
+    std::cout << "===========Scores=========="<<std::endl;
+    for (auto& pid: ids) {
+        std::cout << "PID:" << pid << ", score: " << status[pid].consecutive_updates << std::endl;
+    }
+    std::cout << "So the leader I consider is : " << std::to_string(leader_pid()) << std::endl;
+    
     if (leader_pid() == ctx->cc.my_id) {
       want_leader.store(true);
     } else {
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
   }
 
@@ -921,12 +890,11 @@ class LeaderElection {
       }
 
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
-
         char current_command = command.load();
-        std::cout <<"Previous command :" << prev_command << "; Current command : " << current_command << std::endl;
+        //std::cout <<"Previous command :" << prev_command << "; Current command : " << current_command << std::endl;
         if (current_command == 'c') {
           response_blocked.store(false);
-          leader_heartbeat.scanHeartbeats();
+          leader_heartbeat.scanHeartbeats(); //important !
         } else if (prev_command == 'c') {
           response_blocked.store(true);
           leader_heartbeat.retract();
@@ -934,16 +902,7 @@ class LeaderElection {
 
         prev_command = current_command;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-        // if (i == 0) {
-        //   if (ftr.wait_for(std::chrono::seconds(0)) !=
-        //       std::future_status::timeout) {
-        //     break;
-        //   }
-        // }
-
-        // std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1)); 
       }
 
       file_watcher_thd.join();
