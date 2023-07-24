@@ -173,7 +173,7 @@ class LeaderHeartbeat {
         std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
 
         std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
-        std::cout << "About the associated work request'opcode : "<< entry.opcode << std::endl;        
+        std::cout << "About the associated work request'opcode : "<< std::to_string(entry.opcode) << std::endl;        
         
 
 
