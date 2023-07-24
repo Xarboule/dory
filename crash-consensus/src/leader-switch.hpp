@@ -275,7 +275,7 @@ class LeaderHeartbeat {
   int my_id;
 
   uint64_t *counter_from;
-}
+};
 }  // namespace dory
 
 namespace dory {
