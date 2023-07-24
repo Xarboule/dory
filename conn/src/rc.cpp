@@ -181,7 +181,7 @@ void ReliableConnection::reset() {
 
 
   void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights){
-    //std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
+    std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
     struct ibv_qp_attr init_attr;
     memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
     init_attr.qp_access_flags = rights;
@@ -194,6 +194,8 @@ void ReliableConnection::reset() {
     }
 
     init_rights = rights;
+
+    std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
   }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
