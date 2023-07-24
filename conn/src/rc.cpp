@@ -161,6 +161,22 @@ void ReliableConnection::associateWithCQ_for_cm() {
   });
   //LOGGER_INFO(logger, "QP successfully created (with cm)! ");
 
+  // Copié-collé de la fin de la fonction connect()
+  struct ibv_send_wr *wr_ = reinterpret_cast<ibv_send_wr *>( aligned_alloc(64, roundUp(sizeof(ibv_send_wr), 64) + sizeof(ibv_sge)));
+  struct ibv_sge *sg_ = reinterpret_cast<ibv_sge *>( reinterpret_cast<char *>(wr_) + roundUp(sizeof(ibv_send_wr), 64));
+
+  memset(sg_, 0, sizeof(*sg_));
+  memset(wr_, 0, sizeof(*wr_));
+
+  wr_->sg_list = sg_;
+  wr_->num_sge = 1;
+  wr_->send_flags |= IBV_SEND_SIGNALED;
+
+  sg_->lkey = mr.lkey;
+  wr_->wr.rdma.rkey = rconn.rci.rkey;
+
+  wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter); 
+
 
 }
 
@@ -329,8 +345,7 @@ bool ReliableConnection::changeRightsIfNeeded(
 
   if (ibv_query_qp(uniq_qp.get(), &attr, IBV_QP_STATE | IBV_QP_ACCESS_FLAGS,
                    &init_attr)) {
-    throw std::runtime_error("Failed to query QP state: " +
-                             std::string(std::strerror(errno)));
+    throw std::runtime_error("Failed to query QP state: " + std::string(std::strerror(errno)));
   }
 
   if (attr.qp_state != IBV_QPS_RTS) {
