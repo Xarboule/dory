@@ -217,7 +217,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
     
       loopback_->setRemoteSetup(cm_event->param.conn.private_data); 
-      //loopback_->print_all_infos();
+      loopback_->print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
@@ -336,7 +336,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
     return -errno;
   }
     
-  //remote_loopback_->print_all_infos();
+  remote_loopback_->print_all_infos();
 
 
   LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
@@ -563,7 +563,7 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
 
     
       rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
-      //rc.print_all_infos();
+      rc.print_all_infos();
 
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
@@ -699,7 +699,7 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
     return -errno;
   }
     
-  //rc.print_all_infos();
+  rc.print_all_infos();
 
 
   LOGGER_INFO(logger, "The client is connected successfully \n");
