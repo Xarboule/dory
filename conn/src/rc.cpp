@@ -585,6 +585,7 @@ void ReliableConnection :: print_all_infos(){
   printf("\t buff addr : %p \n",  reinterpret_cast<void*>(rconn.rci.buf_addr));
   //printf("\t buf size : %d \n",  rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
-}
+
+  std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl}
 
 }  // namespace dory
