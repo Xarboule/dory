@@ -97,7 +97,7 @@ class LeaderHeartbeat {
 
       //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
       std::cout << "Posting a local Read to my own heartbeat" << std::endl; 
-      auto post_ret = loopback->postSendSingle(
+      post_ret = loopback->postSendSingle(
         ReliableConnection::RdmaRead, 
         quorum::pack(quorum::LeaderHeartbeat, my_id, read_seq), 
         slots[my_id], //where to store the content read
