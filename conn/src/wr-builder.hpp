@@ -52,8 +52,7 @@ class SendWrBuilder {
   dory::deleted_unique_ptr<struct ibv_send_wr> build() const {
     struct ibv_sge* sg = reinterpret_cast<ibv_sge*>(malloc(sizeof(ibv_sge)));
 
-    struct ibv_send_wr* wr =
-        reinterpret_cast<ibv_send_wr*>(malloc(sizeof(ibv_send_wr)));
+    struct ibv_send_wr* wr = reinterpret_cast<ibv_send_wr*>(malloc(sizeof(ibv_send_wr)));
 
     fill(*wr, *sg);
 

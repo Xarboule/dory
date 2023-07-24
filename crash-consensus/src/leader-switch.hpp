@@ -336,8 +336,7 @@ class LeaderPermissionAsker {
       throw std::runtime_error("Bug: connection does not exist");
     }
 
-    uint64_t *temp =
-        reinterpret_cast<uint64_t *>(scratchpad->leaderResponseSlot());
+    uint64_t *temp = reinterpret_cast<uint64_t *>(scratchpad->leaderResponseSlot());
     *temp = response;
 
     auto &rc = rc_it->second;
@@ -841,7 +840,7 @@ class LeaderElection {
         switcher_started{false},
         response_blocked{false} {
     startHeartbeat();
-    startLeaderSwitcher();
+    //startLeaderSwitcher();
   }
 
   LeaderContext *context() { return &ctx; }

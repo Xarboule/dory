@@ -478,7 +478,7 @@ RemoteConnection ReliableConnection::remoteInfo() const {
   printf("ATTENTION appel d'une fonction de RC dangereuse: remoteInfo()\n");
   
   RemoteConnection rc(static_cast<uint16_t>(cb.lid()), uniq_qp->qp_num, mr.addr,
-                      mr.size, mr.rkey);
+                      mr.size, mr.rkey); //la preuve que le remote a un buffer de la même taille que nous 
   return rc;
 }
 
@@ -563,7 +563,7 @@ void ReliableConnection ::setRemoteSetup(const void *network_data) {
   // 4 Bytes of offset to get the address
   memcpy(&rconn.rci.buf_addr, static_cast<const uint8_t*>(network_data) + 4, 8);
 
-  rconn.rci.buf_size = mr.size; //en supposant que tous les buffers ont la même taille partout 
+  rconn.rci.buf_size = mr.size; //car les buffers de tous les noeuds font la même taille 
   //on copie la taille de notre local buffer à nous 
 
   // 20 Bytes of offset to get KEY
