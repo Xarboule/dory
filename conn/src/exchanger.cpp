@@ -566,8 +566,8 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
       cm_params.responder_resources = 14;
       cm_params.initiator_depth = 14;
       rdma_accept(rc.get_cm_id(), &cm_params); 
+      
 
-    
       rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
       rc.print_all_infos();
 

@@ -181,8 +181,8 @@ void ReliableConnection::associateWithCQ_for_cm() {
 }
 
 void ReliableConnection::reset() {
-  printf("ATTENTION appel d'une fonction de RC interdite: reset()\n");
-  struct ibv_qp_attr attr;
+  printf("ATTENTION appel d'une fonction de RC interdite: reset()==> does nothing\n");
+  /*struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
   attr.qp_state = IBV_QPS_RESET;
@@ -192,7 +192,7 @@ void ReliableConnection::reset() {
   if (ret != 0) {
     throw std::runtime_error("Could not modify QP to RESET: " +
                              std::string(std::strerror(errno)));
-  }
+  }*/
 }
 
 
@@ -215,8 +215,8 @@ void ReliableConnection::reset() {
   }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC interdite: init()\n");
-  struct ibv_qp_attr init_attr;
+  printf("ATTENTION appel d'une fonction de RC interdite: init() ==> does nothing \n");
+  /*struct ibv_qp_attr init_attr;
   memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
   init_attr.qp_state = IBV_QPS_INIT;
   init_attr.pkey_index = 0;
@@ -232,7 +232,7 @@ void ReliableConnection::init(ControlBlock::MemoryRights rights) {
                              std::string(std::strerror(errno)));
   }
 
-  init_rights = rights;
+  init_rights = rights;*/
 }
 
 void ReliableConnection::reinit() { 
@@ -450,8 +450,8 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
 }
 
 void ReliableConnection::reconnect() { 
-  printf("ATTENTION appel d'une fonction de RC interdite: reconnect()\n");
-  connect(rconn); 
+  printf("ATTENTION appel d'une fonction de RC interdite: reconnect() ==> does nothing \n");
+  //connect(rconn); 
 }
 
 bool ReliableConnection::pollCqIsOK(CQ cq,
