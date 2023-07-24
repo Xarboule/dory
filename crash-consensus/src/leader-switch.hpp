@@ -162,7 +162,7 @@ class LeaderHeartbeat {
     
     //on récupère les entrées qui concernent le heartbeat
     if (heartbeat_poller(ctx->cc.cq, entries)) {
-      std::cout << "Polled " << entries.size() << " entries" << std::endl;
+      //std::cout << "Polled " << entries.size() << " entries" << std::endl;
 
       for (auto const &entry : entries) {
         auto [k, pid, seq] = quorum::unpackAll<int, uint64_t>(entry.wr_id);
@@ -177,8 +177,8 @@ class LeaderHeartbeat {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
         }
 
-        std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
-        std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
+        //std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
+        //std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
         
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
@@ -929,7 +929,6 @@ class LeaderElection {
         //std::cout <<"Previous command :" << prev_command << "; Current command : " << current_command << std::endl;
         if (current_command == 'c') {
           response_blocked.store(false);
-          std::cout << "=======================New scanHeartBeat()============================" << std::endl;
           leader_heartbeat.scanHeartbeats(); //important !
         } else if (prev_command == 'c') {
           response_blocked.store(true);
