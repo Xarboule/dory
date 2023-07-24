@@ -192,18 +192,18 @@ class LeaderHeartbeat {
         status[pid].value = *val; //maj de la valeur
       }
     }
-    
+    /*
     std::cout << "===========Scores=========="<<std::endl;
     for (auto& pid: ids) {
         std::cout << "PID:" << pid << ", score: " << status[pid].consecutive_updates << std::endl;
     }
     std::cout << "So the leader I consider is : " << std::to_string(leader_pid()) << std::endl;
-    
+    */
     if (leader_pid() == ctx->cc.my_id) {
       want_leader.store(true);
     } else {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      //std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
 
