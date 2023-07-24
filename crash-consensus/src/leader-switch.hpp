@@ -91,9 +91,9 @@ class LeaderHeartbeat {
       if (!post_ret) {
         std::cout << "(Error in posting the update of heartbeat) Post returned " << post_ret << std::endl;
       }
-      std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << loopback->remoteBuf() + offset << std::endl;
+      //std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << loopback->remoteBuf() + offset << std::endl;
       outstanding_pids.insert(my_id);
-      std::cout << "State of the qp I just posted to (loopback) : " << loopback->query_qp_state() << std::endl;
+      //std::cout << "State of the qp I just posted to (loopback) : " << loopback->query_qp_state() << std::endl;
 
       /*
       //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
@@ -139,13 +139,14 @@ class LeaderHeartbeat {
         std::cout << "(Error in posting the reading of the heartbeats) Post returned " << post_ret << std::endl;
       }
 
+      /*
       std::cout << "The following request has been posted" << std::endl;
       std::cout << "polling PID = " << pid <<"; my id = "<< my_id << std::endl;
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
       std::cout << "Where to read : " << rc.remoteBuf()+offset<< std :: endl;
 
-      std::cout << "State of the qp I just posted to : " << rc.query_qp_state() << std::endl;
+      std::cout << "State of the qp I just posted to : " << rc.query_qp_state() << std::endl;*/
     }
 
     
@@ -175,10 +176,9 @@ class LeaderHeartbeat {
         if (pid == my_id) {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
         }
-        std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
 
-        std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
-        //std::cout << "About the associated work request'opcode : "<< std::to_string(entry.opcode) << std::endl;        
+        //std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
+        //std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
         
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
