@@ -642,6 +642,7 @@ class LeaderSwitcher {
           // GET_TIMESTAMP(ts_start);
           if (hard_reset) {
             // Reset everybody
+            std::cout << "hard_reset ! "<<std::endl;
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               rc.reset();
@@ -662,6 +663,7 @@ class LeaderSwitcher {
               auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
 
               if (!rc.changeRights(rights)) {
+                std::cout << "changeRights() failed, calling the big guns "<<std::endl;
                 rc.reset();
                 rc.init(rights);
                 rc.reconnect();
@@ -730,6 +732,7 @@ class LeaderSwitcher {
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
 
             if (!rc.changeRights(rights)) {
+              std::cout << "changeRights() failed, calling the big guns "<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
@@ -745,6 +748,7 @@ class LeaderSwitcher {
                           ControlBlock::REMOTE_WRITE;
 
             if (!rc.changeRights(rights)) {
+              std::cout << "changeRights() failed, calling the big guns "<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
