@@ -587,5 +587,5 @@ void ReliableConnection :: print_all_infos(){
   printf("\t rkey : %d \n", rconn.rci.rkey);
 
   std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
-
+}
 }  // namespace dory
