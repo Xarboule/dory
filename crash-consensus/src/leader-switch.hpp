@@ -133,7 +133,8 @@ class LeaderHeartbeat {
           ReliableConnection::RdmaRead, 
           quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), 
           slots[pid], //where to store the content read
-          sizeof(uint64_t),
+          sizeof(uint8_t),
+          //sizeof(uint64_t),
           rc.remoteBuf() + offset); //where to read
     
       if (!post_ret) {
