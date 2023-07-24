@@ -471,6 +471,18 @@ void ReliableConnection::query_qp(ibv_qp_attr &qp_attr,
   ibv_query_qp(uniq_qp.get(), &qp_attr, attr_mask, &init_attr);
 }
 
+int ReliableConnection::query_qp_state(){
+  struct ibv_qp_attr attr;
+  struct ibv_qp_init_attr init_attr;
+  
+  if (ibv_query_qp(qp, &attr, IBV_QP_STATE, &init_attr)) {
+    fprintf(stderr, "Failed to query QP state\n");
+    return -1;
+  }
+  enum ibv_qp_state state = attr.qp_state;
+  return state;
+}
+
 /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
 struct ibv_pd *ReliableConnection::get_pd() { return this->pd; }
 

@@ -143,6 +143,8 @@ class LeaderHeartbeat {
       std::cout << "About the rc : " << std::endl; 
       rc.print_all_infos();
       std::cout << "Where to read : " << rc.remoteBuf()+offset<< std :: endl;
+      
+      std::cout << "State of the qp I just posted to : " << rc.query_qp_state() << std::endl;
     }
 
     if (did_work) { //?? 
@@ -175,7 +177,6 @@ class LeaderHeartbeat {
         std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
         //std::cout << "About the associated work request'opcode : "<< std::to_string(entry.opcode) << std::endl;        
         
-
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
           status[pid].consecutive_updates = std::max(status[pid].consecutive_updates, 1) - 1; //score décrémenté

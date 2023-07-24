@@ -137,6 +137,8 @@ class ReliableConnection {
   void query_qp(ibv_qp_attr &qp_attr, ibv_qp_init_attr &init_attr,
                 int attr_mask) const;
 
+  int query_qp_state();
+
   /*Méthodes ajoutées pour pouvoir utiliser rdma_create_qp() dans exchanger.cpp*/
   struct ibv_pd* get_pd();
 
