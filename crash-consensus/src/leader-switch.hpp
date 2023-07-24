@@ -95,6 +95,7 @@ class LeaderHeartbeat {
       outstanding_pids.insert(my_id);
       std::cout << "State of the qp I just posted to (loopback) : " << loopback->query_qp_state() << std::endl;
 
+      /*
       //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
       std::cout << "Posting a local Read to my own heartbeat" << std::endl; 
       post_ret = loopback->postSendSingle(
@@ -105,7 +106,7 @@ class LeaderHeartbeat {
         loopback->remoteBuf() + offset); //where to read
 
       if (!post_ret) {
-        std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;
+        std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;*/
       }
     }
 
@@ -126,6 +127,7 @@ class LeaderHeartbeat {
       outstanding_pids.insert(pid);
       post_ids[pid] = post_id;
 
+      
       auto post_ret = rc.postSendSingle(
           ReliableConnection::RdmaRead, 
           quorum::pack(quorum::LeaderHeartbeat, pid, read_seq), 
@@ -973,7 +975,7 @@ class LeaderElection {
       leader_switcher.startPoller();
       
       for (unsigned long long i = 0;; i = (i + 1) & iterations_ftr_check) {
-        //leader_switcher.scanPermissions();
+        leader_switcher.scanPermissions();
         if (i == 0) {
           //vérifie le résultat sans bloquer 
           if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) { 
