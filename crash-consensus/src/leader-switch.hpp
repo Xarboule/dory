@@ -94,23 +94,22 @@ class LeaderHeartbeat {
       std :: cout << "The address that my loopback (local heartbeat) is writing to is : " << loopback->remoteBuf() + offset << std::endl;
       outstanding_pids.insert(my_id);
       std::cout << "State of the qp I just posted to (loopback) : " << loopback->query_qp_state() << std::endl;
-    
+
+      //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
+      std::cout << "Posting a local Read to my own heartbeat" << std::endl; 
+      auto post_ret = loopback->postSendSingle(
+        ReliableConnection::RdmaRead, 
+        quorum::pack(quorum::LeaderHeartbeat, my_id, read_seq), 
+        slots[my_id], //where to store the content read
+        sizeof(uint64_t),
+        loopback->remoteBuf() + offset); //where to read
+
+      if (!post_ret) {
+        std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;
+      }
     }
 
 
-    
-    //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
-    std::cout << "Posting a local Read to my own heartbeat" << std::endl; 
-    auto post_ret = loopback->postSendSingle(
-      ReliableConnection::RdmaRead, 
-      quorum::pack(quorum::LeaderHeartbeat, my_id, read_seq), 
-      slots[my_id], //where to store the content read
-      sizeof(uint64_t),
-      loopback->remoteBuf() + offset); //where to read
-
-    if (!post_ret) {
-      std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;
-    }
         
     
 
