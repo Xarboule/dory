@@ -475,7 +475,7 @@ int ReliableConnection::query_qp_state(){
   struct ibv_qp_attr attr;
   struct ibv_qp_init_attr init_attr;
   
-  if (ibv_query_qp(qp, &attr, IBV_QP_STATE, &init_attr)) {
+  if (ibv_query_qp(uniq_qp.get(), &attr, IBV_QP_STATE, &init_attr)) {
     fprintf(stderr, "Failed to query QP state\n");
     return -1;
   }
