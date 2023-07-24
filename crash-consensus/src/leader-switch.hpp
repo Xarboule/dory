@@ -96,6 +96,8 @@ class LeaderHeartbeat {
       outstanding_pids.insert(my_id);
     }
 
+
+    /*
     //test : est-ce que j'arrive à faire un RDMA READ de ma propre valeur ? (READ par ma loopback)
     std::cout << "Posting a local Read to my own heartbeat" << std::endl; 
     auto post_ret = loopback->postSendSingle(
@@ -109,7 +111,8 @@ class LeaderHeartbeat {
     if (!post_ret) {
       std::cout << "(Error in posting read request to my own heartbeat) Post returned " << post_ret << std::endl;
     }
-    
+
+    */    
     
 
 
@@ -165,10 +168,19 @@ class LeaderHeartbeat {
         auto proc_post_id = post_ids[pid];
 
         volatile uint64_t *val = reinterpret_cast<uint64_t *>(slots[pid]); //on récupère la valeur
-        /*if (pid == my_id) {
+        if (pid == my_id) {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
-        }*/
+        }
         std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
+
+        std::cout << "ABout the associated work request" << std::endl;
+        if (entry.status != IBV_WC_SUCCESS){
+          std::cout <<"NOT WC SUCCESS" << std::endl;
+        }
+        else {
+          std::cout << "WC SUCCESS" << std::endl;
+        }
+
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
           status[pid].consecutive_updates = std::max(status[pid].consecutive_updates, 1) - 1; //score décrémenté
