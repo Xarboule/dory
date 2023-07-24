@@ -183,8 +183,8 @@ class LeaderHeartbeat {
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
           status[pid].consecutive_updates = std::max(status[pid].consecutive_updates, 1) - 1; //score décrémenté
-        } else {
-          if (post_id < proc_post_id + 3) { 
+        } else { 
+          if (post_id < proc_post_id + 3) { //sinon ? 
             status[pid].consecutive_updates = std::min(status[pid].consecutive_updates, history_length - 3) + 3;
           }
         }
@@ -192,7 +192,7 @@ class LeaderHeartbeat {
         status[pid].value = *val; //maj de la valeur
       }
     }
-
+    /*
     std::cout << "===========Scores=========="<<std::endl;
     for (auto& pid: ids) {
         std::cout << "PID:" << pid << ", score: " << status[pid].consecutive_updates << std::endl;
@@ -204,7 +204,7 @@ class LeaderHeartbeat {
     } else {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
       //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+    }*/
   }
 
   std::atomic<bool> &wantLeaderSignal() { return want_leader; }
