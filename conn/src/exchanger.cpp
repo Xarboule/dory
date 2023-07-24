@@ -213,8 +213,8 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
       cm_params.private_data = loopback_->getLocalSetup(); 
       cm_params.private_data_len = 24;
       cm_params.retry_count = 1;
-      cm_params.responder_resources = 5;
-      cm_params.initiator_depth = 5;
+      cm_params.responder_resources = 14;
+      cm_params.initiator_depth =14;
       rdma_accept(loopback_->get_cm_id(), &cm_params); 
 
     
@@ -323,8 +323,8 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   cm_params.private_data = remote_loopback_->getLocalSetup();
   cm_params.private_data_len = 24;
   cm_params.retry_count = 1;
-  cm_params.responder_resources = 5;
-  cm_params.initiator_depth = 5;
+  cm_params.responder_resources = 14;
+  cm_params.initiator_depth = 14;
   rdma_connect(remote_loopback_->get_cm_id(), &cm_params);
 
   //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
@@ -563,8 +563,8 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
       cm_params.private_data = rc.getLocalSetup(); //dirty hack, vient mettre les infos de la mr de rc dans cm_params
       cm_params.private_data_len = 24;
       cm_params.retry_count = 1;
-      cm_params.responder_resources = 5;
-      cm_params.initiator_depth = 5;
+      cm_params.responder_resources = 14;
+      cm_params.initiator_depth = 14;
       rdma_accept(rc.get_cm_id(), &cm_params); 
 
     
@@ -690,8 +690,8 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
   cm_params.private_data = rc.getLocalSetup();
   cm_params.private_data_len = 24;
   cm_params.retry_count = 1;
-  cm_params.responder_resources = 5;
-  cm_params.initiator_depth = 5;
+  cm_params.responder_resources = 14;
+  cm_params.initiator_depth = 14;
   rdma_connect(rc.get_cm_id(), &cm_params);
 
   //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");

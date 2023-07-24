@@ -177,8 +177,8 @@ class LeaderHeartbeat {
           val = reinterpret_cast<uint64_t *>(loopback->remoteBuf() + offset); //si c'est la mienne, c'est un peu spécial 
         }
 
-        //std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
-        //std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
+        std::cout << "Polling PID: " << pid << ", PostID: " << proc_post_id << ", Value: " << *val << std::endl;
+        std::cout << "About the associated work request'status : "<< ibv_wc_status_str(entry.status) << std::endl;      
         
 
         if (status[pid].value == *val) { //si la valeur du heartbeat est la même qu'avant
