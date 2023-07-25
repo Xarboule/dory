@@ -115,7 +115,7 @@ void ReliableConnection::reset() {
                              std::string(std::strerror(errno)));
   }
 
-  std::cout << "reset() a fonctionné ! "
+  std::cout << "reset() a fonctionné ! ";
 }
 
 
@@ -160,7 +160,7 @@ void ReliableConnection::init(ControlBlock::MemoryRights rights) {
 
   init_rights = rights;
 
-  std::cout << "init() was successful : the rc"
+  std::cout << "init() was successful : the rc";
 
 }
 
@@ -297,7 +297,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   }else{
     std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
     std::cout << "some infos about the QP : " << std::endl;
-    rc.print_all_infos();
+    print_all_infos();
   }
 
   return ret == 0;
