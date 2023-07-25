@@ -241,7 +241,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
   // Make fast-path slightly faster
   // TODO eliminate duplicate code from down below
-  
+  /*
   if (likely(fast_path) && likely(am_I_leader.load())) {
     auto& leader = leader_election->leaderSignal();
 
@@ -294,8 +294,9 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     }
 
     return ret_no_error();
-  }
+  }*/
 
+  std::cout << "On skip la première partie, mais c'est toujours possible d'avoir un fast path" << std::endl;
   if (am_I_leader.load()) {  // Leader (slow and fast-path)
     std :: cout << "I'm the leader on the slow path" << std :: endl;
     if (unlikely(became_leader)) {
