@@ -369,9 +369,9 @@ class LeaderPermissionAsker {
 
           if (entry.status != IBV_WC_SUCCESS) {
             throw std::runtime_error(
-                "Unimplemented: We assume the leader election connections "
-                "never fail");
+                "Unimplemented: We assume the leader election connections never fail");
           } else {
+            std::cout << "RDMA Write sucessful : answer to permission request to pid = " << pid << std::endl;
             return std::make_unique<NoError>();
           }
         }
@@ -401,8 +401,6 @@ class LeaderPermissionAsker {
         uint64_t val = *temp;
         val &= (1UL << shift) - 1;
 
-        // std::cout << "(" << val << ", " << pid << ")" << std::endl;
-
         if (val + 2 * modulo == req_nr || val + modulo == req_nr) {
           eliminated_one = i;
           // std::cout << "Eliminating " << pid << std::endl;
@@ -419,11 +417,6 @@ class LeaderPermissionAsker {
         }
       }
 
-      // GET_TIMESTAMP(end);
-      // if (ELAPSED_NSEC(start, end) > 5UL * sec) {
-      //   std::cout << "WaitForApproval timed-out" << std::endl;
-      //   return false;
-      // }
 
       if (leader.load().requester != current_leader.requester) {
         return false;
@@ -466,12 +459,6 @@ class LeaderPermissionAsker {
           return true;
         }
       }
-
-      // GET_TIMESTAMP(end);
-      // if (ELAPSED_NSEC(start, end) > 5UL * sec) {
-      //   std::cout << "WaitForApproval timed-out" << std::endl;
-      //   return false;
-      // }
 
       if (leader.load().requester != current_leader.requester) {
         return false;
@@ -644,6 +631,7 @@ class LeaderSwitcher {
             //soft reset
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
+              std::cout << "calling change right on a replicator rc, to revoke its rights (soft reset triggered by myself)" << std::endl;
               rc.changeRights(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
             }
           } else if (orig_leader.requester != c_ctx->my_id) {
@@ -653,7 +641,7 @@ class LeaderSwitcher {
             if (old_leader != replicator_rcs->end()) {
               auto &rc = old_leader->second;
               auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
-
+              std::cout << "I'm the new leader ==> reset of the right rc (former leader)" << std::endl;
               if (!rc.changeRights(rights)) {
                 std::cout << "changeRights() failed, calling the big guns "<<std::endl;
                 rc.reset();
@@ -670,20 +658,7 @@ class LeaderSwitcher {
             return false;
           };
 
-          // GET_TIMESTAMP(ts_end);
-          // auto elapsed_switch = ELAPSED_NSEC(ts_start, ts_end);
-          // std::cout << "Switching permissions: " << elapsed_switch / 1000 <<
-          // "(us)" << std::endl;
-
-          // GET_TIMESTAMP(ts_start);
-          // std::cout << "Blocking the follower" << std::endl;
-
           leader_mode.store(true);
-
-          // GET_TIMESTAMP(ts_end);
-          // auto elapsed_block = ELAPSED_NSEC(ts_start, ts_end);
-          // std::cout << "Blocking the follower: " << elapsed_block / 1000 <<
-          // "(us)" << std::endl;
 
           std::cout << "Permissions granted" << std::endl;
         } else {/*si c'est moi le 'nouveau' leader, mais que je l'étais déjà avant, alors on ne fait rien */}
@@ -721,6 +696,7 @@ class LeaderSwitcher {
           if (old_leader != replicator_rcs->end()) {
             auto &rc = old_leader->second;
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
+            std::cout << "changeRights() to revoke former leader's rights" << std::endl; 
             if (!rc.changeRights(rights)) {
               std::cout << "changeRights() failed (to revoke former leader), calling the big guns (ce qui va provoquer une erreur) "<<std::endl;
               rc.reset();
@@ -736,7 +712,7 @@ class LeaderSwitcher {
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                           ControlBlock::REMOTE_READ |
                           ControlBlock::REMOTE_WRITE;
-
+            std::cout << "changeRights() is called to grant new rights to : "<< current_leader.requester << std::endl;
             if (!rc.changeRights(rights)) {
               std::cout << "changeRights() failed (to grant new rights), calling the big guns  (which will cause an error)"<<std::endl;
               rc.reset();
