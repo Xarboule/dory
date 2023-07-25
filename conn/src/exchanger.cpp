@@ -91,27 +91,6 @@ void ConnectionExchanger::addLoopback(std::string const& pd,
   addLoopback_with_cm(pd, mr, send_cq_name, recv_cq_name);
 }
 
-void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
-                                      std::string const& mr,
-                                      std::string send_cq_name,
-                                      std::string recv_cq_name) {
-  loopback_ = std::make_unique<ReliableConnection>(cb);
-  loopback_->bindToPD(pd);
-  loopback_->bindToMR(mr);
-  loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
-  //LOGGER_INFO(logger, "LoopBack added with_cm ");
-  
-
-  //remote_loopback est identique à loopback
-  remote_loopback_ = std::make_unique<ReliableConnection>(cb);
-  remote_loopback_->bindToPD(pd);
-  remote_loopback_->bindToMR(mr);
-  remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
-  //LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
-
-  loopback_port = 80000;
-}
-
 void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
   /*auto infoForRemoteParty = loopback_->remoteInfo();
   loopback_->init(rights);
@@ -122,14 +101,32 @@ void ConnectionExchanger::connectLoopback(ControlBlock::MemoryRights rights) {
 }
 
 
-void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
-  std::thread client_thread(&ConnectionExchanger::threaded_client,this,rights);
-  client_thread.detach();
+void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
+                                      std::string const& mr,
+                                      std::string send_cq_name,
+                                      std::string recv_cq_name) {
+  loopback_ = std::make_unique<ReliableConnection>(cb);
+  loopback_->bindToPD(pd);
+  loopback_->bindToMR(mr);
+  loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name);
+  //LOGGER_INFO(logger, "LoopBack added with_cm ");
+  
+  //remote_loopback est identique à loopback
+  remote_loopback_ = std::make_unique<ReliableConnection>(cb);
+  remote_loopback_->bindToPD(pd);
+  remote_loopback_->bindToMR(mr);
+  remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name); //pas sûr de ça, peut-être que ça double les wc pour rien
+  //LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
 
-  start_loopback_server(rights);
-  //LOGGER_INFO(logger, "Loopback connected with cm !");
+  loopback_port = 80000;
 }
 
+void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
+  std::thread client_thread(&ConnectionExchanger::threaded_client,this,rights); //lancer le remote_loopback_, qui va jouer le rôle de client 
+  client_thread.detach();
+  start_loopback_server(rights); //loopback_ joue le rôle de serveur 
+  //LOGGER_INFO(logger, "Loopback connected with cm !");
+}
 
 
 void ConnectionExchanger :: threaded_client(ControlBlock::MemoryRights rights){
@@ -234,8 +231,6 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
 
 	return ret;
 }
-
-
 
 int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights rights){
   struct sockaddr_in server_addr;
@@ -351,7 +346,6 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 }
 
 
-
 void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
                                    std::string const& prefix) {
   
@@ -434,9 +428,8 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
   rc.init(rights);
   rc.connect(remoteRC);
   LOGGER_INFO(logger, "Connected with {}", name.str());*/
-  //LOGGER_INFO(logger, "connect() was called ==> redirecting to connect_with_cm()");
+  LOGGER_INFO(logger, "connect() was called ==> redirecting to connect_with_cm()");
   connect_with_cm(proc_id, prefix, rights);
-
 }
 
 void ConnectionExchanger:: connect_with_cm(int proc_id,

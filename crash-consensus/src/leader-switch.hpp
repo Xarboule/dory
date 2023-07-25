@@ -539,8 +539,9 @@ class LeaderSwitcher {
 
     for (int i = 0; i < static_cast<int>(sz); i++) {
       reading[i] = *reinterpret_cast<uint64_t *>(read_slots[i]);
-      force_reset = static_cast<int>(reading[i] >> shift); //conserve le canary bit. S'il est à 0, c'est ok. S'il est à 1, c'est que quelqu'un écrit pendant qu'on lit 
-      reading[i] &= (1UL << shift) - 1;   //mets le canary bit à 0
+      force_reset = static_cast<int>(reading[i] >> shift); //Conserve le premier bit. C'est lui qui informe si le nouveau leader veut forcer un reset ou non
+      reading[i] &= (1UL << shift) - 1;   //mets le premier bit à 0
+
 
       //si on découvre une demande
       if (reading[i] > current_reading[i]) { //donc la permission se fait en écrivant une valeur plus grande dans le tableau 
@@ -599,7 +600,7 @@ class LeaderSwitcher {
 
       if (current_leader.requester == c_ctx->my_id) { //si c'est moi le 'nouveau' leader 
         if (!leader_mode.load()) { //et que je ne l'étais pas avant 
-          permission_asker.askForPermissions(hard_reset);
+          permission_asker.askForPermissions();
          
           // In order to avoid a distributed deadlock (when two processes try
           // to become leaders at the same time), we bail whe the leader
@@ -617,7 +618,7 @@ class LeaderSwitcher {
           if (hard_reset) {
             // Reset everybody
             std::cout << "hard_reset asked by myself ==> soft reset "<<std::endl;
-            /*for (auto &[pid, rc] : *replicator_rcs) {
+            for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               rc.reset();
             }
@@ -626,14 +627,15 @@ class LeaderSwitcher {
               IGNORE(pid);
               rc.init(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
               rc.reconnect();
-            }*/
+            }
 
+            /*
             //soft reset
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               std::cout << "calling change right on a replicator rc, to revoke its rights (soft reset triggered by myself)" << std::endl;
               rc.changeRights(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
-            }
+            }*/
           } else if (orig_leader.requester != c_ctx->my_id) {
             // If I am going from follower to leader, then I need to revoke
             // write permissions to old leader. Otherwise, I do nothing.
@@ -665,13 +667,11 @@ class LeaderSwitcher {
       } else { //si un nouveau leader autre que moi se manifeste
         leader_mode.store(false); //j'informe la thread consensus que je ne suis pas le leader 
   
-        if (current_leader.reset()) {
-            std::cout << "Hard-reset asked by a remote leader ==> soft reset" << std::endl;
-        }/*
         if (current_leader.reset()) { //si le leader (remote) a demandé un reset
           // Hard reset every connection
           // Reset everybody
-          std::cout << "hard reset" << std::endl;
+          std::cout << "Hard-reset asked by a remote leader" << std::endl;
+      
           for (auto &[pid, rc] : *replicator_rcs) {
             IGNORE(pid);
             rc.reset();
@@ -686,7 +686,7 @@ class LeaderSwitcher {
             }
             rc.reconnect();
           }
-        } else { //sinon, on lui donne les permissions normalement */
+        } else { //sinon, on lui donne les permissions normalement 
           // Notify the remote party
           permission_asker.givePermissionStep1(current_leader.requester,
                                                current_leader.requester_value);
@@ -720,7 +720,7 @@ class LeaderSwitcher {
               rc.reconnect();
             }
           }
-        //}
+        }
 
         permission_asker.givePermissionStep2(current_leader.requester,
                                              current_leader.requester_value);
@@ -775,7 +775,7 @@ class LeaderSwitcher {
     auto constexpr shift = 8 * sizeof(uintptr_t) - 1; //nb de bits de uintptr_t -1 
     for (size_t i = 0; i < sz; i++) {
       current_reading[i] = *reinterpret_cast<uint64_t *>(read_slots[i]); //va chercher les valeurs de read_slot et les mettre dans current_reading
-      current_reading[i] &= (1UL << shift) - 1;   // mets le premier bit à 0 (connary bit ?)
+      current_reading[i] &= (1UL << shift) - 1;   // mets le premier bit à 0 
     }
 
     reading.resize(sz);

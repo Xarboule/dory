@@ -4,84 +4,6 @@
 #include "rc.hpp"
 #include "wr-builder.hpp"
 
-// namespace dory {
-//   /**
-//    * Handle the completion status of a WC
-//    */
-//   static int handle_work_completion(struct ibv_wc *wc) {
-//       int rc = 0;
-
-//     /* Verify completion status */
-//     switch (wc->status) {
-//       case IBV_WC_SUCCESS:
-//           /* IBV_WC_SUCCESS: Operation completed successfully */
-//           rc = WC_SUCCESS;
-//           break;
-//       case IBV_WC_REM_ACCESS_ERR:  //  Remote Access Error
-//           rc = WC_EXPECTED_ERROR;
-//           fprintf(stderr, "Expected error: WC has status %s (%d) \n",
-//                   ibv_wc_status_str(wc->status), wc->status);
-//           break;
-
-//       case IBV_WC_LOC_LEN_ERR:         //  Local Length Error
-//       case IBV_WC_LOC_QP_OP_ERR:       //  Local QP Operation Error
-//       case IBV_WC_LOC_EEC_OP_ERR:      //  Local EE Context Operation Error
-//       case IBV_WC_LOC_PROT_ERR:        //  Local Protection Error
-//       case IBV_WC_MW_BIND_ERR:         //  Memory Window Binding Error
-//       case IBV_WC_LOC_ACCESS_ERR:      //  Local Access Error
-//       case IBV_WC_RNR_RETRY_EXC_ERR:   // RNR Retry Counter Exceeded
-//       case IBV_WC_LOC_RDD_VIOL_ERR:    // Local RDD Violation Error
-//       case IBV_WC_REM_INV_RD_REQ_ERR:  // Remote Invalid RD Request
-//       case IBV_WC_REM_ABORT_ERR:       // Remote Aborted Error
-//       case IBV_WC_INV_EECN_ERR:        // Invalid EE Context Number
-//       case IBV_WC_INV_EEC_STATE_ERR:   // Invalid EE Context State Error
-//       case IBV_WC_WR_FLUSH_ERR:
-//           /* Work Request Flushed Error: A Work Request was in
-//           process or outstanding when the QP transitioned into the
-//           Error State. */
-//       case IBV_WC_BAD_RESP_ERR:
-//           /* Bad Response Error - an unexpected transport layer
-//           opcode was returned by the responder. */
-//       case IBV_WC_REM_INV_REQ_ERR:
-//           /* Remote Invalid Request Error: The responder detected an
-//           invalid message on the channel. Possible causes include the
-//           operation is not supported by this receive queue, insufficient
-//           buffering to receive a new RDMA or Atomic Operation request,
-//           or the length specified in an RDMA request is greater than
-//           2^{31} bytes. Relevant for RC QPs. */
-//       case IBV_WC_REM_OP_ERR:
-//           /* Remote Operation Error: the operation could not be
-//           completed successfully by the responder. Possible causes
-//           include a responder QP related error that prevented the
-//           responder from completing the request or a malformed WQE on
-//           the Receive Queue. Relevant for RC QPs. */
-//       case IBV_WC_RETRY_EXC_ERR:
-//           /* Transport Retry Counter Exceeded: The local transport
-//           timeout retry counter was exceeded while trying to send this
-//           message. This means that the remote side didn’t send any Ack
-//           or Nack. If this happens when sending the first message,
-//           usually this mean that the connection attributes are wrong or
-//           the remote side isn’t in a state that it can respond to messages.
-//           If this happens after sending the first message, usually it
-//           means that the remote QP isn’t available anymore. */
-//           /* REMOTE SIDE IS DOWN */
-//       case IBV_WC_FATAL_ERR:
-//           /* Fatal Error - WTF */
-//       case IBV_WC_RESP_TIMEOUT_ERR:
-//           /* Response Timeout Error */
-//       case IBV_WC_GENERAL_ERR:
-//           /* General Error: other error which isn’t one of the above errors.
-//             */
-
-//           rc = WC_UNEXPECTED_ERROR;
-//           fprintf(stderr, "Unexpected error: WC has status %s (%d) \n",
-//                   ibv_wc_status_str(wc->status), wc->status);
-//           break;
-//     }
-
-//     return rc;
-//   }
-// }
 
 namespace dory {
 ReliableConnection::ReliableConnection(ControlBlock &cb)
@@ -155,8 +77,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
-      throw std::runtime_error("Could not query device: " +
-                               std::string(std::strerror(errno)));
+      throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
     }
   });
   //LOGGER_INFO(logger, "QP successfully created (with cm)! ");
@@ -181,8 +102,8 @@ void ReliableConnection::associateWithCQ_for_cm() {
 }
 
 void ReliableConnection::reset() {
-  printf("ATTENTION appel d'une fonction de RC interdite: reset()==> does nothing\n");
-  /*struct ibv_qp_attr attr;
+  printf("ATTENTION appel d'une fonction de RC qui modifie l'état: reset()\n");
+  struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
   attr.qp_state = IBV_QPS_RESET;
@@ -192,12 +113,14 @@ void ReliableConnection::reset() {
   if (ret != 0) {
     throw std::runtime_error("Could not modify QP to RESET: " +
                              std::string(std::strerror(errno)));
-  }*/
+  }
+
+  std::cout << "reset() a fonctionné ! "
 }
 
 
-  void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights){
-    std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
+void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights){
+    //std :: cout << "On initialise l'access right de la QP ! " << std :: endl;
     struct ibv_qp_attr init_attr;
     memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
     init_attr.qp_access_flags = rights;
@@ -210,29 +133,35 @@ void ReliableConnection::reset() {
     }
 
     init_rights = rights;
-
-    std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
+    //std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
   }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC interdite: init() ==> does nothing \n");
-  /*struct ibv_qp_attr init_attr;
+  printf("ATTENTION appel d'une fonction de RC qui change l'état: init()  \n");
+  struct ibv_qp_attr init_attr;
   memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
   init_attr.qp_state = IBV_QPS_INIT;
-  init_attr.pkey_index = 0;
-  init_attr.port_num = static_cast<uint8_t>(cb.port());
+  //init_attr.pkey_index = 0;
+  //init_attr.port_num = static_cast<uint8_t>(cb.port());
   init_attr.qp_access_flags = rights;
 
+  /*
   auto ret = ibv_modify_qp(
       uniq_qp.get(), &init_attr,
-      IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS);
+      IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS);*/
+
+  
+  auto ret = ibv_modify_qp(uniq_qp.get(), &init_attr, IBV_QP_STATE | IBV_QP_ACCESS_FLAGS);
 
   if (ret != 0) {
     throw std::runtime_error("Failed to bring conn QP to INIT: " +
                              std::string(std::strerror(errno)));
   }
 
-  init_rights = rights;*/
+  init_rights = rights;
+
+  std::cout << "init() was successful : the rc"
+
 }
 
 void ReliableConnection::reinit() { 
@@ -240,9 +169,13 @@ void ReliableConnection::reinit() {
   init(init_rights); 
 }
 
+
+/*Pour la première connexion, connect_all redirige vers connect_with_cm
+(TEST !)
+Pour ce qui est de changer l'état de la QP, on garde connect(), mais on ne fournit que le minimum*/
 void ReliableConnection::connect(RemoteConnection &rc) {
   printf("ATTENTION appel d'une fonction de RC interdite: connect()\n");
-  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
+  /*memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
   conn_attr.qp_state = IBV_QPS_RTR;
   conn_attr.path_mtu = IBV_MTU_4096;
   conn_attr.rq_psn = DefaultPSN;
@@ -307,7 +240,33 @@ void ReliableConnection::connect(RemoteConnection &rc) {
   sg_->lkey = mr.lkey;
   wr_->wr.rdma.rkey = rconn.rci.rkey;
 
-  wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter);
+  wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter);*/
+
+  std::cout << "Tentative de mofication des états d'une qp, avec le moins d'arguments possibles" << std::endl;
+
+  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
+  conn_attr.qp_state = IBV_QPS_RTR;
+  int rtr_flags = IBV_QP_STATE;
+
+  auto ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rtr_flags);
+  if (ret != 0) {
+    throw std::runtime_error("Failed to bring conn QP to RTR: " +
+                             std::string(std::strerror(errno)));
+  }
+
+  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
+  conn_attr.qp_state = IBV_QPS_RTS;
+ 
+
+  int rts_flags = IBV_QP_STATE;
+
+  ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rts_flags);
+  if (ret != 0) {
+    throw std::runtime_error("Failed to bring conn QP to RTS: " +
+                             std::string(std::strerror(errno)));
+  }
+
+  std::cout << "connect() a réussi ! " << std::endl;
 }
 
 bool ReliableConnection::needsReset() {
@@ -335,6 +294,10 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
 
   if (ret == 0){
     std::cout << "changeRights() worked ! " << std::endl;
+  }else{
+    std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
+    std::cout << "some infos about the QP : " << std::endl;
+    rc.print_all_infos();
   }
 
   return ret == 0;
