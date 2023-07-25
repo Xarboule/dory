@@ -354,6 +354,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         majW->recoverFromError(err);
 
         return ret_error(lock, ProposeError::FastPath, true);
+      }
       }else {  // Slow-path
       printf("In slow path \n");
       auto update_followers_fuo_err = catchup->catchFUO(leader);
