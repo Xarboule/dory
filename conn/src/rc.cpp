@@ -545,7 +545,8 @@ void ReliableConnection :: print_all_infos(){
   std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
 }
 
-void ReliableConnection :: reset(ControlBlock :: MemoryRights rights){
+void ReliableConnection :: reset_with_cm(ControlBlock :: MemoryRights rights){
+  std::cout << "calling reset with cm"
   //destroy the qp without changing the cm_id
   /*int ret = rdma_destroy_qp(cm_id); 
   if (ret) {
