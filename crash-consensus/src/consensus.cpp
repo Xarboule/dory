@@ -276,6 +276,10 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         }
       }
     } else {
+
+      std::cout <<"Checking the state of the replication qp" << std::endl;
+      re_ctx->cc.ce.check_all_qp_states();
+
       LOGGER_ERROR(logger,
                    "Error in fast-path: occurred when writing the new "
                    "value to a majority");
@@ -283,6 +287,9 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
       majW->recoverFromError(err);
 
       printf("Error in fast write ! ");
+
+      std::cout <<"Checking the state of the replication qp" << std::endl;
+      re_ctx->cc.ce.check_all_qp_states();
 
       return ret_error(lock, ProposeError::FastPath, true);
     }
@@ -347,9 +354,9 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         auto err = majW->fastWriteError();
         majW->recoverFromError(err);
 
-
         std::cout <<"Checking the state of the replication qp" << std::endl;
         re_ctx->cc.ce.check_all_qp_states();
+
         return ret_error(lock, ProposeError::FastPath, true);
       }
     } else {  // Slow-path
