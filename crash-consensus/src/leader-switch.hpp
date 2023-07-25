@@ -636,7 +636,7 @@ class LeaderSwitcher {
               IGNORE(pid);
               std::cout << "calling change right on a replicator rc, to revoke its rights (soft reset triggered by myself)" << std::endl;
               rc.changeRights(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
-            }*/
+            }
           } else if (orig_leader.requester != c_ctx->my_id) {
             // If I am going from follower to leader, then I need to revoke
             // write permissions to old leader. Otherwise, I do nothing.
