@@ -190,9 +190,9 @@ class FixedSizeMajorityOperation {
     constexpr unsigned mask = (1 << 14) - 1;  // Must be power of 2 minus 1
 
     while (!qw.canContinueWithOutstanding(outstanding_req, next_req_id)) {
-      std::out << "Expected_nr = " << expected_nr << std::endl;
+      std::cout << "Expected_nr = " << expected_nr << std::endl;
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
-      std::out << "Result of ibv_poll_cq : num = " << num << std::endl;
+      std::cout << "Result of ibv_poll_cq : num = " << num << std::endl;
       if (num >= 0) {
         if (!qw.fastConsume(entries, num, expected_nr)) {
           std::cout << "In fast write, error because fastConsume failed" << std::endl;
