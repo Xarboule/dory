@@ -844,7 +844,6 @@ class LeaderElection {
     }
     hb_started = true;
 
-    std::cout << "Starting heartbeat thread ! " << std::endl;
     leader_heartbeat = LeaderHeartbeat(&ctx);
     std::future<void> ftr = hb_exit_signal.get_future();
     heartbeat_thd = std::thread([this, ftr = std::move(ftr)]() {

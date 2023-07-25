@@ -38,10 +38,9 @@ RdmaConsensus::~RdmaConsensus() { consensus_thd.join(); }
 
 /*thread qui va demander en boucle les permissions*/
 void RdmaConsensus::spawn_follower() {
-  std::cout << "launching consensus_thd" << std::endl;
+ 
   consensus_thd = std::thread([this]() {
-    std::cout << "inside consensus_thd" << std::endl;
-
+    
     follower.spawn();
 
     bool force_permission_request = false;
@@ -228,7 +227,7 @@ void RdmaConsensus::run() {
 }
 
 int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
-  std::cout << "About to propose " << std::endl;
+  std::cout << "================About to propose================ " << std::endl;
   std::cout <<"Checking the state of the replication qp" << std::endl;
   re_ctx->cc.ce.check_all_qp_states();
   
@@ -250,8 +249,16 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     Slot slot(re_ctx->log, proposal_nr, local_fuo, buf, buf_len);
     auto [address, offset, size] = slot.location();
 
+
+    std::cout <<"Checking the state of the replication qp before a fast write" << std::endl;
+    re_ctx->cc.ce.check_all_qp_states();
+
     auto ok = majW->fastWrite(address, size, to_remote_memory, offset, leader,
                               outstanding_req);
+
+      
+    std::cout <<"Checking the state of the replication qp after fastWrite" << std::endl;
+    re_ctx->cc.ce.check_all_qp_states();
 
     if (likely(ok)) {
       auto fuo = LogConfig::round_up_powerof2(offset + size);
@@ -277,19 +284,11 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
       }
     } else {
 
-      std::cout <<"Checking the state of the replication qp" << std::endl;
-      re_ctx->cc.ce.check_all_qp_states();
-
       LOGGER_ERROR(logger,
                    "Error in fast-path: occurred when writing the new "
                    "value to a majority");
       auto err = majW->fastWriteError();
       majW->recoverFromError(err);
-
-      printf("Error in fast write ! ");
-
-      std::cout <<"Checking the state of the replication qp" << std::endl;
-      re_ctx->cc.ce.check_all_qp_states();
 
       return ret_error(lock, ProposeError::FastPath, true);
     }
@@ -353,9 +352,6 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
         auto err = majW->fastWriteError();
         majW->recoverFromError(err);
-
-        std::cout <<"Checking the state of the replication qp" << std::endl;
-        re_ctx->cc.ce.check_all_qp_states();
 
         return ret_error(lock, ProposeError::FastPath, true);
       }
