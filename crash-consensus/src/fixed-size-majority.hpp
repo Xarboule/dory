@@ -170,10 +170,14 @@ class FixedSizeMajorityOperation {
           static_cast<uint32_t>(size),
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset);
 
+
+      std::cout << "State of the QP is juste posted to in fastWrite: " << c.rc.query_qp_state() << std::endl;
+      
       if (!ok) {
         std::cout << "In fast write, a RDMA WRITE just failed" << std::endl;
         return false;
       }
+
     }
     std::cout << "In fast write, all RDMA Writes have been posted successfully"<< std::endl;
 
