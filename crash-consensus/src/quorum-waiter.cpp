@@ -97,6 +97,7 @@ bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct ibv_wc>& entries,
   for (int i = 0; i < num; i++) {
     auto& entry = entries[i];
     if (entry.status != IBV_WC_SUCCESS) {
+      std::cout << "In fastConsume, not IBV_WC_SUCCESS for the entry number " << i << std::endl;
       return false;
     } else {
       auto [k, pid, seq] = quorum::unpackAll<int, ID>(entry.wr_id);
