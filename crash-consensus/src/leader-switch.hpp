@@ -618,6 +618,7 @@ class LeaderSwitcher {
           if (hard_reset) {
             // Reset everybody
             std::cout << "hard_reset asked by myself ==> soft reset "<<std::endl;
+            /*
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               rc.reset();
@@ -627,9 +628,9 @@ class LeaderSwitcher {
               IGNORE(pid);
               rc.init(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
               rc.reconnect();
-            }
+            }*/
 
-            /*
+            
             //soft reset
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
