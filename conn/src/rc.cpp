@@ -255,6 +255,10 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
+  std::cout << "some infos about the QP before the modify() : " << std::endl;
+  this->print_all_infos();
+    
+
   attr.qp_access_flags = static_cast<unsigned>(rights);
 
   auto ret = ibv_modify_qp(uniq_qp.get(), &attr, IBV_QP_ACCESS_FLAGS);
@@ -266,8 +270,6 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
     std::cout << "some infos about the QP : " << std::endl;
     this->print_all_infos();
 
-    printf("Errno errno: %s\n", strerror(errno));
-    throw std::runtime_error("Failed to create QP due to ...");
     return false;
   }
 
