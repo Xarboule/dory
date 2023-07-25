@@ -308,7 +308,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     // Hanging workaround
     auto& leader = leader_election->leaderSignal();
 
-    /*if (likely(fast_path)) {  // Fast-path
+    if (likely(fast_path)) {  // Fast-path
       std :: cout << "in the fast path "<< std :: endl;
       if (unlikely(re_ctx->log.spaceLeftCritical())) {
         return ret_error(lock, ProposeError::FastPathRecyclingTriggered);
@@ -354,9 +354,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         majW->recoverFromError(err);
 
         return ret_error(lock, ProposeError::FastPath, true);
-      }*/
-    if (false){ 
-    } else {  // Slow-path
+      }
+      else {  // Slow-path
       printf("In slow path \n");
       auto update_followers_fuo_err = catchup->catchFUO(leader);
       if (!update_followers_fuo_err->ok()) {

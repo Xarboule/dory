@@ -339,6 +339,7 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
   }
 
   wr_cached->wr.rdma.remote_addr = remote_addr;
+  wr_cached->wr.rdma.rkey = rconn.rci.rkey;
 
   struct ibv_send_wr *bad_wr = nullptr;
   auto ret = ibv_post_send(uniq_qp.get(), wr_cached.get(), &bad_wr);
