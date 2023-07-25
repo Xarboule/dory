@@ -801,7 +801,7 @@ int ConnectionExchanger :: get_num_conn(){return num_conn;}
 void ConnectionExchanger :: incr_num_conn(){num_conn++;}
 
 void ConnectionExchanger :: check_all_qp_states(){
-  for ( auto [pid, rc] : rcs){
+  for ( auto &[pid, rc] : rcs){
     std::cout << "The QP connected to " << pid << "is in state :" << rc.query_qp_state() << std::endl;
   }
 }
