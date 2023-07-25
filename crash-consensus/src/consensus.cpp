@@ -298,7 +298,6 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
   std::cout << "On skip la première partie, mais c'est toujours possible d'avoir un fast path" << std::endl;
   if (am_I_leader.load()) {  // Leader (slow and fast-path)
-    std :: cout << "I'm the leader on the slow path" << std :: endl;
     if (unlikely(became_leader)) {
       fast_path = false;
       became_leader = false;
@@ -309,7 +308,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     // Hanging workaround
     auto& leader = leader_election->leaderSignal();
 
-    if (likely(fast_path)) {  // Fast-path
+    /*if (likely(fast_path)) {  // Fast-path
       std :: cout << "in the fast path "<< std :: endl;
       if (unlikely(re_ctx->log.spaceLeftCritical())) {
         return ret_error(lock, ProposeError::FastPathRecyclingTriggered);
@@ -355,7 +354,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         majW->recoverFromError(err);
 
         return ret_error(lock, ProposeError::FastPath, true);
-      }
+      }*/
+    if{
     } else {  // Slow-path
       printf("In slow path \n");
       auto update_followers_fuo_err = catchup->catchFUO(leader);
