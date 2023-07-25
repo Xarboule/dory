@@ -270,7 +270,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                      pslot.acceptedProposal(), pslot.firstUndecidedOffset());
 
-        printf("fast write is ok ! ");
+        printf("fast write is ok ! \n");
         // auto [buf, len] = pslot.payload();
 
         // Now that I got something, I will use the commit iterator
