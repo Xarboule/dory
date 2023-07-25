@@ -870,7 +870,6 @@ class LeaderElection {
       std::atomic<char> command{'c'};  // 'p' for pause, 'c' for continue
       char prev_command = 'c';
 
-      std::cout << "Starting FileWatcher thread ! " << std::endl;
       auto file_watcher_thd = std::thread([&command, &fd]() {
         while (true) {
           char tmp;

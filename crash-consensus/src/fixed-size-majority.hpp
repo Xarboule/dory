@@ -171,9 +171,12 @@ class FixedSizeMajorityOperation {
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset);
 
       if (!ok) {
+        std::cout << "In fast write, a RDMA WRITE just failed" << std::endl;
         return false;
       }
     }
+    std::cout << "In fast write, all RDMA Writes have been posted successfully"<< std::endl;
+
 
     int expected_nr = outstanding_req * replicas_size + quorum_size;
     auto cq = ctx->cq.get();
@@ -186,9 +189,11 @@ class FixedSizeMajorityOperation {
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
       if (num >= 0) {
         if (!qw.fastConsume(entries, num, expected_nr)) {
+          std::cout << "In fast write, error because fastConsume failed" << std::endl;
           return false;
         }
       } else {
+        std::cout << "In fast write, error because failed to pull" << std::endl;
         return false;
       }
     }
@@ -197,13 +202,15 @@ class FixedSizeMajorityOperation {
     if (loops == 0) {
       auto ldr = leader.load();
       if (ldr.requester != ctx->my_id) {
+        std::cout << "In fast write, error because changed leader ?" << std::endl;
         return false;
       }
     }
 
     range_start = req_id;
     range_end = qw.reqID();
-
+    std::cout << "In fast write, everything ok" << std::endl;
+        
     return true;
   }
 

@@ -267,8 +267,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
     std::cout << "changeRights() worked ! " << std::endl;
   }else{
     std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
-    std::cout << "some infos about the QP : " << std::endl;
-    this->print_all_infos();
+    std::cout << "This QP's state : " <<  query_qp_state() <<std::endl;
 
     return false;
   }
