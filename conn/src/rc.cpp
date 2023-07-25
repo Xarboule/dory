@@ -102,7 +102,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
 
 void ReliableConnection::reset() {
   printf("ATTENTION appel d'une fonction de RC qui modifie l'état: reset()\n");
-  struct ibv_qp_attr attr;
+  /*struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
   attr.qp_state = IBV_QPS_RESET;
@@ -113,8 +113,8 @@ void ReliableConnection::reset() {
     throw std::runtime_error("Could not modify QP to RESET: " +
                              std::string(std::strerror(errno)));
   }
+*/
 
-  std::cout << "reset() a fonctionné ! ";
 }
 
 
@@ -136,21 +136,18 @@ void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights)
   }
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC qui change l'état: init()  \n");
-  struct ibv_qp_attr init_attr;
+  printf("ATTENTION appel d'une fonction de RC qui change l'état: init() ==> ne fait rien  \n");
+  /*struct ibv_qp_attr init_attr;
   memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
   init_attr.qp_state = IBV_QPS_INIT;
-  //init_attr.pkey_index = 0;
-  //init_attr.port_num = static_cast<uint8_t>(cb.port());
+  init_attr.pkey_index = 0;
+  init_attr.port_num = static_cast<uint8_t>(cb.port());
   init_attr.qp_access_flags = rights;
 
-  /*
+
   auto ret = ibv_modify_qp(
       uniq_qp.get(), &init_attr,
-      IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS);*/
-
-  
-  auto ret = ibv_modify_qp(uniq_qp.get(), &init_attr, IBV_QP_STATE | IBV_QP_ACCESS_FLAGS);
+      IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS);
 
   if (ret != 0) {
     throw std::runtime_error("Failed to bring conn QP to INIT: " +
@@ -158,14 +155,13 @@ void ReliableConnection::init(ControlBlock::MemoryRights rights) {
   }
 
   init_rights = rights;
-
-  std::cout << "init() was successful : the rc";
+*/
 
 }
 
 void ReliableConnection::reinit() { 
-  printf("ATTENTION appel d'une fonction de RC interdite: reinit()\n");
-  init(init_rights); 
+  printf("ATTENTION appel d'une fonction de RC interdite: reinit() ==> ne fait rien\n");
+  //init(init_rights); 
 }
 
 
@@ -173,7 +169,7 @@ void ReliableConnection::reinit() {
 (TEST !)
 Pour ce qui est de changer l'état de la QP, on garde connect(), mais on ne fournit que le minimum*/
 void ReliableConnection::connect(RemoteConnection &rc) {
-  printf("ATTENTION appel d'une fonction de RC interdite: connect()\n");
+  printf("ATTENTION appel d'une fonction de RC interdite: connect() ==> ne fait rien\n");
   /*memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
   conn_attr.qp_state = IBV_QPS_RTR;
   conn_attr.path_mtu = IBV_MTU_4096;
@@ -241,31 +237,6 @@ void ReliableConnection::connect(RemoteConnection &rc) {
 
   wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter);*/
 
-  std::cout << "Tentative de mofication des états d'une qp, avec le moins d'arguments possibles" << std::endl;
-
-  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
-  conn_attr.qp_state = IBV_QPS_RTR;
-  int rtr_flags = IBV_QP_STATE;
-
-  auto ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rtr_flags);
-  if (ret != 0) {
-    throw std::runtime_error("Failed to bring conn QP to RTR: " +
-                             std::string(std::strerror(errno)));
-  }
-
-  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
-  conn_attr.qp_state = IBV_QPS_RTS;
- 
-
-  int rts_flags = IBV_QP_STATE;
-
-  ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rts_flags);
-  if (ret != 0) {
-    throw std::runtime_error("Failed to bring conn QP to RTS: " +
-                             std::string(std::strerror(errno)));
-  }
-
-  std::cout << "connect() a réussi ! " << std::endl;
 }
 
 bool ReliableConnection::needsReset() {
@@ -297,7 +268,14 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
     std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
     std::cout << "some infos about the QP : " << std::endl;
     this->print_all_infos();
+
+    printf("Errno errno: %s\n", strerror(errno));
+    throw std::runtime_error("Failed to create QP due to ...");
+    return false;
   }
+  }
+
+
 
   return ret == 0;
 }
