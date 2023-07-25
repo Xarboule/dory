@@ -340,8 +340,16 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         LOGGER_TRACE(logger,
                      "Error in fast-path: occurred when writing the new "
                      "value to a majority");
+              
+        std::cout <<"Checking the state of the replication qp" << std::endl;
+        re_ctx->cc.ce.check_all_qp_states();
+
         auto err = majW->fastWriteError();
         majW->recoverFromError(err);
+
+
+        std::cout <<"Checking the state of the replication qp" << std::endl;
+        re_ctx->cc.ce.check_all_qp_states();
         return ret_error(lock, ProposeError::FastPath, true);
       }
     } else {  // Slow-path
