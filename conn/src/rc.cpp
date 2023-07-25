@@ -133,7 +133,7 @@ void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights)
 
     init_rights = rights;
     //std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
-  }
+}
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
   printf("ATTENTION appel d'une fonction de RC qui change l'état: init() ==> ne fait rien  \n");
@@ -165,9 +165,6 @@ void ReliableConnection::reinit() {
 }
 
 
-/*Pour la première connexion, connect_all redirige vers connect_with_cm
-(TEST !)
-Pour ce qui est de changer l'état de la QP, on garde connect(), mais on ne fournit que le minimum*/
 void ReliableConnection::connect(RemoteConnection &rc) {
   printf("ATTENTION appel d'une fonction de RC interdite: connect() ==> ne fait rien\n");
   /*memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
@@ -272,7 +269,6 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
     printf("Errno errno: %s\n", strerror(errno));
     throw std::runtime_error("Failed to create QP due to ...");
     return false;
-  }
   }
 
 
