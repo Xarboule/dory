@@ -573,7 +573,7 @@ void ReliableConnection :: print_all_infos(){
 
 void ReliableConnection :: reset(ControlBlock :: MemoryRights rights){
   //destroy the qp without changing the cm_id
-  int ret = rdma_destroy_qp(cm_id); 
+  auto ret = rdma_destroy_qp(cm_id); 
   if (ret) {
     printf("Failed to destroy QP due to errno: %s\n", strerror(errno));
     throw std::runtime_error("Failed to create QP due to ...");
@@ -599,6 +599,8 @@ void ReliableConnection :: reset(ControlBlock :: MemoryRights rights){
 
   //toujours dans l'état init, on en profite pour changer les access flags de la qp
   set_init_with_cm(rights);
+
+  return;
 }
 
 }  // namespace dory
