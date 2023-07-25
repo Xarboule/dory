@@ -800,6 +800,12 @@ int ConnectionExchanger :: get_num_conn(){return num_conn;}
 
 void ConnectionExchanger :: incr_num_conn(){num_conn++;}
 
+void ConnectionExchanger :: check_all_qp_states(){
+  for ( auto [pid, rc] : rcs){
+    std::cout << "The QP connected to " << pid << "is in state :" << rc.query_qp_state() << std::endl;
+  }
+}
+
 std::pair<bool, int> ConnectionExchanger::valid_ids() const {
   auto min_max_remote =
       std::minmax_element(remote_ids.begin(), remote_ids.end());

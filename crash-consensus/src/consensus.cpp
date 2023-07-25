@@ -228,6 +228,10 @@ void RdmaConsensus::run() {
 }
 
 int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
+  std::cout << "About to propose " << std::endl;
+  std::cout <<"Checking the state of the replication qp" << std::endl;
+  re_ctx->cc.ce.check_all_qp_states();
+  
   std::unique_lock<std::mutex> lock(follower.lock(), std::defer_lock);
   
   if (!lock.try_lock()) {

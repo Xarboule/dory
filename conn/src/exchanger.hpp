@@ -114,6 +114,8 @@ class ConnectionExchanger {
 
     int start_loopback_client(ControlBlock::MemoryRights rights);
 
+    void check_all_qp_states();
+
  private:
   std::pair<bool, int> valid_ids() const;
 
