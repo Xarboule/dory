@@ -195,7 +195,7 @@ class FixedSizeMajorityOperation {
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
       //std::cout << "Result of ibv_poll_cq : num = " << num << std::endl;
       if (num >= 0) {
-        std::cout << "Polled " << num << "entries" << std::endl;
+        //std::cout << "Polled " << num << "entries" << std::endl;
         if (!qw.fastConsume(entries, num, expected_nr)) {
           std::cout << "In fast write, error because fastConsume failed" << std::endl;
           return false;
