@@ -581,7 +581,7 @@ void ReliableConnection :: reset(ControlBlock :: MemoryRights rights){
   }
 
   //creating the qp 
-  ret = = rdma_create_qp(cm_id, pd, &create_attr);
+  ret = rdma_create_qp(cm_id, pd, &create_attr);
 
   if (ret) {
     printf("Failed to create QP due to errno: %s\n", strerror(errno));
