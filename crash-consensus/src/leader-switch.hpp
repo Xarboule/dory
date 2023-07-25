@@ -74,10 +74,16 @@ class LeaderHeartbeat {
 
   void retract() { want_leader.store(false); } //==> je ne veux plus être leader
 
-  void scanHeartbeats() {
-    //outstanding_pids = liste des noeuds en cours de vérification (requête envoyée)
+  /*C'est la fonction la plus importante de cette thread : 
+      -outstanding_pids = les pids à qui j'ai déjà envoyé une requête RDMA (Read ou Write )
+    On envoie un write à son loopback pour incrémenter son heartbeat.
+    On envoie un read à tous ceux qui ne sont pas dans outstanding_pid.
+    On vérifie tous les wc, on lit les nouveaux heartbeats et on met à jour les scores 
 
-    //si mon id n'est pas en cours de vérification (avec un Write envoyé), alors je l'envoie maintenant
+    Remarque : ça a pris du temps de localiser l'erreur, car le code ne vérifie pas que le wc indique un truc de valide ! 
+  */
+  void scanHeartbeats() {
+        //si mon id n'est pas en cours de vérification (avec un Write envoyé), alors je l'envoie maintenant
     if (outstanding_pids.find(my_id) == outstanding_pids.end()) {
       // Update my heartbeat
       *counter_from += 1;
@@ -233,13 +239,14 @@ class LeaderHeartbeat {
     int outstanding;
     uint64_t value;
     int consecutive_updates; 
-    int failed_attempts;
-    int loop_modulo;
-    bool freshly_updated;
+    int failed_attempts; 
+    int loop_modulo;  
+    bool freshly_updated;  
   };
 
  private:
- /*D'après cette fonction, le leader est celui dont l'id est le plus petit ET avec plus de 2 consecutive_updates*/
+ /*D'après cette fonction, le leader est celui dont l'id est le plus petit ET avec plus de 2 consecutive_updates
+ Le nombre de consecutive updates est le "score"*/
   int leader_pid() {
     int leader_id = -1;
 
@@ -526,7 +533,7 @@ class LeaderSwitcher {
   LeaderSwitcher(LeaderContext *ctx, LeaderHeartbeat *heartbeat)
       : ctx{ctx},
         c_ctx{&ctx->cc},
-        want_leader{&heartbeat->wantLeaderSignal()},
+        want_leader{&heartbeat->wantLeaderSignal()}, 
         read_slots{ctx->scratchpad.writeLeaderChangeSlots()},
         sz{read_slots.size()},
         permission_asker{ctx} {
@@ -535,6 +542,8 @@ class LeaderSwitcher {
 
   void startPoller() { permission_asker.startPoller(); }
 
+
+  //tourne en boucle dans le thread Switcher
   void scanPermissions() {
     // Scan the memory for new messages
     int requester = -1;
@@ -543,38 +552,37 @@ class LeaderSwitcher {
 
     for (int i = 0; i < static_cast<int>(sz); i++) {
       reading[i] = *reinterpret_cast<uint64_t *>(read_slots[i]);
-      force_reset = static_cast<int>(reading[i] >> shift);
-      reading[i] &= (1UL << shift) - 1;
+      force_reset = static_cast<int>(reading[i] >> shift); //conserve le canary bit. S'il est à 0, c'est ok. S'il est à 1, c'est que quelqu'un écrit pendant qu'on lit 
+      reading[i] &= (1UL << shift) - 1;   //mets le canary bit à 0
 
-      if (reading[i] > current_reading[i]) {
-        current_reading[i] = reading[i];
+      //si on découvre une demande
+      if (reading[i] > current_reading[i]) { //donc la permission se fait en écrivant une valeur plus grande dans le tableau 
+        current_reading[i] = reading[i]; 
         requester = i;
         break;
       }
     }
 
-    // If you discovered a new request for a leader, notify the main event loop
+    // If you discovered a new request for a leader, notify the main event loop 
     // to give permissions to him and switch to follower.
+    //Rappel : dans Mu, dès qu'un noeud demande les droits, on le lui donne 
     if (requester > 0) {
-       std::cout << "Process with pid " << requester
-                 << " asked for permissions" << std::endl;
-      leader.store(dory::Leader(requester, reading[requester], force_reset));
-      want_leader->store(false);
+       std::cout << "Process with pid " << requester << " asked for permissions" << std::endl;
+      leader.store(dory::Leader(requester, reading[requester], force_reset)); //la thread consensus, qui appelle en boucl checkAndApplyPermissions, regarde ça
+      //c'est à travers ce "leader" que l'on apprend ce qui se passe
+      want_leader->store(false); //si quelqu'un veut être leader, alors je ne le veux plus 
     } else {
-      // Check if my leader election declared me as leader
+      // Check if my leader election declared me as leader 
+      //(on scanne tout le tableau pour les requêtes des autres, maintenant on vérifie son propre besoin)
       if (want_leader->load()) {
-        //std::cout << "My leader elections wants me as a leader" << std::endl;
-        // want_leader->store(false);
-
         auto expected = leader.load();
-        if (expected.unused()) {
-          // std::cout << "I have consumed the previous leader request" <<
-          // std::endl;
-          // TODO: Concurrent access to requestNr
-          dory::Leader desired(c_ctx->my_id, permission_asker.requestNr());
-          auto ret = leader.compare_exchange_strong(expected, desired);
+        if (expected.unused()) { // on vérifie si on a pas déjà donné les droits à ce leader 
+          dory::Leader desired(c_ctx->my_id, permission_asker.requestNr());  
+          auto ret = leader.compare_exchange_strong(expected, desired); //atomic compare and swap 
+          //will update leader to the new value (desired) if it matches the expected value (expected)
+          //won't be bothered by other threads while doing it 
           if (ret) {
-            std::cout << "Process " << c_ctx->my_id << " wants to become leader"<< std::endl;
+            std::cout << "Process " << c_ctx->my_id << " (which is this node) wants to become leader"<< std::endl;
             want_leader->store(false);
           }
         }
@@ -582,36 +590,30 @@ class LeaderSwitcher {
     }
   }
 
-  bool checkAndApplyPermissions(
-      std::map<int, ReliableConnection> *replicator_rcs, Follower &follower,
+
+  //est appelé par la thread consensus
+  bool checkAndApplyPermissions(std::map<int, ReliableConnection> *replicator_rcs, Follower &follower,
       std::atomic<bool> &leader_mode, bool &force_permission_request) {
     Leader current_leader = leader.load();
+    
     if (current_leader != prev_leader || force_permission_request) {
-      // std::cout << "Adjusting connections to leader ("
-      //           << int(current_leader.requester) << " "
-      //           << current_leader.requester_value << ") " << (current_leader
-      //           != prev_leader) << " " << force_permission_request <<
-      //           std::endl;
+      //si force_permission_request est true, alors on va mettre à jour le leader, même si c'est toujours le meme noeud
+      //surtout, on va faire un hard reset 
 
+      //maj leader
       auto orig_leader = prev_leader;
       prev_leader = current_leader;
+
+
+      //force le reset si c'est demandé 
       bool hard_reset = force_permission_request;
       force_permission_request = false;
 
-      if (current_leader.requester == c_ctx->my_id) {
-        // std::cout << "A" << std::endl;
-        if (!leader_mode.load()) {
-          // TIMESTAMP_T ts_start, ts_mid, ts_end;
 
-          // GET_TIMESTAMP(ts_start);
-
-          // std::cout << "Asking for permissions: " << hard_reset << std::endl;
-          // Ask for permission. Wait for everybody to reply
+      if (current_leader.requester == c_ctx->my_id) { //si c'est moi le 'nouveau' leader 
+        if (!leader_mode.load()) { //et que je ne l'étais pas avant 
           permission_asker.askForPermissions(hard_reset);
-
-          // GET_TIMESTAMP(ts_mid);
-
-          // std::cout << "Waiting for approval" << std::endl;
+         
           // In order to avoid a distributed deadlock (when two processes try
           // to become leaders at the same time), we bail whe the leader
           // changes.
@@ -625,34 +627,24 @@ class LeaderSwitcher {
           desired.makeUnused();
           leader.compare_exchange_strong(expected, desired);
 
-          // GET_TIMESTAMP(ts_end);
-
-          // auto elapsed_ask =  ELAPSED_NSEC(ts_start, ts_mid);
-          // auto elapsed_wait = ELAPSED_NSEC(ts_mid, ts_end);
-          // std::cout << "AskForPermissions: " << elapsed_ask / 1000 << "(us)"
-          // << std::endl; std::cout << "WaitForApproval: " << elapsed_wait /
-          // 1000 << "(us)" << std::endl; std::cout << "Total: " << (elapsed_ask
-          // + elapsed_wait) / 1000 << "(us)" << std::endl;
-
-          // std::cout << "Asking for permissions: " << hard_reset << std::endl;
-
-          // std::cout << "I (process " << c_ctx->my_id << ") got leader "
-          //           << "approval" << std::endl;
-
-          // GET_TIMESTAMP(ts_start);
           if (hard_reset) {
             // Reset everybody
-            std::cout << "hard_reset ! "<<std::endl;
-            for (auto &[pid, rc] : *replicator_rcs) {
+            std::cout << "hard_reset asked by myself ==> soft reset "<<std::endl;
+            /*for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               rc.reset();
             }
-
             // Re-configure the connections
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
               rc.init(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
               rc.reconnect();
+            }*/
+
+            //soft reset
+            for (auto &[pid, rc] : *replicator_rcs) {
+              IGNORE(pid);
+              rc.changeRights(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
             }
           } else if (orig_leader.requester != c_ctx->my_id) {
             // If I am going from follower to leader, then I need to revoke
@@ -694,23 +686,21 @@ class LeaderSwitcher {
           // "(us)" << std::endl;
 
           std::cout << "Permissions granted" << std::endl;
-        } else {
-          // std::cout << "C" << std::endl;
-        }
-      } else {
-        // std::cout << "B" << std::endl;
-        leader_mode.store(false);
-
+        } else {/*si c'est moi le 'nouveau' leader, mais que je l'étais déjà avant, alors on ne fait rien */}
+      } else { //si un nouveau leader autre que moi se manifeste
+        leader_mode.store(false); //j'informe la thread consensus que je ne suis pas le leader 
+  
         if (current_leader.reset()) {
+            std::cout << "Hard-reset asked by a remote leader ==> soft reset" << std::endl;
+        }/*
+        if (current_leader.reset()) { //si le leader (remote) a demandé un reset
           // Hard reset every connection
-
           // Reset everybody
           std::cout << "hard reset" << std::endl;
           for (auto &[pid, rc] : *replicator_rcs) {
             IGNORE(pid);
             rc.reset();
           }
-
           // Re-configure the connections
           for (auto &[pid, rc] : *replicator_rcs) {
             if (pid == current_leader.requester) {
@@ -721,7 +711,7 @@ class LeaderSwitcher {
             }
             rc.reconnect();
           }
-        } else {
+        } else { //sinon, on lui donne les permissions normalement */
           // Notify the remote party
           permission_asker.givePermissionStep1(current_leader.requester,
                                                current_leader.requester_value);
@@ -731,9 +721,8 @@ class LeaderSwitcher {
           if (old_leader != replicator_rcs->end()) {
             auto &rc = old_leader->second;
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
-
             if (!rc.changeRights(rights)) {
-              std::cout << "changeRights() failed, calling the big guns "<<std::endl;
+              std::cout << "changeRights() failed (to revoke former leader), calling the big guns (ce qui va provoquer une erreur) "<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
@@ -749,31 +738,32 @@ class LeaderSwitcher {
                           ControlBlock::REMOTE_WRITE;
 
             if (!rc.changeRights(rights)) {
-              std::cout << "changeRights() failed, calling the big guns "<<std::endl;
+              std::cout << "changeRights() failed (to grant new rights), calling the big guns  (which will cause an error)"<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
             }
           }
-        }
+        //}
 
         permission_asker.givePermissionStep2(current_leader.requester,
                                              current_leader.requester_value);
 
         follower.unblock();
-        // std::cout << "Permissions given" << std::endl;
+        
 
-        std::cout << "Giving permissions to " << int(current_leader.requester)
-                  << std::endl;
+        std::cout << "Giving permissions to " << int(current_leader.requester) << std::endl;
         auto expected = current_leader;
         auto desired = expected;
         desired.makeUnused();
-        leader.compare_exchange_strong(expected, desired);
+        leader.compare_exchange_strong(expected, desired);  
+        /*On peut pas directement faire current_leader.makeUnused(), car il peut y avoir des appels concurrents 
+        venant de la thread switcher. Du coup, on passe par une copie, qu'on modifie, et ensuite on fait un cas atomic 
+        (qui fonctionne ssi il n'y a pas eu de modification du leader venant de l'autre thread)
+        Si ça échoue, c'est qu'il y a un nouveau leader, et donc le "makeUnused()" ne sert plus à rien 
+        (makeUnused, c'est pour éviter, plus tard, de redonner les droits à un leader qui les a déjà) */
       }
-
-      // encountered_error = false;
     }
-
     return true;
   }
 
@@ -806,10 +796,10 @@ class LeaderSwitcher {
   void prepareScanner() {
     current_reading.resize(sz);
 
-    auto constexpr shift = 8 * sizeof(uintptr_t) - 1;
+    auto constexpr shift = 8 * sizeof(uintptr_t) - 1; //nb de bits de uintptr_t -1 
     for (size_t i = 0; i < sz; i++) {
-      current_reading[i] = *reinterpret_cast<uint64_t *>(read_slots[i]);
-      current_reading[i] &= (1UL << shift) - 1;
+      current_reading[i] = *reinterpret_cast<uint64_t *>(read_slots[i]); //va chercher les valeurs de read_slot et les mettre dans current_reading
+      current_reading[i] &= (1UL << shift) - 1;   // mets le premier bit à 0 (connary bit ?)
     }
 
     reading.resize(sz);
@@ -843,8 +833,8 @@ class LeaderElection {
         hb_started{false},
         switcher_started{false},
         response_blocked{false} {
-    startHeartbeat();
-    startLeaderSwitcher();
+    startHeartbeat();       //lance une thread
+    startLeaderSwitcher();  //lancer une thread
   }
 
   LeaderContext *context() { return &ctx; }
@@ -971,7 +961,7 @@ class LeaderElection {
       throw std::runtime_error("Already started");
     }
     switcher_started = true;
-    std::cout << "Starting leader switcher thread ! " << std::endl;
+    //std::cout << "Starting leader switcher thread ! " << std::endl;
 
     leader_switcher = LeaderSwitcher(&ctx, &leader_heartbeat);
     std::future<void> ftr = switcher_exit_signal.get_future();  //permet de gérer des évènements de manière asynchrone 
@@ -1012,9 +1002,9 @@ class LeaderElection {
  private:
   // Must be power of 2 minus 1
   static constexpr unsigned long long iterations_ftr_check = (2 >> 13) - 1;
-  LeaderContext ctx;
+  LeaderContext ctx; 
   ConsensusConfig::ThreadConfig threadConfig;
-  std::map<int, ReliableConnection> *replicator_conns;
+  std::map<int, ReliableConnection> *replicator_conns; //la connexion du replication plane 
 
   // For heartbeat thread
   LeaderHeartbeat leader_heartbeat;
