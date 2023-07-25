@@ -70,7 +70,6 @@ void ReliableConnection::associateWithCQ_for_cm() {
     return;
   }
 
-  
   /*Copié-collé de associateWithCQ() pour renseigner uniq_qp
   Il est notamment utilisé dans les send et receive */
   auto qp = cm_id->qp;
@@ -297,7 +296,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
   }else{
     std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
     std::cout << "some infos about the QP : " << std::endl;
-    print_all_infos();
+    this->print_all_infos();
   }
 
   return ret == 0;
@@ -571,4 +570,35 @@ void ReliableConnection :: print_all_infos(){
 
   std:: cout <<"State de la QP : " << this->query_qp_state() << std::endl;
 }
+
+void ReliableConnection :: reset(ControlBlock :: MemoryRights rights){
+  //destroy the qp without changing the cm_id
+  int ret = rdma_destroy_qp(cm_id); 
+  if (ret) {
+    printf("Failed to destroy QP due to errno: %s\n", strerror(errno));
+    throw std::runtime_error("Failed to create QP due to ...");
+    return;
+  }
+
+  //creating the qp 
+  ret = = rdma_create_qp(cm_id, pd, &create_attr);
+
+  if (ret) {
+    printf("Failed to create QP due to errno: %s\n", strerror(errno));
+    throw std::runtime_error("Failed to create QP due to ...");
+    return;
+  }
+
+  auto qp = cm_id->qp;
+  uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
+    auto ret = ibv_destroy_qp(qp);
+    if (ret != 0) {
+      throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
+    }
+  });
+
+  //toujours dans l'état init, on en profite pour changer les access flags de la qp
+  set_init_with_cm(rights);
+}
+
 }  // namespace dory
