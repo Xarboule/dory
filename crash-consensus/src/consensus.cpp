@@ -240,26 +240,23 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
   // Make fast-path slightly faster
   // TODO eliminate duplicate code from down below
+  //(c'est parce qu'il y a 2 fois le first path)
   
   if (likely(fast_path) && likely(am_I_leader.load())) {
     auto& leader = leader_election->leaderSignal();
 
+    //on enregistre la valeur dans notre lof
     auto local_fuo = re_ctx->log.headerFirstUndecidedOffset();
     Slot slot(re_ctx->log, proposal_nr, local_fuo, buf, buf_len);
     auto [address, offset, size] = slot.location();
 
-
-    //std::cout <<"Checking the state of the replication qp before a fast write" << std::endl;
-    //re_ctx->cc.ce.check_all_qp_states();
-
+    //on écrit dans celui des autres
     auto ok = majW->fastWrite(address, size, to_remote_memory, offset, leader,
                               outstanding_req);
 
       
-    //std::cout <<"Checking the state of the replication qp after fastWrite" << std::endl;
-    //re_ctx->cc.ce.check_all_qp_states();
-
     if (likely(ok)) {
+      //on avance le fuo
       auto fuo = LogConfig::round_up_powerof2(offset + size);
       re_ctx->log.updateHeaderFirstUndecidedOffset(fuo);
       auto has_next = iter.sampleNext();
@@ -269,10 +266,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                      pslot.acceptedProposal(), pslot.firstUndecidedOffset());
 
-        //printf("fast write is ok ! \n");
-        // auto [buf, len] = pslot.payload();
-
         // Now that I got something, I will use the commit iterator
+        //(pk c'est pas le follower thread qui s'en occupe ?)
         while (commit_iter.hasNext(fuo)) {
           commit_iter.next();
 
@@ -295,8 +290,9 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     return ret_no_error();
   }
 
-  //std::cout << "On skip la première partie, mais c'est toujours possible d'avoir un fast path" << std::endl;
+  
   if (am_I_leader.load()) {  // Leader (slow and fast-path)
+    //si je viens de devenir le leader, pas de fast path, et on reconstruit le log
     if (unlikely(became_leader)) {
       fast_path = false;
       became_leader = false;
@@ -308,7 +304,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     auto& leader = leader_election->leaderSignal();
 
     if (likely(fast_path)) {  // Fast-path
-      std :: cout << "in the fast path "<< std :: endl;
+      //std :: cout << "in the fast path "<< std :: endl;
       if (unlikely(re_ctx->log.spaceLeftCritical())) {
         return ret_error(lock, ProposeError::FastPathRecyclingTriggered);
       }
@@ -329,8 +325,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
           LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                        pslot.acceptedProposal(), pslot.firstUndecidedOffset());
-          // auto [buf, len] = pslot.payload();
-          //printf("Proposal accepted in ok \n");
+          
+
           // Now that I got something, I will use the commit iterator
           while (commit_iter.hasNext(fuo)) {
             commit_iter.next();
@@ -339,15 +335,12 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
             auto [buf, len] = pslot.payload();
             commit(true, buf, len);
           }
-          //printf("Commited \n");
+          
         }
       } else {
         LOGGER_TRACE(logger,
                      "Error in fast-path: occurred when writing the new "
                      "value to a majority");
-              
-        //std::cout <<"Checking the state of the replication qp" << std::endl;
-        //re_ctx->cc.ce.check_all_qp_states();
 
         auto err = majW->fastWriteError();
         majW->recoverFromError(err);
@@ -399,8 +392,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
       }
       LOGGER_TRACE(logger, "Passed catchup.catchProposal()");
 
-      auto catchup_update_proposal_err =
-          catchup->updateWithCurrentProposal(leader);
+      auto catchup_update_proposal_err = catchup->updateWithCurrentProposal(leader);
       if (!catchup_update_proposal_err->ok()) {
         LOGGER_TRACE(
             logger,

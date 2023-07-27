@@ -7,6 +7,7 @@
 #include "message-identifier.hpp"
 
 namespace dory {
+/*C'est exactement comme SerialQuorumWaiter, mais avec modulo=1*/
 class WaitQuorumResponse {
  public:
   WaitQuorumResponse() = default;
@@ -15,13 +16,9 @@ class WaitQuorumResponse {
                      int quorum_size, uint64_t next_id);
 
   bool consume(std::vector<struct ibv_wc> &entries);
-  // bool consume(std::vector<struct ibv_wc> &entries,
-  //              const std::function<bool(int)> &iterator_complete);
 
   bool canContinueWith(uint64_t expected) const;
-  // void resetTo(uint64_t next_id);
-  // void resetTo(std::vector<int> retry_list, uint64_t next, int wait_for);
-
+  
   int maximumResponses() const;
 
  private:
@@ -37,6 +34,7 @@ class WaitQuorumResponse {
 }  // namespace dory
 
 namespace dory {
+/*Je vois pas la différence avec */
 class WaitModuloQuorumResponse {
  public:
   WaitModuloQuorumResponse() = default;

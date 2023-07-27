@@ -34,8 +34,7 @@ typedef void (*committer_t)(bool leader, uint8_t *buf, size_t len, void *ctx);
 consensus_t new_consensus(int my_id, int *remote_ids, int remote_ids_num);
 void free_consensus(consensus_t c);
 
-void consensus_attach_commit_handler(consensus_t c, committer_t f,
-                                     void *committer_ctx);
+void consensus_attach_commit_handler(consensus_t c, committer_t f, void *committer_ctx);
 
 void consensus_spawn_thread(consensus_t c);
 

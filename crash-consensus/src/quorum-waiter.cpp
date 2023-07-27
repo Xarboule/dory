@@ -9,8 +9,7 @@
 #include "message-identifier.hpp"
 
 namespace dory {
-template <class ID>
-SerialQuorumWaiter<ID>::SerialQuorumWaiter(quorum::Kind kind,
+template <class ID> SerialQuorumWaiter<ID>::SerialQuorumWaiter(quorum::Kind kind,
                                            std::vector<int>& remote_ids,
                                            size_t quorum_size, ID next_id,
                                            ID modulo)
@@ -31,8 +30,7 @@ SerialQuorumWaiter<ID>::SerialQuorumWaiter(quorum::Kind kind,
   }
 }
 
-template <class ID>
-void SerialQuorumWaiter<ID>::reset(ID next) {
+template <class ID> void SerialQuorumWaiter<ID>::reset(ID next) {
   if (next == 0) {
     throw std::runtime_error("`next_id` must be positive");
   }
@@ -44,8 +42,7 @@ void SerialQuorumWaiter<ID>::reset(ID next) {
   next_id = next;
 }
 
-template <class ID>
-bool SerialQuorumWaiter<ID>::consume(std::vector<struct ibv_wc>& entries,
+template <class ID> bool SerialQuorumWaiter<ID>::consume(std::vector<struct ibv_wc>& entries,
                                      std::vector<int>& successful_ops) {
   auto ret = true;
   for (auto const& entry : entries) {
@@ -72,18 +69,22 @@ bool SerialQuorumWaiter<ID>::consume(std::vector<struct ibv_wc>& entries,
                   << pid << std::endl;
       }
 #endif
-
+      
+      //on vérifie que le seq reçu est celui qui suit immédiatement celui enregistré 
+      //(pour être sûr de ne pas en sauter un)
       auto current_seq = scoreboard[pid];
-      scoreboard[pid] = current_seq + modulo == seq ? seq : 0;
+      scoreboard[pid] = current_seq + modulo == seq ? seq : 0;  //modulo c'est l'écart entre deux seq 
+      
 
-      if (scoreboard[pid] == next_id) {
+      if (scoreboard[pid] == next_id) { 
         left -= 1;
         successful_ops.push_back(pid);
       }
 
-      if (left == 0) {
+      //si on a fini d'attendre tous les noeuds pour cette étape, on passe à la suivante
+      if (left == 0) { 
         left = quorum_size;
-        next_id += modulo;
+        next_id += modulo;    
       }
     }
   }
@@ -91,8 +92,7 @@ bool SerialQuorumWaiter<ID>::consume(std::vector<struct ibv_wc>& entries,
   return ret;
 }
 
-template <class ID>
-bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct ibv_wc>& entries,
+template <class ID> bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct ibv_wc>& entries,
                                          int num, int& ret_left) {
   for (int i = 0; i < num; i++) {
     auto& entry = entries[i];
@@ -127,7 +127,7 @@ bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct ibv_wc>& entries,
 
       if (scoreboard[pid] == next_id) {
         left -= 1;
-        ret_left = left;
+        ret_left = left; 
       }
 
       if (left == 0) {
@@ -140,19 +140,18 @@ bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct ibv_wc>& entries,
   return true;
 }
 
-template <class ID>
-inline bool SerialQuorumWaiter<ID>::canContinueWith(ID expected) const {
+template <class ID> inline bool SerialQuorumWaiter<ID>::canContinueWith(ID expected) const {
   return next_id >= expected;
 }
 
-template <class ID>
-inline bool SerialQuorumWaiter<ID>::canContinueWithOutstanding(
+/*On vérifie si tout le monde est arrivé à (expected - outstanding),
+ce qui permet de moins attendre*/
+template <class ID> inline bool SerialQuorumWaiter<ID>::canContinueWithOutstanding(
     int outstanding, ID expected) const {
   return next_id + outstanding >= expected;
 }
 
-template <class ID>
-int SerialQuorumWaiter<ID>::maximumResponses() const {
+template <class ID> int SerialQuorumWaiter<ID>::maximumResponses() const {
   // The number of processes that can go to the next round:
   return static_cast<int>(
       std::count_if(scoreboard.begin(), scoreboard.end(),

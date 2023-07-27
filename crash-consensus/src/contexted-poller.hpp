@@ -54,9 +54,7 @@ class ContextedPoller : public GenericContext {
 
  private:
   ConnectionContext *cc;
-  std::map<std::pair<ContextKind, ContextKind>,
-           moodycamel::ReaderWriterQueue<WC>>
-      queues;  // (from, to) -> queue
+  std::map<std::pair<ContextKind, ContextKind>,  moodycamel::ReaderWriterQueue<WC>> queues;  // (from, to) -> queue
   std::set<ContextKind> contexts;
   std::mutex contexts_mutex;
   std::atomic<bool> done;

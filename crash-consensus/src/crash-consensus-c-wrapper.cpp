@@ -1,6 +1,25 @@
 #include "consensus.hpp"
 #include "crash-consensus.h"
 
+/*Utilisé pour faire l'interface avec memcached et redis (codés en C)
+
+Par exemple, voilà comment c'est utilisé dans redis :
+
+  Initialisation :
+    consensus_t consensus;
+    consensus = new_consensus(my_id, remote_ids, length);
+    consensus_attach_commit_handler(consensus, committer, &dummy_client_sockfd); 
+    consensus_spawn_thread(consensus);
+  Et dans network.c, la fonction processInputBuffer() va appeler :
+    consensus_propose_thread(consensus, (uint8_t *) c->querybuf, sdslen(c->querybuf));
+    
+Avec les mains : 
+  Lors de l'initialisation, on initialise notre consensus, et on lui attache la fonction commiter 
+  Ensuite on lance la thread : elle attend qu'on lui signale qu'il faut faire un propose. Quand c'est le cas, elle propose. 
+  Pour le lui signaler, on appelle consensus_propose_thread() 
+
+*/
+
 consensus_t new_consensus(int my_id, int *remote_ids, int remote_ids_num) {
   std::vector<int> rem_ids;
   for (int i = 0; i < remote_ids_num; i++) {
@@ -32,8 +51,7 @@ void consensus_spawn_thread(consensus_t c) {
       while (cons->handover.load() == false) {
       }
 
-      cons->handover_ret =
-          cons->propose(cons->handover_buf, cons->handover_buf_len);
+      cons->handover_ret = cons->propose(cons->handover_buf, cons->handover_buf_len);
 
       cons->handover.store(false);
     }
@@ -54,10 +72,8 @@ int consensus_potential_leader(consensus_t c) {
   return reinterpret_cast<dory::RdmaConsensus *>(c)->potentialLeader();
 }
 
-ConsensusProposeError consensus_propose(consensus_t c, uint8_t *buf,
-                                        size_t len) {
-  return static_cast<ConsensusProposeError>(
-      reinterpret_cast<dory::RdmaConsensus *>(c)->propose(buf, len));
+ConsensusProposeError consensus_propose(consensus_t c, uint8_t *buf, size_t len) {
+  return static_cast<ConsensusProposeError>( reinterpret_cast<dory::RdmaConsensus *>(c)->propose(buf, len));
 }
 
 ConsensusProposeError consensus_propose_thread(consensus_t c, uint8_t *buf,

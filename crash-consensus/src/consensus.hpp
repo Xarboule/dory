@@ -128,8 +128,7 @@ class RdmaConsensus {
   std::unique_ptr<LogRecycling> log_recycling;
   std::unique_ptr<SequentialQuorumWaiter> sqw;
   std::unique_ptr<
-      FixedSizeMajorityOperation<SequentialQuorumWaiter, WriteLogMajorityError>>
-      majW;
+      FixedSizeMajorityOperation<SequentialQuorumWaiter, WriteLogMajorityError>>  majW;
 
   std::vector<uintptr_t> to_remote_memory, dest;
   BlockingIterator iter; 
