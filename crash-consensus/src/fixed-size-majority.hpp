@@ -171,15 +171,14 @@ class FixedSizeMajorityOperation {
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset);
 
 
-      std::cout << "State of the QP is juste posted to in fastWrite: " << c.rc->query_qp_state() << std::endl;
+      //std::cout << "State of the QP is juste posted to in fastWrite: " << c.rc->query_qp_state() << std::endl;
 
       if (!ok) {
-        std::cout << "In fast write, a RDMA WRITE just failed" << std::endl;
         return false;
       }
 
     }
-    std::cout << "In fast write, all RDMA Writes have been posted successfully"<< std::endl;
+    //std::cout << "In fast write, all RDMA Writes have been posted successfully"<< std::endl;
 
 
     int expected_nr = outstanding_req * replicas_size + quorum_size;
@@ -189,7 +188,7 @@ class FixedSizeMajorityOperation {
     int loops = 0;
     constexpr unsigned mask = (1 << 14) - 1;  // Must be power of 2 minus 1
 
-    std::cout << "Expected_nr = " << expected_nr << std::endl;
+    //std::cout << "Expected_nr = " << expected_nr << std::endl;
       
     while (!qw.canContinueWithOutstanding(outstanding_req, next_req_id)) {
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
@@ -197,11 +196,11 @@ class FixedSizeMajorityOperation {
       if (num >= 0) {
         //std::cout << "Polled " << num << "entries" << std::endl;
         if (!qw.fastConsume(entries, num, expected_nr)) {
-          std::cout << "In fast write, error because fastConsume failed" << std::endl;
+          //std::cout << "In fast write, error because fastConsume failed" << std::endl;
           return false;
         }
       } else {
-        std::cout << "In fast write, error because failed to pull" << std::endl;
+        //std::cout << "In fast write, error because failed to pull" << std::endl;
         return false;
       }
     }
@@ -210,14 +209,14 @@ class FixedSizeMajorityOperation {
     if (loops == 0) {
       auto ldr = leader.load();
       if (ldr.requester != ctx->my_id) {
-        std::cout << "In fast write, error because changed leader ?" << std::endl;
+        //std::cout << "In fast write, error because changed leader ?" << std::endl;
         return false;
       }
     }
 
     range_start = req_id;
     range_end = qw.reqID();
-    std::cout << "In fast write, everything ok" << std::endl;
+    //std::cout << "In fast write, everything ok" << std::endl;
         
     return true;
   }

@@ -773,7 +773,7 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 		rdma_ack_cm_event(*cm_event);
 		return -1; // unexpected event :(
 	}
-	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
+	//LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
 	/* The caller must acknowledge the event */
 	return ret;
 }

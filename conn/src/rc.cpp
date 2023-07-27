@@ -101,7 +101,7 @@ void ReliableConnection::associateWithCQ_for_cm() {
 }
 
 void ReliableConnection::reset() {
-  printf("ATTENTION appel d'une fonction de RC qui modifie l'état: reset()\n");
+  printf("ATTENTION appel d'une fonction de RC non implémentée reset()\n");
   /*struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
@@ -251,12 +251,12 @@ bool ReliableConnection::needsReset() {
 }
 
 bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRights()\n");
+  printf("ATTENTION : changeRight est appelé, ce qui peut faire planter la QP\n");
   struct ibv_qp_attr attr;
   memset(&attr, 0, sizeof(attr));
 
-  std::cout << "some infos about the QP before the modify() : " << std::endl;
-  this->print_all_infos();
+  //std::cout << "some infos about the QP before the modify() : " << std::endl;
+  //this->print_all_infos();
     
 
   attr.qp_access_flags = static_cast<unsigned>(rights);
@@ -267,8 +267,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
     std::cout << "changeRights() worked ! " << std::endl;
   }else{
     std::cout << "changeRights() seems to have failed, with ret = " << static_cast<int>(ret) << std::endl;
-    std::cout << "This QP's state : " <<  query_qp_state() <<std::endl;
-
+    //std::cout << "This QP's state : " <<  query_qp_state() <<std::endl;
     return false;
   }
 
@@ -279,7 +278,7 @@ bool ReliableConnection::changeRights(ControlBlock::MemoryRights rights) {
 
 bool ReliableConnection::changeRightsIfNeeded(
     ControlBlock::MemoryRights rights) {
-  printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
+  //printf("ATTENTION appel d'une fonction de RC non travaillée: changeRightsIfNeeded()\n");
   auto converted_rights = static_cast<unsigned>(rights);
 
   struct ibv_qp_attr attr;
