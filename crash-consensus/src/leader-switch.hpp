@@ -555,7 +555,7 @@ class LeaderSwitcher {
     // to give permissions to him and switch to follower.
     //Rappel : dans Mu, dès qu'un noeud demande les droits, on le lui donne 
     if (requester > 0) {
-       std::cout << "Process with pid " << requester << " asked for permissions" << std::endl;
+      std::cout << "Process with pid " << requester << " asked for permissions" << std::endl;
       leader.store(dory::Leader(requester, reading[requester], force_reset)); //la thread consensus, qui appelle en boucl checkAndApplyPermissions, regarde ça
       //c'est à travers ce "leader" que l'on apprend ce qui se passe
       want_leader->store(false); //si quelqu'un veut être leader, alors je ne le veux plus 
@@ -570,7 +570,7 @@ class LeaderSwitcher {
           //will update leader to the new value (desired) if it matches the expected value (expected)
           //won't be bothered by other threads while doing it 
           if (ret) {
-            std::cout << "Process " << c_ctx->my_id << " (which is this node) wants to become leader"<< std::endl;
+            //std::cout << "Process " << c_ctx->my_id << " (which is this node) wants to become leader"<< std::endl;
             want_leader->store(false);
           }
         }
