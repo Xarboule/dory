@@ -371,7 +371,7 @@ class LeaderPermissionAsker {
             throw std::runtime_error(
                 "Unimplemented: We assume the leader election connections never fail");
           } else {
-            std::cout << "RDMA Write sucessful : answer to permission request to pid = " << pid << std::endl;
+            //std::cout << "RDMA Write sucessful : answer to permission request to pid = " << pid << std::endl;
             return std::make_unique<NoError>();
           }
         }
@@ -617,7 +617,7 @@ class LeaderSwitcher {
 
           if (hard_reset) {
             // Reset everybody
-            std::cout << "hard_reset asked by myself ==> soft reset "<<std::endl;
+            //std::cout << "hard_reset asked by myself ==> soft reset "<<std::endl;
             /*
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
@@ -634,7 +634,7 @@ class LeaderSwitcher {
             //soft reset
             for (auto &[pid, rc] : *replicator_rcs) {
               IGNORE(pid);
-              std::cout << "calling change right on a replicator rc, to revoke its rights (soft reset triggered by myself)" << std::endl;
+              //std::cout << "calling change right on a replicator rc, to revoke its rights (soft reset triggered by myself)" << std::endl;
               rc.changeRights(ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
             }
           } else if (orig_leader.requester != c_ctx->my_id) {
@@ -644,9 +644,9 @@ class LeaderSwitcher {
             if (old_leader != replicator_rcs->end()) {
               auto &rc = old_leader->second;
               auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
-              std::cout << "I'm the new leader ==> reset of the right rc (former leader)" << std::endl;
+              //std::cout << "I'm the new leader ==> reset of the right rc (former leader)" << std::endl;
               if (!rc.changeRights(rights)) {
-                std::cout << "changeRights() failed, calling the big guns "<<std::endl;
+                //std::cout << "changeRights() failed, calling the big guns "<<std::endl;
                 rc.reset();
                 rc.init(rights);
                 rc.reconnect();
@@ -697,9 +697,9 @@ class LeaderSwitcher {
           if (old_leader != replicator_rcs->end()) {
             auto &rc = old_leader->second;
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE;
-            std::cout << "changeRights() to revoke former leader's rights" << std::endl; 
+            //std::cout << "changeRights() to revoke former leader's rights" << std::endl; 
             if (!rc.changeRights(rights)) {
-              std::cout << "changeRights() failed (to revoke former leader), calling the big guns (ce qui va provoquer une erreur) "<<std::endl;
+              //std::cout << "changeRights() failed (to revoke former leader), calling the big guns (ce qui va provoquer une erreur) "<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
@@ -713,9 +713,9 @@ class LeaderSwitcher {
             auto rights = ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
                           ControlBlock::REMOTE_READ |
                           ControlBlock::REMOTE_WRITE;
-            std::cout << "changeRights() is called to grant new rights to : "<< current_leader.requester << std::endl;
+            //std::cout << "changeRights() is called to grant new rights to : "<< current_leader.requester << std::endl;
             if (!rc.changeRights(rights)) {
-              std::cout << "changeRights() failed (to grant new rights), calling the big guns  (which will cause an error)"<<std::endl;
+              //std::cout << "changeRights() failed (to grant new rights), calling the big guns  (which will cause an error)"<<std::endl;
               rc.reset();
               rc.init(rights);
               rc.reconnect();
@@ -948,7 +948,7 @@ class LeaderElection {
         if (i == 0) {
           //vérifie le résultat sans bloquer 
           if (ftr.wait_for(std::chrono::seconds(0)) != std::future_status::timeout) { 
-            std::cout << "the leader switcher thread is about the exit " << std::endl;
+            //std::cout << "the leader switcher thread is about the exit " << std::endl;
             break; //sort totalement de la boucle ?? (pk pas juste "continue" ? )
             //ça veut dire que si le résultat n'est pas disponible, on quitte 
           }
