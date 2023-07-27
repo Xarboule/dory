@@ -133,6 +133,9 @@ void RdmaConsensus::run() {
   ce_leader_election->announce_ready(store, "qp-leader-election", "announce");
   ce_leader_election->addLoopback("primary", "shared-mr", "cq-leader-election",
                                   "cq-leader-election"); //loopback sert pour incrémenter le heartbeat
+  ce_leader_election->connectLoopback(
+      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
+      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
 
   // Configure the log 
@@ -167,17 +170,13 @@ void RdmaConsensus::run() {
 
   ce_replication->wait_ready_all(store, "qp-replication", "connect");
   ce_leader_election->wait_ready_all(store, "qp-leader-election", "connect");
-  ce_leader_election->connectLoopback(
-      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
-      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
 
   std :: string foo;
   std::cout <<"EVERYTHING IS CONNECTED WELL\n";
-  std::cout <<"Press anything to continue once all connections are ok";
+  std::cout <<"Press anything to continue once all connections are ok\n";
   std :: cin >> foo;
 
   //Un "context", c'est rien d'autre qu'un struct qui contient tout ce qui est pertinent, pour faciliter l'accès
-
 
   // Initialize the context of replication plane (ConnectionContext and ReplicationContext) 
   auto& cq_replication = cb->cq("cq-replication");
@@ -227,9 +226,9 @@ void RdmaConsensus::run() {
 }
 
 int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
-  std::cout << "================================About to propose================================ " << std::endl;
-  std::cout <<"Checking the state of the replication qp" << std::endl;
-  re_ctx->cc.ce.check_all_qp_states();
+  //std::cout << "================================About to propose================================ " << std::endl;
+  //std::cout <<"Checking the state of the replication qp" << std::endl;
+  //re_ctx->cc.ce.check_all_qp_states();
   
   std::unique_lock<std::mutex> lock(follower.lock(), std::defer_lock);
   
@@ -250,15 +249,15 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     auto [address, offset, size] = slot.location();
 
 
-    std::cout <<"Checking the state of the replication qp before a fast write" << std::endl;
-    re_ctx->cc.ce.check_all_qp_states();
+    //std::cout <<"Checking the state of the replication qp before a fast write" << std::endl;
+    //re_ctx->cc.ce.check_all_qp_states();
 
     auto ok = majW->fastWrite(address, size, to_remote_memory, offset, leader,
                               outstanding_req);
 
       
-    std::cout <<"Checking the state of the replication qp after fastWrite" << std::endl;
-    re_ctx->cc.ce.check_all_qp_states();
+    //std::cout <<"Checking the state of the replication qp after fastWrite" << std::endl;
+    //re_ctx->cc.ce.check_all_qp_states();
 
     if (likely(ok)) {
       auto fuo = LogConfig::round_up_powerof2(offset + size);
@@ -270,7 +269,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
         LOGGER_TRACE(logger, "Accepted proposal: {}, FUO: {}",
                      pslot.acceptedProposal(), pslot.firstUndecidedOffset());
 
-        printf("fast write is ok ! \n");
+        //printf("fast write is ok ! \n");
         // auto [buf, len] = pslot.payload();
 
         // Now that I got something, I will use the commit iterator
@@ -296,7 +295,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
     return ret_no_error();
   }
 
-  std::cout << "On skip la première partie, mais c'est toujours possible d'avoir un fast path" << std::endl;
+  //std::cout << "On skip la première partie, mais c'est toujours possible d'avoir un fast path" << std::endl;
   if (am_I_leader.load()) {  // Leader (slow and fast-path)
     if (unlikely(became_leader)) {
       fast_path = false;
@@ -347,8 +346,8 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
                      "Error in fast-path: occurred when writing the new "
                      "value to a majority");
               
-        std::cout <<"Checking the state of the replication qp" << std::endl;
-        re_ctx->cc.ce.check_all_qp_states();
+        //std::cout <<"Checking the state of the replication qp" << std::endl;
+        //re_ctx->cc.ce.check_all_qp_states();
 
         auto err = majW->fastWriteError();
         majW->recoverFromError(err);
