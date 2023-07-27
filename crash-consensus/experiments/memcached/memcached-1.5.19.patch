@@ -181,7 +181,7 @@ diff -u a/memcached.c b/memcached.c
 +    (void) arg;
 +
 +    fprintf(stderr, "Waiting 15s for memcached to start...\n");
-+    sleep(15);
++    usleep(15000000);
 +    fprintf(stderr, "We hope that memcached started. We spawn the dummy client now...\n");
 +    // Connect using tcp
 +    int sockfd;
