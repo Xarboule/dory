@@ -114,7 +114,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
   }
 
   std::unique_ptr<MaybeError> write(std::vector<void *> &from_local_memories,
-                                 ContextKind  std::vector<size_t> &size, //?
+                                    std::vector<size_t> &size, 
                                     std::vector<uintptr_t> &to_remote_memories,
                                     std::atomic<Leader> &leader) {
     return op_with_leader_bail(ReliableConnection::RdmaWrite,
