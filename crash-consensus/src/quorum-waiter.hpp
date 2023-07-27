@@ -75,7 +75,7 @@ template <class ID> class SerialQuorumWaiter {
   quorum::Kind kind; //le genre d'opération, renseigné dans la wr_id
   std::vector<ID> scoreboard;
   int quorum_size;
-  ID next_id;     /
+  ID next_id;     
   ID fast_id;
   int left; 
   ID modulo;    //écart entre les ids à atteindre ? 
