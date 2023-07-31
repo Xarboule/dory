@@ -1,4 +1,4 @@
-# Microsecond Consensus for Microsecond Applications - Source Code
+# Microsecond Consensus for Microsecond Applications - Adapted for RoCE v2.0
 
 This repository provides the source code developed for the paper [...], as well as instruction on how to build and deploy the various experiments.
 
