@@ -140,8 +140,8 @@ class ConnectionExchanger {
 
   static int num_conn;
 
-  //std::map<int, std::string> ipAddresses;
-  //std::ifstream ifs;
+  std::map<int, std::string> ipAddresses;
+  std::ifstream ifs;
 
 };
 }  // namespace dory
