@@ -41,7 +41,7 @@ Then, simply execute one of the following scripts :
 ## Execution of the various experiments
 First, make sure that you are at the `~/dory` directory.
 
-#### MAIN-ST (Standalone throughput)
+### MAIN-ST (Standalone throughput)
 On `node{1,2,3}` run:
 ```sh
 $ export DORY_REGISTRY_IP=osdi-memc:9999
@@ -68,7 +68,7 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st 3 4096 1
 * When the execution of `main-st` finishes on node 1, the terminal will print `Replicated X commands of size Y bytes in Z ns`.
 * After the experiment completes on node 1, make sure to kill (e.g., using `Ctrl-C`) the experiment on nodes 2 and 3.
 
-#### MAIN-ST-LAT (Standalone latency)
+### MAIN-ST-LAT (Standalone latency)
 On `node{1,2,3}` run:
 ```sh
 $ export DORY_REGISTRY_IP=osdi-memc:9999
@@ -95,7 +95,7 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st-lat 3 4096 1
 * When execution of `main-st-lat` in node1 finishes, a file named `dump-st-4096-1.txt` is created that stores latency measurements in *ns*.
 * After the experiment completes on node 1, make sure to kill (e.g., using `Ctrl-C`) the experiment on nodes 2 and 3.
 
-#### REDIS (Replicated Redis)
+### REDIS (Replicated Redis)
 On `node{1,2,3}` run:
 ```sh
 $ export DORY_REGISTRY_IP=osdi-memc:9999
@@ -133,7 +133,7 @@ Notes:
 * To get the baseline measurements (original redis without replication), you can run `numactl --membind 0 -- ./crash-consensus/experiments/redis/bin/redis-server --port 6379` on `node1`, don't run anything on `node2`, `node3` and execute the previously shown command on `node4`.
 * At the end of the experiment, make sure to kill (e.g., using `Ctrl-C`) the `redis-server-replicated` processes on nodes 1, 2, and 3.
 
-#### REDIS (Replicated Redis) --- INTERACTIVE
+### REDIS (Replicated Redis) --- INTERACTIVE
 On `node{1,2,3}` run:
 ```sh
 $ export DORY_REGISTRY_IP=osdi-memc:9999
