@@ -18,7 +18,7 @@ In each machine :
 For example, in node-1, the commands are the following : 
 ```sh
 $ docker build -t mu_img .
-$ docker run -d -- privileged--name mu-node-1 --hostname node-1 --network host mu_img
+$ docker run -d -- privileged --name mu-node-1 --hostname node-1 --network host mu_img
 $ docker exec -it mu-node-1 bash
 ```
 
