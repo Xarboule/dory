@@ -137,11 +137,11 @@ class ConnectionExchanger {
   int loopback_port;
 
   std::map<int, std::string> ipAddresses;
-  std::ifstream ifs;
-
-  LOGGER_DECL(logger);
+  //std::ifstream ifs;
 
   static int num_conn;
+
+  LOGGER_DECL(logger);
 
   
 };
