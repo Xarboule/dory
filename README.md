@@ -295,3 +295,7 @@ $ conan remove --force "*"
 ```
 Optionally, exit the shell and login again in order to unload the exported environment variables set by the various experiments.
 Subsequently, re-follow the document starting from section *Complication of the sofware stack*.
+
+
+## Known limitations 
+* Since we use rmda_cm to handle the state of the QPs, we cannot easily change these states with ibv_modify(). That can cause problems because Mu might change the state of a QP to change its permissions. The way Mu changes its permissions when changing a leader is quite straightforward : it changes the QP's access flag in an optimistic attempt, and if it fails (which might happen), it uses the slower but more robust method of change directly the QP's state. So this second method is node yet implemented here. (With rdma_cm, instead of change the QP's state, we would more likely delete it than (re)create it by calling rdma_create_qp id, while hoping that it's allowed)
