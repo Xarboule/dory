@@ -41,6 +41,20 @@ Then, simply execute one of the following scripts :
 ## Execution of the various experiments
 First, make sure that you are at the `~/dory` directory.
 
+### Setting up the connections during a run 
+For all the experiments, some inputs are required during the connection set-up. 
+When node-X and node-Y establish an RDMA connection, one of those nodes will act as a server, and the other as a client. 
+On both nodes, a print in the terminal will indicate "Handling of connection X-to-Y". 
+The server will print "listening successfully at: ..., port : ...."
+On the client side, the user will have to manually input the port of the server.
+
+Since there are 3 nodes acting as replicas, and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
+
+(TO DO : automate the set-up) 
+
+A commun error when a node acts as a server is "Failed to bind the channel to the addr". It  means that another process is already occupying the port. Usually, it is another run of Mu that wasn't killed proporly. So to solve this issue, just kill that other instance. 
+
+
 ### MAIN-ST (Standalone throughput)
 On `node{1,2,3}` run:
 ```sh
