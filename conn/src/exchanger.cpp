@@ -20,6 +20,7 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
 
   max_id = maximum_id;
 
+  /*
   ifs.open("/dory/config.txt");
   if (!ifs.is_open()) {
       std::cerr << "Error opening configuration file." << std::endl;
@@ -37,7 +38,7 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
     }
   }
 
-    ifs.close();
+    ifs.close();*/
 
 }
 
