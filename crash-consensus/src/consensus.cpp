@@ -227,13 +227,13 @@ void RdmaConsensus::run() {
       my_id);*/
 
   re_conn_ctx = std::make_unique<ConnectionContext>(
-      *cb.get(), ce_replication.get(), cq_replication, remote_ids, my_id);
+      *cb.get(), ce_replication, cq_replication, remote_ids, my_id);
   re_ctx = std::make_unique<ReplicationContext>(
       *re_conn_ctx.get(), *replication_log.get(), log_offset);
 
   auto& cq_leader_election = cb->cq("cq-leader-election");
   le_conn_ctx = std::make_unique<ConnectionContext>(
-      *cb.get(), ce_leader_election.get(), cq_leader_election, remote_ids,
+      *cb.get(), ce_leader_election, cq_leader_election, remote_ids,
       my_id);
 
 
