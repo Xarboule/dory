@@ -214,7 +214,7 @@ void RdmaConsensus::run() {
 
   // Initialize the context of replication plane (ConnectionContext and ReplicationContext) 
   auto& cq_replication = cb->cq("cq-replication");
-  re_conn_ctx = std::make_unique<ConnectionContext>(
+  /*re_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_replication.get(), cq_replication, remote_ids, my_id);
   re_ctx = std::make_unique<ReplicationContext>(
       *re_conn_ctx.get(), *replication_log.get(), log_offset);
@@ -224,6 +224,16 @@ void RdmaConsensus::run() {
   auto& cq_leader_election = cb->cq("cq-leader-election");
   le_conn_ctx = std::make_unique<ConnectionContext>(
       *cb.get(), *ce_leader_election.get(), cq_leader_election, remote_ids,
+      my_id);*/
+
+  re_conn_ctx = std::make_unique<ConnectionContext>(
+      *cb.get(), ce_replication.get(), cq_replication, remote_ids, my_id);
+  re_ctx = std::make_unique<ReplicationContext>(
+      *re_conn_ctx.get(), *replication_log.get(), log_offset);
+
+  auto& cq_leader_election = cb->cq("cq-leader-election");
+  le_conn_ctx = std::make_unique<ConnectionContext>(
+      *cb.get(), ce_leader_election.get(), cq_leader_election, remote_ids,
       my_id);
 
 
