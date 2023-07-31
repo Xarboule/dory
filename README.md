@@ -36,14 +36,15 @@ In the file config.txt, enter the IP addresses of node-1, node-2 and node-3 :
 2=10.30.2.3
 ```
 
-
 Then, simply execute one of the following scripts : 
 * Either compilation.sh
 * Or compile_debug.sh
 
+If you get the error "Error opening configuration file", then change the variable path_to_config in dory/conn/src/exchanger.cpp, in the constructor of ConnectionExchanger.
 
 ### Running without docker 
 (Better performance expected, however some bug ==> need ubuntu 18.04) 
+Same steps as with docker : see the content of the dockerfile for the dependencies.
 
    
 ## Execution of the various experiments
