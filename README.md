@@ -29,6 +29,9 @@ $ git clone https://github.com/GillesHOP/dory.git
 $ cd dory/
 ```
 
+TO DO : add config file to indicate the IP addresses
+
+
 Then, simply execute one of the following scripts : 
 * Either compilation.sh
 * Or compile_debug.sh
