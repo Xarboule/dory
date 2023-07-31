@@ -1,38 +1,35 @@
 # Microsecond Consensus for Microsecond Applications - Adapted for RoCE v2.0
 
-This repository provides the source code developed for the paper [...], as well as instruction on how to build and deploy the various experiments.
+This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) modified to work on a RoCE network. 
 
-## Description of a running deployment.
-In this section we describe a docker deployment that is compatible with our software stack and provides an easy way for someone to execute the various experiments. For optimal performance results, it is *important* to avoid docker and run natively. Nevertheless, docker is a self documenting way of the dependencies and the required steps.
 
-Our deployment comprises of 4 machines that run docker in a swarm mode. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
-In each one of these machines, we deploy an docker container with the necessary dependecies for building the software stack. In particular, the `Dockerfile` of each one of these containers is given below:
-``` Dockerfile
-FROM ubuntu:bionic
+## Building the code with docker 
+Our deployment comprises of 4 machines that run over a RoCE v2.0 network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
+In each one of these machines, we deploy a docker container with the necessary dependecies for building the software stack. 
+In each machine, download the source code :
+$ git clone ...
 
-RUN apt-get update && apt-get -y install libibverbs-dev libmemcached-dev python3 python3-pip cmake ninja-build clang lld clang-format
-RUN pip3 install --upgrade conan
-RUN conan profile new default --detect
-RUN conan profile update settings.compiler.libcxx=libstdc++11 default
-RUN apt-get update && apt-get -y install vim tmux git memcached libevent-dev libhugetlbfs-dev libgtest-dev libnuma-dev numactl libgflags-dev
-RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && make install
+### Running the docker container
+In each machine, build the image from the Dockerfile provided : 
+$ docker build -t mu_img .
 
-RUN apt-get install -y openssh-server
-RUN mkdir /var/run/sshd
+Then, run the container. It will use the network of the host (network == host), in detached mode (-d). For example, on node 1 : 
+$ docker run -d --name mu-node-1 --hostname node-1 --network host mu_img
 
-RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+Finally, run a bash inside each container : 
+$ docker exec -it node-1 bash
 
-ENV DOCKERUSER=devuser
-RUN adduser --disabled-password --shell /bin/bash --gecos "Docker User" $DOCKERUSER
-RUN echo "$DOCKERUSER:<dockeruser-password>" |chpasswd
 
-EXPOSE 22
+### Building the code in the container 
+Once inside the running container, first download the source code : 
+$ git clone ... 
+$ cd dory/
 
-CMD    ["/usr/sbin/sshd", "-D"]
-```
 
-**Notes**: 
-* The docker container has the placeholder `<dockeruser-password>` for the password of user `devuser`. It is highly advised to provide a strong password before building the docker image.
+
+## Building the code without docker 
+(Better performance expected, however some bug ==> need ubuntu 18.04) 
+
 * You can build the `Dockerfile` by running `docker build -t osdi .` inside the directory that contains the `Dockerfile`. Build the docker image in `host{1,2,3,4}` and run the following (notice the prefix that indicates where the command is executed):
     * `host1$ docker network create --driver=overlay --attachable mesh-osdi`
     * `host1$ docker run -d --rm --privileged --ulimit memlock=-1 -p 2222:22 --name osdi-node-1 --hostname node1 --network mesh-osdi osdi`
