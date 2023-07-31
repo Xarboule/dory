@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 
-//#include <fstream> //to read config.txt
+#include <fstream> //to read config.txt
 
 #include <dory/ctrl/block.hpp>
 #include <dory/shared/logger.hpp>
