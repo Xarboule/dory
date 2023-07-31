@@ -7,7 +7,8 @@ This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) 
 Our deployment comprises of 4 machines that run over a RoCE v2.0 network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
 In each one of these machines, we deploy a docker container with the necessary dependecies for building the software stack. 
 In each machine, download the source code :
-$ git clone ...
+$ git clone git@github.com:GillesHOP/dory.git
+$ cd dory/
 
 ### Running the docker container
 In each machine, build the image from the Dockerfile provided : 
@@ -22,7 +23,7 @@ $ docker exec -it node-1 bash
 
 ### Building the code in the container 
 Once inside the running container, first download the source code : 
-$ git clone ... 
+$ git clone git@github.com:GillesHOP/dory.git
 $ cd dory/
 
 
