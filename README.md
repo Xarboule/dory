@@ -19,7 +19,7 @@ For example, in node-1, the commands are the following :
 ```sh
 $ docker build -t mu_img .
 $ docker run -d --name mu-node-1 --hostname node-1 --network host mu_img
-$ docker exec -it node-1 bash
+$ docker exec -it mu-node-1 bash
 ```
 
 ### Building the code in the container 
