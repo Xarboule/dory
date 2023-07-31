@@ -151,7 +151,7 @@ void RdmaConsensus::run() {
                                   "cq-leader-election"); //loopback sert pour incrémenter le heartbeat
   ce_leader_election.connectLoopback(
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
-      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);*/
+      ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
   
   
 
