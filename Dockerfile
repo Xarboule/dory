@@ -4,6 +4,8 @@ ENV MOFED_VER 23.04-1.1.3.0
 ENV OS_VER ubuntu18.04
 ENV PLATFORM x86_64
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 #installing the dependencies 
 RUN apt-get update
 RUN apt-get -y install apt-utils
@@ -18,13 +20,13 @@ RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
 #installing the lastest version of cmake 
 RUN apt remove --purge --auto-remove cmake
-RUN apt update
-RUN apt install -y software-properties-common lsb-release 
-RUN apt clean all
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-RUN apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
-RUN apt update
-RUN apt install -y cmake
+
+RUN apt-get update \
+ && apt-get -V install -y software-properties-common wget \
+ && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/nullsoftware-properties-common \
+ && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' \
+ && apt-get -V install -y cmake
+
 RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && make install
 
 #installing the Mellanox software stack 
@@ -34,6 +36,8 @@ RUN MLNX_OFED_LINUX-${MOFED_VER}-${OS_VER}-${PLATFORM}/mlnxofedinstall --user-sp
 RUN cd ..
 RUN rm -rf ${MOFED_DIR} 
 RUN rm -rf *.tgz
+
+
 
 
 #simple way to make sure the container never ends 
