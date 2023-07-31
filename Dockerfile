@@ -20,7 +20,7 @@ RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
 #installing the lastest version of cmake 
 RUN apt-get update
-RUN apt-get install software-properties-common wget
+RUN apt-get install -y software-properties-common wget
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
 RUN apt-get install -y cmake
