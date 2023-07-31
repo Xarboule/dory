@@ -1,6 +1,6 @@
 # Microsecond Consensus for Microsecond Applications - Adapted for RoCE v2.0
 
-This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) modified to work on a RoCE network. 
+This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) modified to work on an RDMA network (IB, ROCE v1.0 and v2.0). 
 
 
 ## Running with docker 
@@ -61,7 +61,7 @@ A commun error when a node acts as a server is "Failed to bind the channel to th
 ### MAIN-ST (Standalone throughput)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=10.30.0.4:9999
+$ export DORY_REGISTRY_IP=10.30.2.4:9999
 ```
 
 On `node1` run:
@@ -178,12 +178,12 @@ $ numactl --membind 0 -- ./crash-consensus/experiments/redis/bin/redis-server-re
 Wait until the message `Reading pump started` appears in nodes 2 and 3. You can now start a Redis client on node 4, issue SET commands to node 1, and verify that these commands are replicated to nodes 2 and 3. For example, on `node4`:
 ```sh
 $ # Wait enough time for the pumps to start. You will see the message `Reading pump started` in nodes 2 and 3.
-$ ./crash-consensus/experiments/redis/bin/redis-cli -h osdi-node-1 -p 6379
+$ ./crash-consensus/experiments/redis/bin/redis-cli -h 10.30.2.1 -p 6379
 osdi-node-1:6379> SET CH Bern
 OK
 osdi-node-1:6379> SET IT Rome
 OK
-$ ./crash-consensus/experiments/redis/bin/redis-cli -h osdi-node-2 -p 6379
+$ ./crash-consensus/experiments/redis/bin/redis-cli -h 10.30.2.2 -p 6379
 osdi-node-2:6379> GET CH
 "Bern"
 ```
