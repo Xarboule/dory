@@ -17,6 +17,7 @@ RUN apt-get -y install vim tmux git memcached libevent-dev libhugetlbfs-dev libg
 RUN pip3 install conan==1.60.1
 RUN conan profile new default --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
+RUN conan profile update setting.compiler.cppstd=17 default
 
 #installing the lastest version of cmake 
 RUN apt-get update
