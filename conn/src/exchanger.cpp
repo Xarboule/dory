@@ -172,8 +172,9 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   
-  std::string str_ip;
-  switch(my_id){
+
+  std::string str_ip = ipAddresses[std::to_string(my_id)];
+  /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
       break;
@@ -187,7 +188,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
       std::cout << "IP of this node ?";
       std::cin >> str_ip;
       break;
-  }
+  }*/
 
   char* char_ip = new char[str_ip.length() + 1];
   strcpy(char_ip, str_ip.c_str()); 
@@ -261,8 +262,8 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   server_addr.sin_family = AF_INET;
   
   
-  std::string str_ip;
-  switch(my_id){
+  std::string str_ip = ipAddresses[std::to_string(my_id)]
+  /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
       break;
@@ -276,7 +277,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
       std::cout << "IP of the server ?";
       std::cin >> str_ip;
       break;
-  }
+  }*/
 
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -514,8 +515,9 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
   std::cout << "IP of this node ?";
   std::cin >> str_ip;*/
   
-  std::string str_ip;
-  switch(my_id){
+  
+  std::string str_ip = ipAddresses[std::to_string(my_id)];
+  /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
       break;
@@ -529,7 +531,7 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
       std::cout << "IP of this node ?";
       std::cin >> str_ip;
       break;
-  }
+  }*/
 
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
@@ -612,12 +614,13 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
   server_addr.sin_family = AF_INET;
   
   
-  std::string str_ip;
+  
+  std::string str_ip = ipAddresses[std::to_string(proc_id)];
   /*
   std::cout << "IP of the server ?";
   std::cin >> str_ip;*/
   
-  switch(proc_id){
+  /*switch(proc_id){
     case 1:
       str_ip="10.30.2.1";
       break;
@@ -631,7 +634,7 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
       std::cout << "IP of the server ?";
       std::cin >> str_ip;
       break;
-  }
+  }*/
 
   //conversion du string en char pour utiliser get_addr (qui provient de rdma_common de Baptiste)
   char* char_ip = new char[str_ip.length() + 1];
