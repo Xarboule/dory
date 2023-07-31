@@ -23,7 +23,6 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
   ifs.open("/dory/config.txt");
     if (!ifs.is_open()) {
         std::cerr << "Error opening configuration file." << std::endl;
-        return 1;
     }
 
     std::map<std::string, std::string> ipAddresses;
@@ -31,7 +30,7 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
     while (std::getline(ifs, line)) {
         size_t delimiterPos = line.find('=');
         if (delimiterPos != std::string::npos) {
-            std::string key =std::stoi(line.substr(0, delimiterPos));
+            int key =std::stoi(line.substr(0, delimiterPos));
             std::cout << "key = " << key << std::endl;
             std::string value = line.substr(delimiterPos + 1, line.length());
             std::cout << "value = " << value << std::endl;
