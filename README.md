@@ -29,7 +29,12 @@ $ git clone https://github.com/GillesHOP/dory.git
 $ cd dory/
 ```
 
-TO DO : add config file to indicate the IP addresses
+In the file config.txt, enter the IP addresses of node-1, node-2 and node-3 :
+```text
+1=10.30.2.1
+2=10.30.2.2
+2=10.30.2.3
+```
 
 
 Then, simply execute one of the following scripts : 
