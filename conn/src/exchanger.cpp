@@ -173,7 +173,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
   server_addr.sin_family = AF_INET;
   
 
-  std::string str_ip = ipAddresses[std::to_string(my_id)];
+  std::string str_ip = ipAddresses[my_id];
   /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
@@ -262,7 +262,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   server_addr.sin_family = AF_INET;
   
   
-  std::string str_ip = ipAddresses[std::to_string(my_id)]
+  std::string str_ip = ipAddresses[my_id];
   /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
@@ -516,7 +516,7 @@ int ConnectionExchanger:: start_server(int proc_id,ControlBlock::MemoryRights ri
   std::cin >> str_ip;*/
   
   
-  std::string str_ip = ipAddresses[std::to_string(my_id)];
+  std::string str_ip = ipAddresses[my_id];
   /*switch(my_id){
     case 1:
       str_ip="10.30.2.1";
@@ -615,7 +615,7 @@ int ConnectionExchanger:: start_client(int proc_id, ControlBlock::MemoryRights r
   
   
   
-  std::string str_ip = ipAddresses[std::to_string(proc_id)];
+  std::string str_ip = ipAddresses[proc_id];
   /*
   std::cout << "IP of the server ?";
   std::cin >> str_ip;*/
