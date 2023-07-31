@@ -25,7 +25,7 @@ $ docker exec -it node-1 bash
 ### Building the code in the container 
 Once inside the running container, first download the source code : 
 ```sh
-$ git clone git@github.com:GillesHOP/dory.git
+$ git clone https://github.com/GillesHOP/dory.git
 $ cd dory/
 ```
 
