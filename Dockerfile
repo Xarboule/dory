@@ -19,15 +19,11 @@ RUN conan profile new default --detect
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 
 #installing the lastest version of cmake 
-RUN apt remove --purge --auto-remove cmake
-
-RUN apt-get update \
- && apt-get -V install -y software-properties-common wget \
- && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/nullsoftware-properties-common \
- && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' \
- && apt-get -V install -y cmake
-
-RUN cd /usr/src/gtest && cmake CMakeLists.txt && make && make install
+RUN apt-get update
+RUN apt-get install software-properties-common wget
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt-get install -y cmake
 
 #installing the Mellanox software stack 
 RUN wget --quiet http://content.mellanox.com/ofed/MLNX_OFED-${MOFED_VER}/MLNX_OFED_LINUX-${MOFED_VER}-${OS_VER}-${PLATFORM}.tgz 
