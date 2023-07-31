@@ -7,18 +7,21 @@ This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) 
 Our deployment comprises of 4 machines that run over a RoCE v2.0 network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
 In each one of these machines, we deploy a docker container with the necessary dependecies for building the software stack. 
 In each machine, download the source code :
+```sh
 $ git clone git@github.com:GillesHOP/dory.git
 $ cd dory/
-
+```
 ### Running the docker container
-In each machine, build the image from the Dockerfile provided : 
+In each machine, build the image from the Dockerfile provided. 
+Then, run the container. It will use the network of the host (network == host), in detached mode (-d).
+Finally, run a bash inside each container.
+For example, in node-1, the commands are the following : 
+```sh
 $ docker build -t mu_img .
-
-Then, run the container. It will use the network of the host (network == host), in detached mode (-d). For example, on node 1 : 
 $ docker run -d --name mu-node-1 --hostname node-1 --network host mu_img
-
-Finally, run a bash inside each container : 
 $ docker exec -it node-1 bash
+```
+
 
 
 ### Building the code in the container 
