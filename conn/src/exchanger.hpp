@@ -139,7 +139,7 @@ class ConnectionExchanger {
   LOGGER_DECL(logger);
 
   std::map<int, std::string> ipAddresses;
-  //std::ifstream ifs;
+  std::ifstream ifs;
 
   static int num_conn;
   
