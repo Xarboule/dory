@@ -10,10 +10,11 @@ In each one of these machines, we deploy a docker container with the necessary d
 
 ### Running the docker container
 In each machine :
-   * -make sure to be in a directory that contains the Dockerfile and the script sleep.sh. 
-   * -inside that directory, build the image from the Dockerfile. 
-   * -run the container. It will use the network of the host (network == host), in detached mode (-d).
-   * -run a bash inside the container.
+   * make sure to be in a directory that contains the Dockerfile and the script sleep.sh. 
+   * inside that directory, build the image from the Dockerfile. 
+   * run the container. It will use the network of the host (network == host), in detached mode (-d).
+   * run a bash inside the container.
+
 For example, in node-1, the commands are the following : 
 ```sh
 $ docker build -t mu_img .
@@ -29,7 +30,10 @@ $ cd dory/
 ```
 
 Then, simply execute one of the following scripts : 
-* 
+* Either compilation.sh
+* Or compile_debug.sh
+
+
 
 
 ## Building the code without docker 
