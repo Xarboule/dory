@@ -3,8 +3,8 @@
 This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) modified to work on a RoCE network. 
 
 
-## Building the code with docker 
-Our deployment comprises of 4 machines that run over a RoCE v2.0 network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
+## Running with docker 
+Our deployment comprises of 4 machines that run over an RDMA network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
 In each one of these machines, we deploy a docker container with the necessary dependecies for building the software stack. 
 
 
@@ -34,7 +34,7 @@ Then, simply execute one of the following scripts :
 * Or compile_debug.sh
 
 
-## Building the code without docker 
+### Running without docker 
 (Better performance expected, however some bug ==> need ubuntu 18.04) 
 
    
@@ -272,6 +272,3 @@ $ conan remove --force "*"
 ```
 Optionally, exit the shell and login again in order to unload the exported environment variables set by the various experiments.
 Subsequently, re-follow the document starting from section *Complication of the sofware stack*.
-
-## Running without docker
-The execution without docker is straightforward. First, install the system-wide packages mentioned in the Dockerfile in 4 `hosts` of a cluster connected using RDMA. The auxiliary process running memcached (with hostname `osdi-memc`) can run everywhere, even outside the cluster, as long as it's accesible by the 4 hosts. The rest of the steps remain unchanged.
