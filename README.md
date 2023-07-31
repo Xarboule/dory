@@ -51,7 +51,7 @@ On both nodes, a print in the terminal will indicate "Handling of connection X-t
 The server will print "listening successfully at: ..., port : ...."
 On the client side, the user will have to manually input the port of the server.
 
-Since there are 3 nodes acting as replicas, and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
+Since there are 3 nodes involved (the fourth being a client connected to the leader by TCP), and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
 
 (TO DO : automate the set-up) 
 
