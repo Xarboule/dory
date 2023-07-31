@@ -136,12 +136,13 @@ class ConnectionExchanger {
   std::unique_ptr<ReliableConnection> remote_loopback_;
   int loopback_port;
 
+  std::map<int, std::string> ipAddresses;
+  std::ifstream ifs;
+
   LOGGER_DECL(logger);
 
   static int num_conn;
 
-  //std::map<int, std::string> ipAddresses;
-  std::ifstream ifs;
-
+  
 };
 }  // namespace dory
