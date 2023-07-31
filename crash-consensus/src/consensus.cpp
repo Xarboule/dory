@@ -203,7 +203,7 @@ void RdmaConsensus::run() {
   ce_leader_election.announce_ready(store, "qp-leader-election", "connect");
 
   ce_replication.wait_ready_all(store, "qp-replication", "connect");
-  ce_leader_election.wait_ready_all(store, "qp-leader-election", "connect");*/
+  ce_leader_election.wait_ready_all(store, "qp-leader-election", "connect");
 
   std :: string foo;
   std::cout <<"EVERYTHING IS CONNECTED WELL\n";
