@@ -44,7 +44,7 @@ First, make sure that you are at the `~/dory` directory.
 ### MAIN-ST (Standalone throughput)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=osdi-memc:9999
+$ export DORY_REGISTRY_IP=10.30.0.4:9999
 ```
 
 On `node1` run:
@@ -71,7 +71,7 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st 3 4096 1
 ### MAIN-ST-LAT (Standalone latency)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=osdi-memc:9999
+$ export DORY_REGISTRY_IP=10.30.0.4:9999
 ```
 
 On `node1` run:
@@ -98,7 +98,7 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st-lat 3 4096 1
 ### REDIS (Replicated Redis)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=osdi-memc:9999
+$ export DORY_REGISTRY_IP=10.30.0.4:9999
 $ export IDS=1,2,3
 ```
 
@@ -136,7 +136,7 @@ Notes:
 ### REDIS (Replicated Redis) --- INTERACTIVE
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=osdi-memc:9999
+$ export DORY_REGISTRY_IP=10.30.0.4:9999
 $ export IDS=1,2,3
 ```
 
@@ -179,7 +179,7 @@ Notes:
 ### MEMCACHED (replicated memcached):
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=osdi-memc:9999
+$ export DORY_REGISTRY_IP=10.30.0.4:9999
 $ export IDS=1,2,3
 ```
 
