@@ -42,7 +42,7 @@ numbers_list = read_numbers_from_file(file_path)
 
 if numbers_list:
     mean, variance, minimum, maximum = compute_statistics(numbers_list)
-    print("Numbers:", numbers_list)
+    #print("Numbers:", numbers_list)
     print("Mean:", mean)
     print("Variance:", variance)
     print("Minimum:", minimum)
