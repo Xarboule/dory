@@ -41,7 +41,7 @@ Then, simply execute one of the following scripts :
 * Either compilation.sh
 * Or compile_debug.sh
 
-If you get the error "Error opening configuration file", then change the variable path_to_config in dory/conn/src/exchanger.cpp, in the constructor of ConnectionExchanger.
+If you get the error "Error opening configuration file", then change the variable `path_to_config` in dory/conn/src/exchanger.cpp, in the constructor of ConnectionExchanger.
 
 ### Running without docker 
 (Better performance expected, however some bug ==> need ubuntu 18.04) 
