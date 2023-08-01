@@ -126,6 +126,13 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st 3 4096 1
 * When the execution of `main-st` finishes on node 1, the terminal will print `Replicated X commands of size Y bytes in Z ns`.
 * After the experiment completes on node 1, make sure to kill (e.g., using `Ctrl-C`) the experiment on nodes 2 and 3.
 
+On `node1`, in a separte terminal (under directory `~/dory`) run:
+```sh
+$ ./crash-consensus/demo/using_conan_fully/build/bin/fifo /tmp/fifo-1 
+```
+This provides a way to pause the first leader and force a leader switch. To do this, type `p` and hit `Enter`. Cause the hiccup only after the client has been connected.
+
+
 ### MAIN-ST-LAT (Standalone latency)
 On `node{1,2,3}` run:
 ```sh
