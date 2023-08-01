@@ -10,8 +10,8 @@ In each one of these machines, we deploy a docker container with the necessary d
 
 ### Running the docker container
 In each machine :
-   * make sure to be in a directory that contains the Dockerfile and the script `sleep.sh`. 
-   * inside that directory, build the image from the Dockerfile. 
+   * make sure to be in a directory that contains the `Dockerfile` and the script `sleep.sh`. 
+   * inside that directory, build the image from the `Dockerfile`. 
    * run the container. It will use the network of the host (network == host), in detached mode (-d), and with privileges (--privileged, so that the container can have access to the NIC).
    * run a bash inside the container.
 
