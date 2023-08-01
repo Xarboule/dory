@@ -286,7 +286,7 @@ $ ./crash-consensus/experiments/memcached/bin/memcached-puts-only 16 32 osdi-nod
 ### LIQUIBOOK (Stock trading application)
 On `node{1,2,3,4}` run:
 ```sh
-$ export SERVER_URIS=1=1030.2.1:31850,2=10.30.2.2:31850,3=10.30.2.3:31850
+$ export SERVER_URIS=1=10.30.2.1:31850,2=10.30.2.2:31850,3=10.30.2.3:31850
 $ export TRADERS_NUM=1
 ```
 On `node{1,2,3}` run:
