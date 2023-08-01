@@ -58,6 +58,21 @@ On both nodes, a print in the terminal will indicate "Handling of connection X-t
 The server will print "listening successfully at: ..., port : ...."
 On the client side, the user will have to manually input the port of the server.
 
+Example : 
+Input required 
+```bash
+//terminal of node 1
+[CE:info] [NEW CONNECTION] Handling the connection of 1-to-2
+Server is listening successfully at: 10.30.2.1 , port: 20886 
+```
+
+```bash
+//terminal of node 2
+[CE:info] [NEW CONNECTION] Handling the connection of 2-to-1
+Port number of the server ? 
+```
+Once the connection is established : 
+
 Since there are 3 nodes involved (the fourth being a client connected to the leader by TCP), and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
 
 (TO DO : automate the set-up) 
