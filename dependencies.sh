@@ -1,3 +1,8 @@
+export MOFED_VER=23.04-1.1.3.0
+export OS_VER=ubuntu18.04
+export PLATFORM=x86_64
+
+
 apt-get update
 apt-get -y install apt-utils
 apt-get -y install libibverbs-dev libmemcached-dev python3 python3-pip ninja-build clang lld clang-format
