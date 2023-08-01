@@ -8,6 +8,9 @@
 namespace dory {
 MemoryStore::MemoryStore()
     : memc(memcached_create(nullptr), memcached_free), prefix{""} {
+  //on commente tout le contenu du constructeur pour ne plus avoir besoin 
+  //d'initialiser DORY_REGISTRY_IP
+  /*
   if (memc.get() == nullptr) {
     throw std::runtime_error("Failed to create memcached handle");
   }
@@ -24,7 +27,7 @@ MemoryStore::MemoryStore()
     throw std::runtime_error(
         "Could not add memcached server in the MemoryStore: " +
         std::string(memcached_strerror(memc.get(), push_ret)));
-  }
+  }*/
 }
 
 MemoryStore::MemoryStore(std::string const &prefix_) : MemoryStore() {
