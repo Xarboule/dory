@@ -10,6 +10,7 @@ def read_numbers_from_file(file_path):
                     print("Warning: Could not convert '{line.strip()}' to a number. Skipping this line.")
     except FileNotFoundError:
         print("Error: The file was not found.")
+        return 0
     
     return numbers
 
@@ -27,7 +28,7 @@ def compute_statistics(numbers):
     return mean, minimum, maximum
 
 # Example usage:
-file_path = input("Please enter the path of the file: ")
+file_path = raw_input("Please enter the path of the file: ")
 numbers_list = read_numbers_from_file(file_path)
 
 if numbers_list:
