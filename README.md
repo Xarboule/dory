@@ -237,6 +237,7 @@ Notes:
 
 
 ### MEMCACHED (replicated memcached):
+(ATTENTION : pour l'instant, ne fonctionne pas)
 On `node{1,2,3}` run:
 ```sh
 $ export DORY_REGISTRY_IP=10.30.2.4:9999
