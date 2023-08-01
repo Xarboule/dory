@@ -87,21 +87,17 @@ class ConnectionExchanger {
                                         std::string const& prefix,
         ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
-    int start_server(int proc_id, ControlBlock::MemoryRights rights);
+    int start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
 
-    int start_client(int proc_id, ControlBlock::MemoryRights rights); 
+    int start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights); 
 
     int process_rdma_cm_event(struct rdma_event_channel *echannel,
             enum rdma_cm_event_type expected_event,
             struct rdma_cm_event **cm_event);
 
-    int get_addr(char *dst, struct sockaddr *addr);
+    int get_addr(std:: string dst, struct sockaddr *addr);
 
     void show_rdma_cmid(struct rdma_cm_id *id);
-
-    static int get_num_conn();
-
-    void incr_num_conn();
 
     void addLoopback_with_cm(std::string const& pd,
                                       std::string const& mr,
@@ -110,21 +106,17 @@ class ConnectionExchanger {
 
     void connectLoopback_with_cm(ControlBlock::MemoryRights rights);
 
-    void threaded_client(ControlBlock::MemoryRights rights);
-
     int start_loopback_server(ControlBlock::MemoryRights rights);
 
     int start_loopback_client(ControlBlock::MemoryRights rights);
 
     void check_all_qp_states();
 
+    void build_conn_param(rdma_conn_param *cm_params, ReliableConnection rc);
+
  private:
   std::pair<bool, int> valid_ids() const;
 
- /*public :
-  struct rdma_event_channel *cm_event_channel;
-  struct rdma_cm_id *cm_id;*/
- 
  private:
   int my_id;
   std::vector<int> remote_ids;
@@ -140,8 +132,6 @@ class ConnectionExchanger {
 
   std::map<int, std::string> ipAddresses;
   std::ifstream ifs;
-
-  static int num_conn;
   
 };
 }  // namespace dory
