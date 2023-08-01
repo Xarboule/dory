@@ -45,7 +45,8 @@ If you get the error "Error opening configuration file" during a run, then chang
 
 Also, enter : 
 ```bash
-$ export LD_LIBRARY_PATH+=./crash-consensus/experiments/exported/```
+$ export LD_LIBRARY_PATH+=./crash-consensus/experiments/exported/
+```
 
 ### Running without docker 
 (Better performance expected, however some bug ==> need ubuntu 18.04) 
