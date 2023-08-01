@@ -119,11 +119,6 @@ A commun error when a node acts as a server is "Failed to bind the channel to th
 
 
 ### MAIN-ST (Standalone throughput)
-On `node{1,2,3}` run:
-```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
-```
-
 On `node1` run:
 ```sh
 $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st 1 4096 1
@@ -153,11 +148,6 @@ This provides a way to pause the first leader and force a leader switch. To do t
 
 
 ### MAIN-ST-LAT (Standalone latency)
-On `node{1,2,3}` run:
-```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
-```
-
 On `node1` run:
 ```sh
 $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st-lat 1 4096 1
@@ -182,7 +172,6 @@ $ ./crash-consensus/demo/using_conan_fully/build/bin/main-st-lat 3 4096 1
 ### REDIS (Replicated Redis)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
 $ export IDS=1,2,3
 ```
 
@@ -222,7 +211,6 @@ Notes:
 ### REDIS (Replicated Redis) --- INTERACTIVE
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
 $ export IDS=1,2,3
 ```
 
@@ -266,7 +254,6 @@ Notes:
 (ATTENTION : pour l'instant, ne fonctionne pas)
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
 $ export IDS=1,2,3
 ```
 
@@ -310,7 +297,6 @@ $ export TRADERS_NUM=1
 ```
 On `node{1,2,3}` run:
 ```sh
-$ export DORY_REGISTRY_IP=10.30.2.4:9999
 $ export MODE=server
 ```
 
