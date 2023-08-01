@@ -41,7 +41,11 @@ Then, simply execute one of the following scripts :
 * Either compilation.sh
 * Or compile_debug.sh
 
-If you get the error "Error opening configuration file", then change the variable `path_to_config` in dory/conn/src/exchanger.cpp, in the constructor of ConnectionExchanger.
+If you get the error "Error opening configuration file" during a run, then change the variable `path_to_config` in dory/conn/src/exchanger.cpp, in the constructor of ConnectionExchanger.
+
+Also, enter : 
+```bash
+$ export LD_LIBRARY_PATH+=./crash-consensus/experiments/exported/```
 
 ### Running without docker 
 (Better performance expected, however some bug ==> need ubuntu 18.04) 
