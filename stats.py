@@ -19,23 +19,32 @@ def compute_mean(numbers):
         return None
     return sum(numbers) / len(numbers)
 
+def compute_variance(numbers):
+    if not numbers:
+        return None
+    mean = compute_mean(numbers)
+    squared_diff_sum = sum((x - mean) ** 2 for x in numbers)
+    variance = squared_diff_sum / len(numbers)
+    return variance
+
 def compute_statistics(numbers):
     if not numbers:
-        return None, None, None
+        return None, None, None, None
     mean = compute_mean(numbers)
+    variance = compute_variance(numbers)
     minimum = min(numbers)
     maximum = max(numbers)
-    return mean, minimum, maximum
+    return mean, variance, minimum, maximum
 
 # Example usage:
 file_path = raw_input("Please enter the path of the file: ")
 numbers_list = read_numbers_from_file(file_path)
 
 if numbers_list:
-    mean, minimum, maximum = compute_statistics(numbers_list)
-    #print("Numbers:", numbers_list)
-    print("Number of measures", len(numbers_list))
+    mean, variance, minimum, maximum = compute_statistics(numbers_list)
+    print("Numbers:", numbers_list)
     print("Mean:", mean)
+    print("Variance:", variance)
     print("Minimum:", minimum)
     print("Maximum:", maximum)
 else:
