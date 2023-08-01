@@ -181,7 +181,8 @@ $ ./crash-consensus/experiments/redis/bin/redis-server-replicated --port 6379
 On `node4`:
 ```sh
 $ # Wait enough time for the pumps to start. You will see the message `Reading pump started` in nodes 2 and 3.
-$ ./crash-consensus/experiments/redis/bin/redis-puts-only 16 32 osdi-node-1 6379
+$ # Give the IP address of the leader (node-1)
+$ ./crash-consensus/experiments/redis/bin/redis-puts-only 16 32 10.30.2.1 6379
 ```
 
 Notes:
