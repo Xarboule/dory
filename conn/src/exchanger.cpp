@@ -31,9 +31,9 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
     size_t delimiterPos = line.find('=');
     if (delimiterPos != std::string::npos) {
         int key =std::stoi(line.substr(0, delimiterPos));
-        std::cout << "key = " << key << std::endl;
+        //std::cout << "key = " << key << std::endl;
         std::string value = line.substr(delimiterPos + 1, line.length());
-        std::cout << "value = " << value << std::endl;
+        //std::cout << "value = " << value << std::endl;
         ipAddresses.insert(std::pair<int, std::string>(key, value));
     }
   }
