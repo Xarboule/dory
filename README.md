@@ -19,31 +19,27 @@ So, for example, the commands are the following :
 ```sh
 //on node 1
 $ docker build -t mu_img .
-$ docker run -d --privileged --name mu-node-1 --hostname node-1 --network host mu_img
+$ docker run -d --privileged --ulimit memlock=-1  --name mu-node-1 --hostname node-1 --network host mu_img
 $ docker exec -it mu-node-1 bash
 ```
 ```sh
 //on node 2
 $ docker build -t mu_img .
-$ docker run -d --privileged --name mu-node-2 --hostname node-2 --network host mu_img
+$ docker run -d --privileged --ulimit memlock=-1  --name mu-node-2 --hostname node-2 --network host mu_img
 $ docker exec -it mu-node-2 bash
 ```
 ```sh
 //on node 3
 $ docker build -t mu_img .
-$ docker run -d --privileged --name mu-node-3 --hostname node-3 --network host mu_img
+$ docker run -d --privileged --ulimit memlock=-1  --name mu-node-3 --hostname node-3 --network host mu_img
 $ docker exec -it mu-node-3 bash
 ```
 ```sh
 //on node 4
 $ docker build -t mu_img .
-$ docker run -d --privileged --name mu-node-4 --hostname node-4 --network host mu_img
+$ docker run -d --privileged --ulimit memlock=-1  --name mu-node-4 --hostname node-4 --network host mu_img
 $ docker exec -it mu-node-4 bash
 ```
-
-
-TO DO : tester la différence avec l'option --ulimit que Mu indique (sûrement mieux pour la performance dans le docker) : 
-`$ docker run -d --privileged --ulimit memlock=-1 --name mu-node-1 --hostname node-1 --network host mu_img`
 
 ### Building the code in the container 
 Once inside the running container, first download the source code : 
