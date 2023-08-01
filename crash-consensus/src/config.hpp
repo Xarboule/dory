@@ -28,8 +28,8 @@ static constexpr int followerThreadBankB_ID = -1;
 
 struct ThreadConfig {
   ThreadConfig()
-      : //pinThreads{true}, //le vrai code de mu
-        pinThreads{false}, 
+      : pinThreads{true}, //le vrai code de mu
+        //pinThreads{false}, 
         handoverThreadCoreID{handoverThreadBankAB_ID},
         consensusThreadCoreID{consensusThreadBankA_ID},
         switcherThreadCoreID{switcherThreadBankA_ID},
