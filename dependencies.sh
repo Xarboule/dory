@@ -1,3 +1,5 @@
+set -xe
+
 export MOFED_VER=23.04-1.1.3.0
 export OS_VER=ubuntu18.04
 export PLATFORM=x86_64
