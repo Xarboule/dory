@@ -29,7 +29,7 @@ $ git clone https://github.com/GillesHOP/dory.git
 $ cd dory/
 ```
 
-In the file config.txt, enter the IP addresses of node-1, node-2 and node-3 :
+In the file config.txt, enter the IP addresses of node-1, node-2 and node-3 with the format `node_number=node_IP`
 ```text
 1=10.30.2.1
 2=10.30.2.2
