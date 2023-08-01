@@ -316,9 +316,9 @@ $ export TRADER_ID=0
 $ ./crash-consensus/experiments/liquibook/eRPC/build/liquibook --test_ms 120000 --sm_verbose 0 --num_processes 4 --numa_0_ports 0 --process_id 3 --numa_node 0
 ```
 
-On `node1`, in a separte ssh connection (under directory `~/dory`) run:
+On `node1`, in a separte terminal (under directory `~/dory`) run:
 ```sh
-$ ./crash-consensus/demo/using_conan_fully/build/bin/fifo /tmp/fifo-1
+$ ./crash-consensus/demo/using_conan_fully/build/bin/fifo /tmp/fifo-1 
 ```
 This provides a way to pause the first leader and force a leader switch. To do this, type `p` and hit `Enter`. Cause the hiccup only after the client has been connected.
 
