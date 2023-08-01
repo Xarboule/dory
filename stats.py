@@ -7,7 +7,7 @@ def read_numbers_from_file(file_path):
                     number = float(line.strip())
                     numbers.append(number)
                 except ValueError:
-                    print(f"Warning: Could not convert '{line.strip()}' to a number. Skipping this line.")
+                    print("Warning: Could not convert '{line.strip()}' to a number. Skipping this line.")
     except FileNotFoundError:
         print("Error: The file was not found.")
     
