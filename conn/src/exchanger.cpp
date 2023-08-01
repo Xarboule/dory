@@ -168,7 +168,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
       loopback_->set_init_with_cm(rights);
 
       struct rdma_conn_param cm_params;
-      build_conn_param(&cm_params, loopback_.get());
+      build_conn_param(&cm_params, *loopback_.get());
       
       rdma_accept(loopback_->get_cm_id(), &cm_params); 
 
@@ -245,7 +245,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   remote_loopback_->set_init_with_cm(rights);
   /*Connecting*/
   struct rdma_conn_param cm_params;
-  build_conn_param(&cm_params, remote_loopback_.get());
+  build_conn_param(&cm_params, *remote_loopback_.get());
   rdma_connect(remote_loopback_->get_cm_id(), &cm_params);
   //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(remote_loopback_->get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
