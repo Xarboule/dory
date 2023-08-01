@@ -72,6 +72,20 @@ Server is listening successfully at: 10.30.2.1 , port: 20886
 Port number of the server ? 
 ```
 Once the connection is established : 
+```bash
+//terminal of node 1
+[CE:info] [NEW CONNECTION] Handling the connection of 1-to-2
+Server is listening successfully at: 10.30.2.1 , port: 20886 
+[CE:info] A new RDMA client connection is set up
+```
+
+```bash
+//terminal of node 2
+[CE:info] [NEW CONNECTION] Handling the connection of 2-to-1
+Port number of the server ? 20886
+[CE:info] The client is connected successfully 
+
+```
 
 Since there are 3 nodes involved (the fourth being a client connected to the leader by TCP), and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
 
