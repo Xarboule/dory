@@ -4,13 +4,13 @@ This repository provides the source code of Mu (https://github.com/LPD-EPFL/mu) 
 
 
 ## Running with docker 
-Our deployment comprises of 4 machines that run over an RDMA network. We will refer to these machines as `host1, host2, host3, host4` (or `host{1,2,3,4}` for brevity).
+Our deployment comprises of 4 machines that run over an RDMA network. We will refer to these machines as `node1, node2, node3, node4` (or `node{1,2,3,4}` for brevity).
 In each one of these machines, we deploy a docker container with the necessary dependencies for building the software stack. 
 
 
 ### Running the docker container
 In each machine :
-   * make sure to be in a directory that contains the Dockerfile and the script sleep.sh. 
+   * make sure to be in a directory that contains the Dockerfile and the script `sleep.sh`. 
    * inside that directory, build the image from the Dockerfile. 
    * run the container. It will use the network of the host (network == host), in detached mode (-d), and with privileges (--privileged, so that the container can have access to the NIC).
    * run a bash inside the container.
