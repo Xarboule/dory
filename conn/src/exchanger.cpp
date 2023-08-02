@@ -343,45 +343,45 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
 	}
 	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
   
-  do {
-      std::cout << "Waiting of an event" << std::endl;
-      ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
-      std::cout << "got something" << std::endl;
-      if (ret) {continue;}
-      std::cout << "received connect request" << std::endl;
-      
-      rc.set_cm_id(cm_event->id);
-      rc.associateWithCQ_for_cm();
-      rc.set_init_with_cm(rights);
+  while(1){
+    std::cout << "Waiting of an event" << std::endl;
+    ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+    std::cout << "got something" << std::endl;
+    if (ret) {continue;}
+    std::cout << "received connect request" << std::endl;
+    
+    rc.set_cm_id(cm_event->id);
+    rc.associateWithCQ_for_cm();
+    rc.set_init_with_cm(rights);
 
-      std::cout << "rc set" << std::endl;
+    std::cout << "rc set" << std::endl;
 
-      //Accepter la connexion
-      struct rdma_conn_param cm_params;
-      memset(&cm_params, 0, sizeof(cm_params));
-      build_conn_param(&cm_params);
-      cm_params.private_data_len = 24;
-      cm_params.private_data = rc.getLocalSetup();
+    //Accepter la connexion
+    struct rdma_conn_param cm_params;
+    memset(&cm_params, 0, sizeof(cm_params));
+    build_conn_param(&cm_params);
+    cm_params.private_data_len = 24;
+    cm_params.private_data = rc.getLocalSetup();
 
 
-      std::cout << "cm_params ready" << std::endl;
+    std::cout << "cm_params ready" << std::endl;
 
-      rdma_accept(rc.get_cm_id(), &cm_params); 
-      
-      std::cout << "accepted ! " << std::endl;
+    rdma_accept(rc.get_cm_id(), &cm_params); 
+    
+    std::cout << "accepted ! " << std::endl;
 
-      rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
-      
-      
-      /*Une fois que la connection est bien finie, on ack l'event du début*/
-      ret = rdma_ack_cm_event(cm_event);
-      if (ret) {
-        throw std::runtime_error("Failed to acknowledge the cm event");
-        return;
-      }
-      LOGGER_INFO(logger,"A new RDMA client connection is set up");      
-      break; //on sort de là, car on n'attend qu'un client 
-   } while(1);
+    rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
+    
+    
+    /*Une fois que la connection est bien finie, on ack l'event du début*/
+    ret = rdma_ack_cm_event(cm_event);
+    if (ret) {
+      throw std::runtime_error("Failed to acknowledge the cm event");
+      return;
+    }
+    LOGGER_INFO(logger,"A new RDMA client connection is set up");      
+    break; //on sort de là, car on n'attend qu'un client 
+  }
 
 	return;
 }
@@ -504,7 +504,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix, //this remains from mu's original code, but we don't use it
                                       ControlBlock::MemoryRights rights) {
   int p = 20886;
-  
+  std::cout << "max_id " << max_id <<std::endl;  
 
   for (int round = 1; round < max_id; round++){
     std::cout << "round "<< round << std::endl;
