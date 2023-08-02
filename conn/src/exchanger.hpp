@@ -80,13 +80,7 @@ class ConnectionExchanger {
                                             std::string send_cq_name,
                                             std::string recv_cq_name);
 
-    void connect_with_cm(int proc_id,std::string const& prefix,
-        ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
-
-    void connect_all_with_cm(MemoryStore& store,
-                                        std::string const& prefix,
-        ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
-
+    
     int start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
 
     int start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights); 
@@ -112,7 +106,7 @@ class ConnectionExchanger {
 
     void check_all_qp_states();
 
-    void build_conn_param(rdma_conn_param *cm_params);
+    void build_co=nn_param(rdma_conn_param *cm_params);
 
  private:
   std::pair<bool, int> valid_ids() const;

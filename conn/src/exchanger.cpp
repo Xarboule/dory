@@ -296,30 +296,7 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
   LOGGER_INFO(logger, "connect() was called ==> does nothing");
 }
 
-void ConnectionExchanger:: connect_with_cm(int proc_id,
-                                  std::string const& prefix,
-                                  ControlBlock::MemoryRights rights){
-  
-  //A reprendre : mettre ton algo! 
-  
-  
-  
-  /*auto& rc = rcs.find(proc_id)->second;
 
-  std::stringstream print_conn;
-  print_conn << "[NEW CONNECTION] Handling the connection of "<< my_id << "-to-"<< proc_id;
-  LOGGER_INFO(logger, "{}", print_conn.str());
-  
-  if (my_id == 1 || (my_id ==3 && proc_id ==2)){
-    start_server(proc_id, rights);  //va initialiser toutes les ressources, attendre pour la connection, et faire tout le reste
-    //ça fait un gros bloc qui fait tout (pas terrible)
-  }
-  else {
-    start_client(proc_id, rights);
-  }*/
-}
-
-/* Starts an RDMA server by allocating basic (CM) connection resources */
 int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights) {
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -469,26 +446,63 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   return 0 ;
 }
 
+
+/*
+  There are max_id (=N) nodes. We want to connect all of them to each other.
+  That's a total of (N-1) + ... + 1 connexions. 
+  We proceed in N-1 rounds :
+    -at round 1, node 1 acts as a server for all the (N-1) connexions it expects
+      So node 1 is connected with everyone, and is done ! 
+    -at round 2, node 2 acts as a server for all the (N-2) connexions it expects (since it's already connected to node 1),
+      So node 1 is connected with everyone, and is done !
+    ...
+    -at round i, node i acts as a server for all the (N-i) connexions it expects, 
+      So node i is connected with everyone, and is done ! 
+    ...
+    -at round N-1, node N-1 acts as a server for the 1 connexion it expects
+      So everybody is connected to each other ! 
+
+  So, when a node isn't acting as a server, it's either :
+    -acting as a client who's job is to connect to the server (if round_number > the node's id)
+    -doing nothing, because it's done (if round_number < the node's id)
+
+  As an arbitrary rule : 
+    If node X is acting as a server, and is expecting node Y to connect to it as a client, 
+    node X will listen to Y's message on the port (p + Y), with p an arbitrary int
+
+*/
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix,
                                       ControlBlock::MemoryRights rights) {
-  /*
-  for (int pid : remote_ids) {
-    connect(pid, store, prefix, rights);
-  }*/
-  //LOGGER_INFO(logger, "connect_all() called...redirecting to connect_all_with_cm() \n");
-  connect_all_with_cm(store, prefix, rights);
-}
-
-void ConnectionExchanger::connect_all_with_cm(MemoryStore& store,
-                                      std::string const& prefix,
-                                      ControlBlock::MemoryRights rights){	
-  //normalement, plus besoin de ça
+  int p = 20886;
   
-  for (int pid : remote_ids) {
-    connect_with_cm(pid, prefix, rights);
+
+  for (int round = 1; round < max_id; round++){
+    if (my_id < round){
+      return; //this node is done ! 
+    }
+    else if (my_id == round){  //it's this node's turn to act as a server 
+      int num_threads = max_id - my_id;
+      std::vector<std::thread> threads;
+      for (int j=0; j < num_threads; j++){
+        threads.emplace_back(&ConnectionExchanger::start_server, 
+                              this, 
+                              my_id+j+1, //the remote node I'm expecting 
+                              p + my_id+j+1,       //the port number where I'm listening for that node
+                              rights);
+      }    
+      for (auto& thread : threads) {
+        thread.join();
+      }
+    }
+    else if (my_id > round){ //this node must act as a client 
+      std::this_thread::sleep_for(std::chrono::seconds(2)); //wait for the server to set-up 
+      start_client( round, p + my_id, ControlBlock::MemoryRights rights)
+    }
   }
 }
+
+
 
 int ConnectionExchanger :: get_addr(std::string dst, struct sockaddr *addr){
 	char* char_ip = new char[dst.length() + 1];
