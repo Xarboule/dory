@@ -48,9 +48,8 @@ class ConnectionExchanger {
                ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
   void connect_all(
-      MemoryStore& store, std::string const& prefix,
-      ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ,
-      int base_port);
+      MemoryStore& store, std::string const& prefix, int base_port,
+      ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
   void announce_ready(MemoryStore& store, std::string const& prefix,
                       std::string const& reason);

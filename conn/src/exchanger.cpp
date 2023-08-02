@@ -503,8 +503,8 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 */
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix, //this remains from mu's original code, but we don't use it
-                                      ControlBlock::MemoryRights rights,
-                                      int base_port) {
+                                      int base_port,
+                                      ControlBlock::MemoryRights rights) {
   std::cout << "max_id " << max_id <<std::endl;  
 
   for (int round = 1; round < max_id; round++){
