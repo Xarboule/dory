@@ -53,7 +53,7 @@ For example :
 ```text
 1=10.30.2.1
 2=10.30.2.2
-2=10.30.2.3
+3=10.30.2.3
 ```
 
 Then, simply execute one of the following scripts : 
