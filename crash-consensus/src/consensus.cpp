@@ -157,16 +157,21 @@ void RdmaConsensus::run() {
   ce_replication->wait_ready_all(store, "qp-replication", "announce");
   ce_leader_election->wait_ready_all(store, "qp-leader-election", "announce");
   
-  //Connection: //?? 
+  
+  //connecting everything 
+
+  int port = 20886;
   ce_replication->connect_all(
       store, "qp-replication",
-      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE);
+      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE,
+      port);
   ce_replication->announce_ready(store, "qp-replication", "connect");
 
+  //make sure to give the right port number
   ce_leader_election->connect_all(
       store, "qp-leader-election",
-      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |
-          ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE);
+      ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE,
+      port + ids.size()); //here, we just shift the port number 
   ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
 
   ce_replication->wait_ready_all(store, "qp-replication", "connect");

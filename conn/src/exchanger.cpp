@@ -497,13 +497,14 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 
   As an arbitrary rule : 
     If node X is acting as a server, and is expecting node Y to connect to it as a client, 
-    node X will listen to Y's message on the port (p + Y), with p an arbitrary int
+    node X will listen to Y's message on the port (p + Y), with p an arbitrary int given
+  
 
 */
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix, //this remains from mu's original code, but we don't use it
-                                      ControlBlock::MemoryRights rights) {
-  int p = 20886;
+                                      ControlBlock::MemoryRights rights
+                                      int base_port) {
   std::cout << "max_id " << max_id <<std::endl;  
 
   for (int round = 1; round < max_id; round++){
@@ -518,7 +519,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
         threads.emplace_back(&ConnectionExchanger::start_server, 
                               this, 
                               my_id+j+1, //the remote node I'm expecting 
-                              p + my_id+j+1,       //the port number where I'm listening for that node
+                              base_port + my_id+j+1,       //the port number where I'm listening for that node
                               rights);
       }    
       for (auto& thread : threads) {
