@@ -503,7 +503,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 */
 void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix, //this remains from mu's original code, but we don't use it
-                                      ControlBlock::MemoryRights rights
+                                      ControlBlock::MemoryRights rights,
                                       int base_port) {
   std::cout << "max_id " << max_id <<std::endl;  
 
@@ -528,7 +528,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
     }
     else if (my_id > round){ //this node must act as a client 
       std::this_thread::sleep_for(std::chrono::seconds(2)); //wait for the server to set-up 
-      start_client(round, p + my_id, rights);
+      start_client(round, base_port + my_id, rights);
     }
   }
 }
