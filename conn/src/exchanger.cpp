@@ -345,6 +345,7 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   
   do {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
+      std::cout << "got something" << std::endl;
       if (ret) {continue;}
       std::cout << "received connect request" << std::endl;
       
@@ -548,10 +549,8 @@ int ConnectionExchanger :: get_addr(std::string dst, struct sockaddr *addr){
 	return ret;
 }
 
-int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echannel,
-		enum rdma_cm_event_type expected_event,
-		struct rdma_cm_event **cm_event){
-	
+int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echannel,enum rdma_cm_event_type expected_event,struct rdma_cm_event **cm_event){
+
   int ret = 1;
 	ret = rdma_get_cm_event(echannel, cm_event); //blocking call
 	if (ret) {
@@ -561,7 +560,7 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* lets see, if it was a good event */
 	if(0 != (*cm_event)->status){
-		//LOGGER_INFO(logger,"CM event has non zero status");
+		LOGGER_INFO(logger,"CM event has non zero status");
 		ret = -((*cm_event)->status);
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
@@ -570,13 +569,13 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* if it was a good event, was it of the expected type */
 	if ((*cm_event)->event != expected_event) {
-		//LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
-		//		rdma_event_str((*cm_event)->event));
+		/OGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+				rdma_event_str((*cm_event)->event));
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
 		return -1; // unexpected event :(
 	}
-	//LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
+	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
 	/* The caller must acknowledge the event */
 	return ret;
 }
