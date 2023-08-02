@@ -116,7 +116,7 @@ void ConnectionExchanger::addLoopback_with_cm(std::string const& pd,
   remote_loopback_->associateWithCQ_for_cm_prel(send_cq_name, recv_cq_name); //pas sûr de ça, peut-être que ça double les wc pour rien
   //LOGGER_INFO(logger, "Remote LoopBack added with_cm ");
 
-  loopback_port = 1000;
+  loopback_port = 80000;
 }
 
 void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rights) {
@@ -135,6 +135,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+  std::cout << "loopback_server() called with my_port = "<< loopback_port <<std::endl;
   std::string str_ip = ipAddresses[my_id];
   ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
@@ -194,6 +195,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+  std::cout << "loopback_client() called with dest_port = "<< loopback_port <<std::endl;
   std::string str_ip = ipAddresses[my_id];
   int ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
@@ -308,6 +310,9 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   struct sockaddr_in server_addr;
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
+
+  std::cout << "start_server() called with my_port = "<< my_port <<std::endl;
+
   server_addr.sin_port = htons(static_cast<uint16_t>(my_port));
   std::string str_ip = ipAddresses[my_id];
   ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -331,8 +336,7 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return -1;
 	}
-	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr),
-          ntohs(server_addr.sin_port));
+	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
   
   do {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
@@ -372,6 +376,8 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(static_cast<uint16_t>(dest_port));
+  std::cout << "start_client() called with dest_port = "<< dest_port <<std::endl;
+
   
   std::string str_ip = ipAddresses[proc_id];
   int ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
