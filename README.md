@@ -75,47 +75,7 @@ Same steps as with docker : see the content of the dockerfile for the dependenci
 ## Execution of the various experiments
 First, make sure that you are at the `~/dory` directory.
 
-### Setting up the connections during a run 
-For all the experiments, some inputs are required during the connection set-up. 
-When node-X and node-Y establish an RDMA connection, one of those nodes will act as a server, and the other as a client. 
-On both nodes, a print in the terminal will indicate "Handling of connection X-to-Y". 
-The server will print "listening successfully at: ..., port : ...."
-On the client side, the user will have to manually input the port of the server.
-
-Example : 
-Input required 
-```bash
-//terminal of node 1
-[CE:info] [NEW CONNECTION] Handling the connection of 1-to-2
-Server is listening successfully at: 10.30.2.1 , port: 20886 
-```
-
-```bash
-//terminal of node 2
-[CE:info] [NEW CONNECTION] Handling the connection of 2-to-1
-Port number of the server ? 
-```
-Once the connection is established : 
-```bash
-//terminal of node 1
-[CE:info] [NEW CONNECTION] Handling the connection of 1-to-2
-Server is listening successfully at: 10.30.2.1 , port: 20886 
-[CE:info] A new RDMA client connection is set up
-```
-
-```bash
-//terminal of node 2
-[CE:info] [NEW CONNECTION] Handling the connection of 2-to-1
-Port number of the server ? 20886
-[CE:info] The client is connected successfully 
-
-```
-
-Since there are 3 nodes involved (the fourth being a client connected to the leader by TCP), and 2 connections between each paire of nodes (background plane and replication plane), the user will have to prompt 6 times.
-
-(TO DO : automate the set-up) 
-
-A commun error when a node acts as a server is "Failed to bind the channel to the addr". It  means that another process is already occupying the port. Usually, it is another run of Mu that wasn't killed proporly. So to solve this issue, just kill that other instance. 
+A commun error when a node acts as a server is "Failed to bind the channel to the addr". It  means that another process is already occupying the port. Usually, it is another run of Mu that wasn't killed properly. So to solve this issue, just kill that other instance. 
 
 
 ### MAIN-ST (Standalone throughput)
