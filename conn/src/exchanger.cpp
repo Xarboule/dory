@@ -569,7 +569,7 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* if it was a good event, was it of the expected type */
 	if ((*cm_event)->event != expected_event) {
-		/OGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
 				rdma_event_str((*cm_event)->event));
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
