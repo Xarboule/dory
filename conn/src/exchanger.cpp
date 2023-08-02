@@ -305,7 +305,7 @@ void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
 }
 
 
-int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights) {
+void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights) {
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
   
@@ -321,7 +321,7 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
-    return ret;
+    return;
   }
   std::cout << "start_server() called with my_port = "<< my_port <<std::endl;
   server_addr.sin_port = htons(static_cast<uint16_t>(my_port));
@@ -330,7 +330,7 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
 	ret = rdma_bind_addr(rc.get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
 	if (ret) {
     throw std::runtime_error("Failed to bind the channel to the addr");
-		return -1;
+		return;
 	}
 	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 
@@ -339,11 +339,12 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   ret = rdma_listen(rc.get_cm_listen_id(), 8); /* backlog = 8 clients, same as TCP*/
 	if (ret) {
     throw std::runtime_error("rdma_listen failed to listen on server address");
-		return -1;
+		return;
 	}
 	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
   
   do {
+      std::cout << "Waiting of an event" << std::endl;
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       std::cout << "got something" << std::endl;
       if (ret) {continue;}
@@ -376,13 +377,13 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
       ret = rdma_ack_cm_event(cm_event);
       if (ret) {
         throw std::runtime_error("Failed to acknowledge the cm event");
-        return -1;
+        return;
       }
       LOGGER_INFO(logger,"A new RDMA client connection is set up");      
       break; //on sort de là, car on n'attend qu'un client 
    } while(1);
 
-	return ret;
+	return;
 }
 
 
@@ -506,6 +507,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
   
 
   for (int round = 1; round < max_id; round++){
+    std::cout << "round "<< roun << std::endl;
     if (my_id < round){
       return; //this node is done ! 
     }
@@ -520,7 +522,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
                               rights);
       }    
       for (auto& thread : threads) {
-        thread.join();
+        thread.join(); //the node waits for all its connexions to be done before continuing 
       }
     }
     else if (my_id > round){ //this node must act as a client 

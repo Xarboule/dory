@@ -81,7 +81,7 @@ class ConnectionExchanger {
                                             std::string recv_cq_name);
 
     
-    int start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
+    void start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
 
     int start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights); 
 
