@@ -126,7 +126,6 @@ void ConnectionExchanger::connectLoopback_with_cm(ControlBlock::MemoryRights rig
 }
 
 
-
 int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights rights){
   struct rdma_cm_event *cm_event = NULL;
 	int ret = -1;
@@ -140,10 +139,8 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
     throw std::runtime_error("Wrong input");
     return ret;
   }
-
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
-  std::cout << "loopback_server() called with my_port = "<< loopback_port <<std::endl;
-
+  
   loopback_->configure_cm_channel();
 
 	ret = rdma_bind_addr(loopback_->get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -203,9 +200,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
     throw std::runtime_error("Wrong input");
     return ret;
   }
-
   server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
-  std::cout << "loopback_client() called with dest_port = "<< loopback_port <<std::endl;
   
   remote_loopback_->configure_cm_channel();
   
@@ -274,36 +269,66 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 }
 
 
-void ConnectionExchanger::announce(int proc_id, MemoryStore& store,
-                                   std::string const& prefix) {
-}
-
-void ConnectionExchanger::announce_all(MemoryStore& store,
-                                       std::string const& prefix) {
-}
-
-void ConnectionExchanger::announce_ready(MemoryStore& store,
-                                         std::string const& prefix,
-                                         std::string const& reason) {
-
-}
-
-void ConnectionExchanger::wait_ready(int proc_id, MemoryStore& store,
-                                     std::string const& prefix,
-                                     std::string const& reason) {
-}
-
-void ConnectionExchanger::wait_ready_all(MemoryStore& store,
-                                         std::string const& prefix,
-                                         std::string const& reason) {
-}
-
 void ConnectionExchanger::connect(int proc_id, MemoryStore& store,
                                   std::string const& prefix,
                                   ControlBlock::MemoryRights rights) {
   LOGGER_INFO(logger, "connect() was called ==> does nothing");
 }
 
+
+/*
+  There are max_id (=N) nodes. We want to connect all of them to each other.
+  That's a total of (N-1) + ... + 1 connexions. 
+  We proceed in N-1 rounds :
+    -at round 1, node 1 acts as a server for all the (N-1) connexions it expects
+      So node 1 is connected with everyone, and is done ! 
+    -at round 2, node 2 acts as a server for all the (N-2) connexions it expects (since it's already connected to node 1),
+      So node 1 is connected with everyone, and is done !
+    ...
+    -at round i, node i acts as a server for all the (N-i) connexions it expects, 
+      So node i is connected with everyone, and is done ! 
+    ...
+    -at round N-1, node N-1 acts as a server for the 1 connexion it expects
+      So everybody is connected to each other ! 
+
+  So, when a node isn't acting as a server, it's either :
+    -acting as a client who's job is to connect to the server (if round_number > the node's id)
+    -doing nothing, because it's done (if round_number < the node's id)
+
+  As an arbitrary rule : 
+    If node X is acting as a server, and is expecting node Y to connect to it as a client, 
+    node X will listen to Y's message on the port (p + Y), with p an arbitrary int given
+  
+
+*/
+void ConnectionExchanger::connect_all(MemoryStore& store,
+                                      std::string const& prefix, //this remains from mu's original code, but we don't use it
+                                      int base_port,
+                                      ControlBlock::MemoryRights rights) {
+  for (int round = 1; round < max_id; round++){
+    if (my_id < round){
+      return; //this node is done ! 
+    }
+    else if (my_id == round){  //it's this node's turn to act as a server 
+      int num_threads = max_id - my_id;
+      std::vector<std::thread> threads;
+      for (int j=0; j < num_threads; j++){
+        threads.emplace_back(&ConnectionExchanger::start_server, 
+                              this, 
+                              my_id+j+1, //the remote node I'm expecting 
+                              base_port + my_id+j+1,       //the port number where I'm listening for that node
+                              rights);
+      }    
+      for (auto& thread : threads) {
+        thread.join(); //the node waits for all its connexions to be done before continuing 
+      }
+    }
+    else if (my_id > round){ //this node must act as a client 
+      std::this_thread::sleep_for(std::chrono::seconds(2)); //wait for the server to set-up 
+      start_client(round, base_port + my_id, rights);
+    }
+  }
+}
 
 void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights) {
   struct rdma_cm_event *cm_event = NULL;
@@ -323,7 +348,7 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
     throw std::runtime_error("Wrong input");
     return;
   }
-  std::cout << "start_server() called with my_port = "<< my_port <<std::endl;
+  
   server_addr.sin_port = htons(static_cast<uint16_t>(my_port));
 
   // Explicit binding of rdma cm id to the socket credentials 
@@ -332,7 +357,7 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
     throw std::runtime_error("Failed to bind the channel to the addr");
 		return;
 	}
-	LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
+	//LOGGER_INFO(logger, "Server RDMA CM id is successfully binded ");
 
 
   /*Listening for incoming events*/
@@ -344,11 +369,8 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
 	printf("Server is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
   
   while(1){
-    std::cout << "Waiting of an event" << std::endl;
     ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
-    std::cout << "got something" << std::endl;
     if (ret) {continue;}
-    std::cout << "received connect request" << std::endl;
     
     rc.set_cm_id(cm_event->id);
     rc.associateWithCQ_for_cm();
@@ -363,13 +385,8 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
     cm_params.private_data_len = 24;
     cm_params.private_data = rc.getLocalSetup();
 
-
-    std::cout << "cm_params ready" << std::endl;
-
     rdma_accept(rc.get_cm_id(), &cm_params); 
     
-    std::cout << "accepted ! " << std::endl;
-
     rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
     
     
@@ -404,8 +421,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   }
 
   server_addr.sin_port = htons(static_cast<uint16_t>(dest_port));
-  std::cout << "start_client() called with dest_port = "<< dest_port <<std::endl;
-
+  
 
   auto& rc = rcs.find(proc_id)->second;
   rc.configure_cm_channel();
@@ -476,63 +492,6 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 }
 
 
-/*
-  There are max_id (=N) nodes. We want to connect all of them to each other.
-  That's a total of (N-1) + ... + 1 connexions. 
-  We proceed in N-1 rounds :
-    -at round 1, node 1 acts as a server for all the (N-1) connexions it expects
-      So node 1 is connected with everyone, and is done ! 
-    -at round 2, node 2 acts as a server for all the (N-2) connexions it expects (since it's already connected to node 1),
-      So node 1 is connected with everyone, and is done !
-    ...
-    -at round i, node i acts as a server for all the (N-i) connexions it expects, 
-      So node i is connected with everyone, and is done ! 
-    ...
-    -at round N-1, node N-1 acts as a server for the 1 connexion it expects
-      So everybody is connected to each other ! 
-
-  So, when a node isn't acting as a server, it's either :
-    -acting as a client who's job is to connect to the server (if round_number > the node's id)
-    -doing nothing, because it's done (if round_number < the node's id)
-
-  As an arbitrary rule : 
-    If node X is acting as a server, and is expecting node Y to connect to it as a client, 
-    node X will listen to Y's message on the port (p + Y), with p an arbitrary int given
-  
-
-*/
-void ConnectionExchanger::connect_all(MemoryStore& store,
-                                      std::string const& prefix, //this remains from mu's original code, but we don't use it
-                                      int base_port,
-                                      ControlBlock::MemoryRights rights) {
-  std::cout << "max_id " << max_id <<std::endl;  
-
-  for (int round = 1; round < max_id; round++){
-    std::cout << "round "<< round << std::endl;
-    if (my_id < round){
-      return; //this node is done ! 
-    }
-    else if (my_id == round){  //it's this node's turn to act as a server 
-      int num_threads = max_id - my_id;
-      std::vector<std::thread> threads;
-      for (int j=0; j < num_threads; j++){
-        threads.emplace_back(&ConnectionExchanger::start_server, 
-                              this, 
-                              my_id+j+1, //the remote node I'm expecting 
-                              base_port + my_id+j+1,       //the port number where I'm listening for that node
-                              rights);
-      }    
-      for (auto& thread : threads) {
-        thread.join(); //the node waits for all its connexions to be done before continuing 
-      }
-    }
-    else if (my_id > round){ //this node must act as a client 
-      std::this_thread::sleep_for(std::chrono::seconds(2)); //wait for the server to set-up 
-      start_client(round, base_port + my_id, rights);
-    }
-  }
-}
-
 
 
 int ConnectionExchanger :: get_addr(std::string dst, struct sockaddr *addr){
@@ -557,13 +516,13 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
   int ret = 1;
 	ret = rdma_get_cm_event(echannel, cm_event); //blocking call
 	if (ret) {
-		LOGGER_INFO(logger,"Failed to retrieve a cm event");
+		//LOGGER_INFO(logger,"Failed to retrieve a cm event");
 		return -1;
 	}
 	
   /* lets see, if it was a good event */
 	if(0 != (*cm_event)->status){
-		LOGGER_INFO(logger,"CM event has non zero status");
+		//LOGGER_INFO(logger,"CM event has non zero status");
 		ret = -((*cm_event)->status);
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
@@ -572,15 +531,23 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 	
   /* if it was a good event, was it of the expected type */
 	if ((*cm_event)->event != expected_event) {
-		LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
-				rdma_event_str((*cm_event)->event));
+		//LOGGER_INFO(logger,"Received event {}, TODO: handle!\n",
+		//		rdma_event_str((*cm_event)->event));
 		/* important, we acknowledge the event */
 		rdma_ack_cm_event(*cm_event);
 		return -1; // unexpected event :(
 	}
-	LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
+	//LOGGER_INFO(logger,"A new {} type event is received \n", rdma_event_str((*cm_event)->event));
 	/* The caller must acknowledge the event */
 	return ret;
+}
+
+
+void ConnectionExchanger::build_conn_param(rdma_conn_param *cm_params){
+  cm_params->retry_count = 1;
+  cm_params->responder_resources = 14;
+  cm_params->initiator_depth = 14;
+  cm_params->rnr_retry_count = 12;
 }
 
 void ConnectionExchanger :: show_rdma_cmid(struct rdma_cm_id *id){
@@ -621,13 +588,5 @@ std::pair<bool, int> ConnectionExchanger::valid_ids() const {
   }
 
   return std::make_pair(true, max);
-}
-
-
-void ConnectionExchanger::build_conn_param(rdma_conn_param *cm_params){
-  cm_params->retry_count = 1;
-  cm_params->responder_resources = 14;
-  cm_params->initiator_depth = 14;
-  cm_params->rnr_retry_count = 12;
 }
 }  // namespace dory

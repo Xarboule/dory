@@ -40,9 +40,33 @@ class ConnectionExchanger {
   void configure_all(std::string const& pd, std::string const& mr,
                      std::string send_cp_name, std::string recv_cp_name);
 
-  void announce(int proc_id, MemoryStore& store, std::string const& prefix);
+  void configure_with_cm(int proc_id, std::string const& pd,
+                                      std::string const& mr,
+                                      std::string send_cq_name,
+                                      std::string recv_cq_name);
+    
+  void configure_all_with_cm( std::string const& pd,
+                              std::string const& mr,
+                              std::string send_cq_name,
+                              std::string recv_cq_name);
 
-  void announce_all(MemoryStore& store, std::string const& prefix);
+  void addLoopback(std::string const& pd, std::string const& mr,
+                   std::string send_cq_name, std::string recv_cq_name);
+
+  void connectLoopback(ControlBlock::MemoryRights rights);
+  ReliableConnection& loopback() { return *(loopback_.get()); }
+
+  void addLoopback_with_cm( std::string const& pd,
+                            std::string const& mr,
+                            std::string send_cq_name,
+                            std::string recv_cq_name);
+
+  void connectLoopback_with_cm(ControlBlock::MemoryRights rights);
+
+  int start_loopback_server(ControlBlock::MemoryRights rights);
+
+  int start_loopback_client(ControlBlock::MemoryRights rights);
+
 
   void connect(int proc_id, MemoryStore& store, std::string const& prefix,
                ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
@@ -51,63 +75,24 @@ class ConnectionExchanger {
       MemoryStore& store, std::string const& prefix, int base_port,
       ControlBlock::MemoryRights rights = ControlBlock::LOCAL_READ);
 
-  void announce_ready(MemoryStore& store, std::string const& prefix,
-                      std::string const& reason);
+  void start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
 
-  void wait_ready(int proc_id, MemoryStore& store, std::string const& prefix,
-                  std::string const& reason);
+  int start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights); 
 
-  void wait_ready_all(MemoryStore& store, std::string const& prefix,
-                      std::string const& reason);
-
+  int get_addr(std:: string dst, struct sockaddr *addr);
+  
+  int process_rdma_cm_event(struct rdma_event_channel *echannel,
+          enum rdma_cm_event_type expected_event,
+          struct rdma_cm_event **cm_event);
+  
+  void build_conn_param(rdma_conn_param *cm_params);
+  
+  //useful for debugging
+  void show_rdma_cmid(struct rdma_cm_id *id);
+  void check_all_qp_states();
+  
   std::map<int, ReliableConnection>& connections() { return rcs; }
-
-  void addLoopback(std::string const& pd, std::string const& mr,
-                   std::string send_cq_name, std::string recv_cq_name);
-
-  void connectLoopback(ControlBlock::MemoryRights rights);
-  ReliableConnection& loopback() { return *(loopback_.get()); }
-
-
-    //nouvelles fonctions pour utiliser CM 
-    void configure_with_cm(int proc_id, std::string const& pd,
-                                            std::string const& mr,
-                                        std::string send_cq_name,
-                                        std::string recv_cq_name);
-    
-    void configure_all_with_cm(std::string const& pd,
-                                            std::string const& mr,
-                                            std::string send_cq_name,
-                                            std::string recv_cq_name);
-
-    
-    void start_server(int proc_id, int my_port, ControlBlock::MemoryRights rights);
-
-    int start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights); 
-
-    int process_rdma_cm_event(struct rdma_event_channel *echannel,
-            enum rdma_cm_event_type expected_event,
-            struct rdma_cm_event **cm_event);
-
-    int get_addr(std:: string dst, struct sockaddr *addr);
-
-    void show_rdma_cmid(struct rdma_cm_id *id);
-
-    void addLoopback_with_cm(std::string const& pd,
-                                      std::string const& mr,
-                                      std::string send_cq_name,
-                                      std::string recv_cq_name);
-
-    void connectLoopback_with_cm(ControlBlock::MemoryRights rights);
-
-    int start_loopback_server(ControlBlock::MemoryRights rights);
-
-    int start_loopback_client(ControlBlock::MemoryRights rights);
-
-    void check_all_qp_states();
-
-    void build_conn_param(rdma_conn_param *cm_params);
-
+ 
  private:
   std::pair<bool, int> valid_ids() const;
 
