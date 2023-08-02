@@ -497,7 +497,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
     }
     else if (my_id > round){ //this node must act as a client 
       std::this_thread::sleep_for(std::chrono::seconds(2)); //wait for the server to set-up 
-      start_client(round, p + my_id, rights)
+      start_client(round, p + my_id, rights);
     }
   }
 }
