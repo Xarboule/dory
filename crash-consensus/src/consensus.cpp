@@ -170,7 +170,7 @@ void RdmaConsensus::run() {
   //make sure to give the right port number
   ce_leader_election->connect_all(
       store, "qp-leader-election",
-      port + ids.size(), //here, we just shift the port number 
+      port + 1000, //here, we just shift by a big number 
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE); 
   ce_leader_election->announce_ready(store, "qp-leader-election", "connect");
 
