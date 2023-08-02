@@ -68,9 +68,10 @@ $ export LD_LIBRARY_PATH+=./crash-consensus/experiments/exported/
 ```
 
 ### Running without docker 
-(Better performance expected, however some bug ==> need ubuntu 18.04) 
+(Better performances expected, however some bug ==> need ubuntu 18.04) 
 Same steps as with docker : see the content of the dockerfile for the dependencies.
-
+Etat actuel : sous ubuntu 18.04, toutes les commandes qu'on devine du dockerfile s'exécutent bien. En revanche, la compilation échoue. "make list" ne renvoie pas la liste de toutes les targets. Ca peut venir de make ou de awk. 
+Je n'arrive pas à résoudre ce problème (pas si grave dans notre contexte)
    
 ## Execution of the various experiments
 First, make sure that you are at the `~/dory` directory.
