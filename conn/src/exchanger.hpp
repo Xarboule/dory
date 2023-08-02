@@ -106,7 +106,7 @@ class ConnectionExchanger {
 
     void check_all_qp_states();
 
-    void build_co=nn_param(rdma_conn_param *cm_params);
+    void build_conn_param(rdma_conn_param *cm_params);
 
  private:
   std::pair<bool, int> valid_ids() const;
