@@ -346,10 +346,13 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   do {
       ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
       if (ret) {continue;}
+      std::cout << "received connect request" << std::endl;
       
       rc.set_cm_id(cm_event->id);
       rc.associateWithCQ_for_cm();
       rc.set_init_with_cm(rights);
+
+      std::cout << "rc set" << std::endl;
 
       //Accepter la connexion
       struct rdma_conn_param cm_params;
@@ -357,8 +360,16 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
       build_conn_param(&cm_params);
       cm_params.private_data_len = 24;
       cm_params.private_data = rc.getLocalSetup();
+
+
+      std::cout << "cm_params ready" << std::endl;
+
       rdma_accept(rc.get_cm_id(), &cm_params); 
+      
+      std::cout << "accepted ! " << std::endl;
+
       rc.setRemoteSetup(cm_event->param.conn.private_data); //dirty hack : on récupère les info (addr et rkey) de la remote qp.
+      
       
       /*Une fois que la connection est bien finie, on ack l'event du début*/
       ret = rdma_ack_cm_event(cm_event);
