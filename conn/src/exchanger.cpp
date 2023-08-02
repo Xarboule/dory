@@ -376,8 +376,6 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
     rc.associateWithCQ_for_cm();
     rc.set_init_with_cm(rights);
 
-    std::cout << "rc set" << std::endl;
-
     //Accepter la connexion
     struct rdma_conn_param cm_params;
     memset(&cm_params, 0, sizeof(cm_params));
