@@ -134,14 +134,15 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
   struct sockaddr_in server_addr;
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
-  std::cout << "loopback_server() called with my_port = "<< loopback_port <<std::endl;
   std::string str_ip = ipAddresses[my_id];
   ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
+
+  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+  std::cout << "loopback_server() called with my_port = "<< loopback_port <<std::endl;
 
   loopback_->configure_cm_channel();
 
@@ -194,8 +195,6 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
   struct sockaddr_in server_addr;
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
-  std::cout << "loopback_client() called with dest_port = "<< loopback_port <<std::endl;
   std::string str_ip = ipAddresses[my_id];
   int ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
@@ -203,6 +202,9 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
     return ret;
   }
 
+  server_addr.sin_port = htons(static_cast<uint16_t>(loopback_port));
+  std::cout << "loopback_client() called with dest_port = "<< loopback_port <<std::endl;
+  
   remote_loopback_->configure_cm_channel();
   
   //resolve addr
@@ -311,15 +313,14 @@ int ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::M
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
 
-  std::cout << "start_server() called with my_port = "<< my_port <<std::endl;
-
-  server_addr.sin_port = htons(static_cast<uint16_t>(my_port));
   std::string str_ip = ipAddresses[my_id];
   ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
   if (ret) {
     throw std::runtime_error("Wrong input");
     return ret;
   }
+  std::cout << "start_server() called with my_port = "<< my_port <<std::endl;
+  server_addr.sin_port = htons(static_cast<uint16_t>(my_port));
 
   // Explicit binding of rdma cm id to the socket credentials 
 	ret = rdma_bind_addr(rc.get_cm_listen_id(), reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -375,9 +376,6 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   /*On donne les infos sur l'IP du server qu'on cherche à atteindre*/
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(static_cast<uint16_t>(dest_port));
-  std::cout << "start_client() called with dest_port = "<< dest_port <<std::endl;
-
   
   std::string str_ip = ipAddresses[proc_id];
   int ret = get_addr(str_ip, reinterpret_cast<struct sockaddr*>(&server_addr));
@@ -385,6 +383,10 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
     throw std::runtime_error("Wrong input");
     return ret;
   }
+
+  server_addr.sin_port = htons(static_cast<uint16_t>(dest_port));
+  std::cout << "start_client() called with dest_port = "<< dest_port <<std::endl;
+
 
   auto& rc = rcs.find(proc_id)->second;
   rc.configure_cm_channel();
@@ -523,6 +525,7 @@ int ConnectionExchanger :: get_addr(std::string dst, struct sockaddr *addr){
 	}
 	memcpy(addr, res->ai_addr, sizeof(struct sockaddr_in));
 	freeaddrinfo(res);
+  delete char_ip;
 	return ret;
 }
 
