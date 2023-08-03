@@ -158,7 +158,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
               << std::endl;
 
     std::cout << "Throughput = " << throughput << "Go/s"<< std::endl;
-    std::cout << "Average latency of one op = " << time_per_op << std::endl;
+    std::cout << "Average latency of one op = " << time_per_op*1000<< "µs"<<std::endl;
 
     exit(0);
   }
