@@ -154,7 +154,7 @@ class Follower {
         // std::cout << "Fuo encoded inside the 0: " << fuo << std::endl;
       }
 
-      std::cout << "Commit up to " << fuo << std::endl;
+      //std::cout << "Commit up to " << fuo << std::endl;
 
       while (commit_iter->hasNext(fuo)) {
         commit_iter->next();
