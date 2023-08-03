@@ -156,7 +156,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
               << " bytes in " << elapsed_time << " ns"
               << std::endl;
 
-    double throughput = times * payload_size / elapsed_time * 1000 *1000 *1000 /1024 /1024;
+    double throughput = times * payload_size / elapsed_time * 1000 *1000 *1000 /1024 /1024/1024;
     std::cout << "Throughput = " << throughput << "Go/s"<< std::endl;
 
     exit(0);
