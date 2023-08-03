@@ -76,8 +76,10 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
                              [[maybe_unused]] size_t len) {});
 
   // Wait enough time for the consensus to become ready
-  std::cout << "Wait some time" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(5 + 3 - id));
+  std::cout << "Wait some time (" << (5+id) << "seconds)"<< std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(5+id));
+
+  std::cout << "Started" << std::endl;
 
   if (id == 1) {
     TIMESTAMP_INIT;

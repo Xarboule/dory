@@ -164,10 +164,10 @@ void RdmaConsensus::run() {
       ControlBlock::LOCAL_READ | ControlBlock::LOCAL_WRITE |ControlBlock::REMOTE_READ | ControlBlock::REMOTE_WRITE); 
   
 
-  std :: string foo;
+  /*std :: string foo;
   std::cout <<"EVERYTHING IS CONNECTED WELL\n";
   std::cout <<"Press anything to continue once all connections are ok\n";
-  std :: cin >> foo;
+  std :: cin >> foo;*/
 
   //Un "context", c'est rien d'autre qu'un struct qui contient tout ce qui est pertinent, pour faciliter l'accès
 

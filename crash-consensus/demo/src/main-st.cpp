@@ -76,12 +76,10 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
                              [[maybe_unused]] size_t len) {});
 
   // Wait enough time for the consensus to become ready
-  std::cout << "Wait some time (" << (5+3-id) << "seconds)"<< std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(5 + 3 - id));
+  std::cout << "Wait some time (" << (5+id) << "seconds)"<< std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(5+id));
 
   if (id == 1) {
-    std :: cout << "ID 1 is doing something ! " << std :: endl;
-    
     TIMESTAMP_INIT;
 
     std::vector<uint8_t> payload_buffer(payload_size + 2);
@@ -93,7 +91,6 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     TIMESTAMP_T loop_time;
 
     mkrndstr_ipa(payload_size, payload);
-    //std :: cout << "A random payload was generated : " << reinterpret_cast<char*>(payload) << std :: endl;
     auto ret = consensus.propose(payload, payload_size);
 
 
@@ -101,11 +98,6 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       std::cout << "Error in the first propose"<<std::endl;
     }
     
-
-    std :: string foo;
-    std::cout <<"First propose done\n";
-    std::cout <<"Press anything to launch the bench \n";
-    std :: cin >> foo;
 
     int offset = 2;
 
@@ -115,9 +107,8 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       mkrndstr_ipa(payload_size, &(payloads[i][0])); // on génère aléatoirement le contenu de chaque payload 
     }
 
-    std::cout << "The bench is starting !" << std::endl;
-    std::cout << "Number of proposals = "<< times <<std::endl;
-  
+    std::cout << "Started "<< std::endl;  
+    
     TIMESTAMP_T start_meas, end_meas;
 
     GET_TIMESTAMP(start_meas);
@@ -161,6 +152,9 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     std::cout << "Replicated " << times << " commands of size " << payload_size
               << " bytes in " << ELAPSED_NSEC(start_meas, end_meas) << " ns"
               << std::endl;
+
+    double throughput = times * payload_size / ELAPSED_NSEC(start_meas, end_meas) * 1000 *1000 *1000 /1024 /1024/1024;
+    std::cout << "Throughput = " << throughput << std::endl;
 
     exit(0);
   }
