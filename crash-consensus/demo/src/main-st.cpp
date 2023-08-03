@@ -149,11 +149,14 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       }
     }
     GET_TIMESTAMP(end_meas);
+
+    double elapsed_time = ELAPSED_NSEC(start_meas, end_meas);
+
     std::cout << "Replicated " << times << " commands of size " << payload_size
-              << " bytes in " << ELAPSED_NSEC(start_meas, end_meas) << " ns"
+              << " bytes in " << elapsed_time << " ns"
               << std::endl;
 
-    double throughput = times * payload_size / ELAPSED_NSEC(start_meas, end_meas) * 1000 *1000 *1000 /1024 /1024/1024;
+    double throughput = times * payload_size / elapsed_time * 1000 *1000 *1000 /1024 /1024/1024;
     std::cout << "Throughput = " << throughput << std::endl;
 
     exit(0);
