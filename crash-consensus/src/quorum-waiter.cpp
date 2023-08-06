@@ -52,23 +52,23 @@ template <class ID> bool SerialQuorumWaiter<ID>::consume(std::vector<struct ibv_
       auto [k, pid, seq] = quorum::unpackAll<int, ID>(entry.wr_id);
 
       if (k != kind) {
-#ifndef NDEBUG
+/*#ifndef NDEBUG
         std::cout << "Received unexpected (" << quorum::type_str(k)
                   << " instead of " << quorum::type_str(kind) << ")"
                   << " message from the completion queue, concerning process "
                   << pid << std::endl;
-#endif
+#endif*/
 
         continue;
       }
-
+/*
 #ifndef NDEBUG
       if (seq != next_id) {
         std::cout << "Received remnant (" << seq << " instead of " << next_id
                   << ") message from the completion queue, concerning process "
                   << pid << std::endl;
       }
-#endif
+#endif*/
       
       //on vérifie que le seq reçu est celui qui suit immédiatement celui enregistré 
       //(pour être sûr de ne pas en sauter un)
@@ -104,23 +104,23 @@ template <class ID> bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct 
       auto [k, pid, seq] = quorum::unpackAll<int, ID>(entry.wr_id);
 
       if (k != kind) {
-#ifndef NDEBUG
+/*#ifndef NDEBUG
         std::cout << "Received unexpected (" << quorum::type_str(k)
                   << " instead of " << quorum::type_str(kind) << ")"
                   << " message from the completion queue, concerning process "
                   << pid << std::endl;
 #endif
-
+*/
         continue;
       }
-
+/*
 #ifndef NDEBUG
       if (seq != next_id) {
         std::cout << "Received remnant (" << seq << " instead of " << next_id
                   << ") message from the completion queue, concerning process "
                   << pid << std::endl;
       }
-#endif
+#endif*/
 
       auto current_seq = scoreboard[pid];
       scoreboard[pid] = current_seq + modulo == seq ? seq : 0;

@@ -154,8 +154,8 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return -1;
 	}
-	printf("Loopback (server) is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr),
-          ntohs(server_addr.sin_port));
+	//printf("Loopback (server) is listening successfully at: %s , port: %d \n",inet_ntoa(server_addr.sin_addr),
+  //        ntohs(server_addr.sin_port));
 
   
   do {
@@ -181,7 +181,7 @@ int ConnectionExchanger :: start_loopback_server(ControlBlock::MemoryRights righ
         throw std::runtime_error("Failed to acknowledge the cm event");
         return -1;
       }
-      LOGGER_INFO(logger,"A new RDMA client connection is set up");      
+      LOGGER_INFO(logger,"The loopback connection is set up");      
       break; 
    } while(1);
 
@@ -239,7 +239,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 	}
 	
   
-  printf("[LoopBack client] Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+  //printf("[LoopBack client] Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   /* Creating the QP */      
   remote_loopback_->set_cm_id(remote_loopback_->get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
   remote_loopback_->associateWithCQ_for_cm();
@@ -263,7 +263,7 @@ int ConnectionExchanger :: start_loopback_client(ControlBlock::MemoryRights righ
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
   }
-  LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
+  //LOGGER_INFO(logger, "The Loopback client is connected successfully \n");
  
   return 0 ;
 }
@@ -394,7 +394,7 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
       throw std::runtime_error("Failed to acknowledge the cm event");
       return;
     }
-    LOGGER_INFO(logger,"A new RDMA client connection is set up");      
+    LOGGER_INFO(logger,"A new RDMA connection is set up");      
     break; //on sort de là, car on n'attend qu'un client 
   }
 
@@ -439,7 +439,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
 	}
-  LOGGER_INFO(logger, "RDMA address is resolved \n");
+  //LOGGER_INFO(logger, "RDMA address is resolved \n");
 
 	ret = rdma_resolve_route(rc.get_cm_listen_id(), 2000);
 	if (ret) {
@@ -456,8 +456,8 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
 	}
-  LOGGER_INFO(logger, "RDMA route is resolved \n");
-  printf("Trying to connect to server at : %s port: %d \n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+  //LOGGER_INFO(logger, "RDMA route is resolved \n");
+  printf("Trying to connect to server at : %s port: %d",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
   rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
@@ -472,7 +472,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   cm_params.private_data = rc.getLocalSetup();
   rdma_connect(rc.get_cm_id(), &cm_params);
 
-  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(rc.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
@@ -484,7 +484,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
   }
-  LOGGER_INFO(logger, "The client is connected successfully \n");
+  LOGGER_INFO(logger, "The client is connected successfully ");
  
   return 0 ;
 }
@@ -543,8 +543,8 @@ int ConnectionExchanger :: process_rdma_cm_event(struct rdma_event_channel *echa
 
 void ConnectionExchanger::build_conn_param(rdma_conn_param *cm_params){
   cm_params->retry_count = 1;
-  cm_params->responder_resources = 14;
-  cm_params->initiator_depth = 14;
+  cm_params->responder_resources = 16;
+  cm_params->initiator_depth = 16;
   cm_params->rnr_retry_count = 12;
 }
 

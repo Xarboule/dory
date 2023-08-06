@@ -99,7 +99,7 @@ void RdmaConsensus::run() {
               od.name(), od.dev_name(), OpenDevice::type_str(od.node_type()),
               OpenDevice::type_str(od.transport_type()));
 
-  std::cout << "Max_qp_rd_atom : " << od.device_attributes().max_qp_rd_atom << std::endl;
+  //std::cout << "Max_qp_rd_atom : " << od.device_attributes().max_qp_rd_atom << std::endl;
 
 
   rp = std::make_unique<ResolvedPort>(od);
