@@ -457,7 +457,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		exit(-1);
 	}
   //LOGGER_INFO(logger, "RDMA route is resolved \n");
-  printf("Trying to connect to server at : %s port: %d\n",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
+  printf("Trying to connect to server at : %s port: %d",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
   rc.set_cm_id(rc.get_cm_listen_id()); //dans le cas du serveur, il n'y a plus de dinstinction entre cm_id et cm_listen_id
@@ -484,7 +484,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
     return -errno;
   }
-  LOGGER_INFO(logger, "The client is connected successfully");
+  LOGGER_INFO(logger, "Connected !");
  
   return 0 ;
 }
