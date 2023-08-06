@@ -79,8 +79,6 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
   std::cout << "Wait some time (" << (5+id) << "seconds)"<< std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(5+id));
 
-  std::cout << "Started" << std::endl;
-
   if (id == 1) {
     TIMESTAMP_INIT;
 
