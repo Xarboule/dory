@@ -151,13 +151,13 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
     double elapsed_time = static_cast<double>(ELAPSED_NSEC(start_meas, end_meas));
     double time_per_op = elapsed_time / time;
-    double throughput = time_per_op* payload_size  * 1000 *1000 *1000 /1024 /1024/1024; 
+    double throughput = time*payload_size/elapsed_time  * 1000 *1000 *1000 /1024 /1024/1024; 
     std::cout << "Replicated " << times << " commands of size " << payload_size
               << " bytes in " << elapsed_time << " ns"
               << std::endl;
 
     std::cout << "Throughput = " << throughput << "Go/s"<< std::endl;
-    std::cout << "Average latency of one op = " << time_per_op*1000<< "µs"<<std::endl;
+    std::cout << "Average latency of one op = " << time_per_op/1000<< "µs"<<std::endl;
 
     std::ofstream dump;
     dump.open("dump-throughput-" + std::to_string(payload_size) + "-" +
