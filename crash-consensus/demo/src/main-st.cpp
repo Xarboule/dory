@@ -1,4 +1,3 @@
-
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -159,6 +158,19 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
     std::cout << "Throughput = " << throughput << "Go/s"<< std::endl;
     std::cout << "Average latency of one op = " << time_per_op*1000<< "µs"<<std::endl;
+
+    std::ofstream dump;
+    dump.open("dump-throughput-" + std::to_string(payload_size) + "-" +
+              std::to_string(outstanding_req) + ".txt");
+    
+    dump << "Replicated " << times << " commands of size " << payload_size
+              << " bytes in " << elapsed_time << " ns"
+              << "\n";
+
+    dump << "Throughput = " << throughput << "Go/s"<< "\n";
+    dump << "Average latency of one op = " << time_per_op*1000<< "µs"<<"\n";
+
+    dump.close();
 
     exit(0);
   }
