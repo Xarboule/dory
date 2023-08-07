@@ -149,7 +149,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     }
     GET_TIMESTAMP(end_meas);
     
-    double n_commands = static_cast<double>time;
+    double n_commands = static_cast<double>(time);
 
     double elapsed_time = static_cast<double>(ELAPSED_NSEC(start_meas, end_meas));
     double time_per_op = elapsed_time / n_commands;
