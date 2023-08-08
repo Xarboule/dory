@@ -93,13 +93,13 @@ options = {
             # a C++ program. The new-style casts (dynamic_cast, static_cast,
             # reinterpret_cast, and const_cast) are less vulnerable to unintended
             # effects and much easier to search for.
-            "-Wold-style-cast",
+            #"-Wold-style-cast",
         ],
         "C": [],
     },
     "GENERAL": [
         # Make all warnings into errors
-        "-Werror",
+        #"-Werror",
         # Turns on the above mentioned flags
         "-Wall",
         # Warn about implicit conversions

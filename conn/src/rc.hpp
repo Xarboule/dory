@@ -171,9 +171,11 @@ class ReliableConnection {
 
   void reset_with_cm(ControlBlock :: MemoryRights rights);
 
-  void get_mr(){return mr;}
+  ControlBlock::MemoryRegion get_mr(){return mr;}
+ 
+  ibv_qp_init_attr get_create_attr(){return create_attr; }
 
-  void get_create_att(){return create_attr;  }
+
  private:
   bool post_send(ibv_send_wr &wr);
 
