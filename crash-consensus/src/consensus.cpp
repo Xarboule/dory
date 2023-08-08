@@ -91,6 +91,7 @@ void RdmaConsensus::run() {
   {
     for (auto& dev : d.list()) {
       od = std::move(dev);
+      break;
     }
   }
 
