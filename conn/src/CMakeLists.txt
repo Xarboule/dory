@@ -27,4 +27,5 @@ add_library(
     doryconn
     rc.cpp
     exchanger.cpp
+    bypass.h
 )
