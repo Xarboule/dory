@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
   std::cout
       << "================================================================"
       << std::endl;
-  std::cout << "Keep only values lower than 40000ns" << std::endl;
+  std::cout << "Keep only values lower than 100000" << std::endl;
   std::copy_if(numbers.begin(), numbers.end(), std::back_inserter(filtered),
-               [](int i) { return i < 40000; });
+               [](int i) { return i < 100000; });
 
   sort(filtered.begin(), filtered.end());
 
