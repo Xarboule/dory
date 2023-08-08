@@ -597,6 +597,7 @@ int ConnectionExchanger::setup_tofino(){
   bypass::connection conn;
 
   if (my_id == 1 ){
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     auto& rc = rcs.find(2)->second;
     mr.addr = (void*)rc.get_mr().addr;
     mr.length = rc.get_mr().size;
