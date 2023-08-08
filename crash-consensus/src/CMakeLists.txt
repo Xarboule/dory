@@ -35,5 +35,5 @@ add_library(
     pinning.cpp
     consensus.cpp
     crash-consensus.cpp
-    crash-consensus-c-wrapper.cpp
+    #crash-consensus-c-wrapper.cpp
 )
