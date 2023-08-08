@@ -82,7 +82,7 @@ struct connection
     struct rdma_buffer_attr remote_buffer_info;
 };
 
-int process_rdma_cm_event(struct rdma_event_channel *echannel,
+static int process_rdma_cm_event(struct rdma_event_channel *echannel,
                           enum rdma_cm_event_type expected_event,
                           struct rdma_cm_event **cm_event)
 {
@@ -116,7 +116,7 @@ int process_rdma_cm_event(struct rdma_event_channel *echannel,
     return ret;
 }
 
-struct ibv_mr *rdma_buffer_register(struct ibv_pd *pd,
+static struct ibv_mr *rdma_buffer_register(struct ibv_pd *pd,
                                     void *addr, uint32_t length,
                                     unsigned int permission)
 {
@@ -139,7 +139,7 @@ struct ibv_mr *rdma_buffer_register(struct ibv_pd *pd,
     return mr;
 }
 
-struct ibv_mr *rdma_buffer_alloc(struct ibv_pd *pd, uint32_t size,
+static struct ibv_mr *rdma_buffer_alloc(struct ibv_pd *pd, uint32_t size,
                                  unsigned int permission)
 {
     struct ibv_mr *mr = NULL;
@@ -164,7 +164,7 @@ struct ibv_mr *rdma_buffer_alloc(struct ibv_pd *pd, uint32_t size,
 }
 
 /* Dirty legacy code to communicate the RDMA buffer location */
-void *getLocalSetup(struct ibv_mr *local_mr)
+static void *getLocalSetup(struct ibv_mr *local_mr)
 {
     // max (2) + direct_pmem (1) + dest_size (1) + Addr (8) + length (8) + key (4) = 24
     void *privateData = malloc(24);
@@ -183,7 +183,7 @@ void *getLocalSetup(struct ibv_mr *local_mr)
     return privateData;
 }
 
-void setRemoteSetup(struct rdma_buffer_attr *dst, const void *network_data)
+static void setRemoteSetup(struct rdma_buffer_attr *dst, const void *network_data)
 {
     // 4 Bytes of offset to get the address
     memcpy(&dst->address, network_data + 4, 8);
@@ -193,7 +193,7 @@ void setRemoteSetup(struct rdma_buffer_attr *dst, const void *network_data)
     memcpy(&dst->stag.local_stag, network_data + 20, 4);
 }
 
-int bypass_client_connect(struct sockaddr_in *server_sockaddr,
+static int bypass_client_connect(struct sockaddr_in *server_sockaddr,
                           struct ibv_context *context,
                           struct ibv_pd *pd,
                           struct ibv_mr *mr,
@@ -356,7 +356,7 @@ int bypass_client_connect(struct sockaddr_in *server_sockaddr,
     return 0;
 }
 
-int bypass_client_broadcast(struct connection *c,
+static int bypass_client_broadcast(struct connection *c,
                             struct ibv_send_wr *wr,
                             struct ibv_send_wr **bad_wr)
 {
@@ -368,7 +368,7 @@ int bypass_client_broadcast(struct connection *c,
 }
 
 /* BLOCKING */
-int bypass_server_start(struct sockaddr_in *server_sockaddr,
+static int bypass_server_start(struct sockaddr_in *server_sockaddr,
                         struct ibv_context *context,
                         struct ibv_pd *pd,
                         struct ibv_mr *mr,
