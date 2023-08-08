@@ -603,7 +603,7 @@ int ConnectionExchanger::setup_tofino(){
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
-    bypass::bypass_client_connect(*addr_tofino, 
+    bypass::bypass_client_connect(&addr_tofino, 
                           rc.get_cm_id()->verbs, 
                           rc.get_pd(),
                           &mr,
@@ -619,7 +619,7 @@ int ConnectionExchanger::setup_tofino(){
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
-    bypass::bypass_server_start(*my_addr, 
+    bypass::bypass_server_start(&my_addr, 
                           rc.get_cm_id()->verbs, 
                           rc.get_pd(),
                           &mr,
