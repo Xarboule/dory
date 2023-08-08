@@ -61,6 +61,7 @@ class DoryConnectionConan(ConanFile):
 
     def package(self):
         self.copy("*.hpp", dst="include/dory/conn", src="src")
+        self.copy("*.h", dst="include/dory/conn", src="src")
         self.copy("*.a", dst="lib", keep_path=False)
         self.copy("*.so", dst="lib", keep_path=False)
 
