@@ -204,7 +204,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     //ce qui causerait la perte de certaines requêtes
     //donc on vérifie de temps en temps que le leader n'a pas changé
     //(par contre, ce n'est pas dans le while. Peut-être que comme on attend pas souvent,
-    // c'est plus pertinent de regarder entre deux séries d'envois )
+    // c'est plus pertinent de regarder entre deux séries d'envoies )
     loops = (loops + 1) & mask;
     if (loops == 0) {
       auto ldr = leader.load();
