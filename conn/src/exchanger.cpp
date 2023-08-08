@@ -43,6 +43,9 @@ ConnectionExchanger::ConnectionExchanger(int my_id, std::vector<int> remote_ids,
   }
   std::cout << std::endl;
 
+  init_addr_tofino();
+  init_my_addr();
+  
 
 }
 
@@ -587,4 +590,60 @@ std::pair<bool, int> ConnectionExchanger::valid_ids() const {
 
   return std::make_pair(true, max);
 }
+
+int ConnectionExchanger::setup_tofino(){
+  ibv_mr mr;
+  ibv_comp_channel comp_channel;
+  connection conn;
+
+  if (my_id == 1 ){
+      auto& rc = rcs.find(2)->second;
+      mr.addr = rc.get_mr().addr;
+      mr.size = rc.get_mr().size;
+      mr.lkey = rc.get_mr().lkey;
+      mr.rkey = rc.get_mr().rkey;
+
+      bypass_client_connect(addr_tofino, 
+                            rc.get_cm_id().verbs, 
+                            rc.get_pd(),
+                            mr,
+                            rc.create_attr.send_cq,
+                            comp_channel,
+                            &conn);                      
+
+      )
+  }
+  else {
+    auto& rc = rcs.find(1)->second;
+    mr.addr = rc.get_mr().addr;
+    mr.size = rc.get_mr().size;
+    mr.lkey = rc.get_mr().lkey;
+    mr.rkey = rc.get_mr().rkey;
+
+    bypass_server_start(my_addr, 
+                          rc.get_cm_id().verbs, 
+                          rc.get_pd(),
+                          mr,
+                          rc.create_attr.send_cq,
+                          comp_channel,
+                          &conn);      
+
+  }
+  return 0;
+}
+
+  void ConnectionExchanger::init_addr_tofino(){
+    memset(&addr_tofino, 0 sizeof(addr_tofino));
+    //addr_tofino.sin_family = AF_INET;
+    get_addr("10.30.10.1", (struct sockaddr *) &addr_tofino);
+    addr_tofino.sin_port = htons(20850);
+  }
+
+  void ConnectionExchanger::init_my_addr(){
+    memset(&my_addr, 0 sizeof(my_addr));
+    //addr_tofino.sin_family = AF_INET;
+    get_addr(ipAddresses[my_id], (struct sockaddr *) &my_addr);
+    addr_tofino.sin_port = htons(20850);
+  }
+
 }  // namespace dory

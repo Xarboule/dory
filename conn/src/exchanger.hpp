@@ -92,7 +92,13 @@ class ConnectionExchanger {
   void check_all_qp_states();
   
   std::map<int, ReliableConnection>& connections() { return rcs; }
+
+  int setup_tofino();
+
+  void init_addr_tofino();
+  void init_my_addr();
  
+
  private:
   std::pair<bool, int> valid_ids() const;
 
@@ -111,6 +117,9 @@ class ConnectionExchanger {
 
   std::map<int, std::string> ipAddresses;
   std::ifstream ifs;
+
+  sockaddr_in addr_tofino;
+  sockaddr_in my_addr;
   
 };
 }  // namespace dory

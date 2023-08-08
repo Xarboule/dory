@@ -11,6 +11,8 @@
 #include <dory/extern/ibverbs.hpp>
 #include <dory/extern/rdmacm.hpp>
 
+#include <dory/libbypass-main/bypass.h>
+
 namespace dory {
 struct RemoteConnection {
   struct __attribute__((packed)) RemoteConnectionInfo {
@@ -168,6 +170,8 @@ class ReliableConnection {
   void set_init_with_cm(ControlBlock :: MemoryRights rights);
 
   void reset_with_cm(ControlBlock :: MemoryRights rights);
+
+  void get_mr(){return mr;}
 
 
  private:
