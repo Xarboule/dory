@@ -642,7 +642,7 @@ int ConnectionExchanger::setup_tofino(){
     memset(&my_addr, 0, sizeof(my_addr));
     //addr_tofino.sin_family = AF_INET;
     get_addr(ipAddresses[my_id], (struct sockaddr *)&my_addr);
-    addr_tofino.sin_port = htons(20850);
+    my_addr.sin_port = htons(20850);
   }
 
 }  // namespace dory
