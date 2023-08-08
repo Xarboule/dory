@@ -190,7 +190,9 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     //si on ne peut plus avancer,  
     while (!qw.canContinueWithOutstanding(outstanding_req, next_req_id)) {
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
-      std::cout << "La QW de fastWrite attend que les WRITE finissent !" << std::endl;
+      if (num == 0) {
+        std::cout << "La QW de fastWrite attend que les WRITE finissent !" << std::endl;
+      }
       if (num >= 0) {
         if (!qw.fastConsume(entries, num, expected_nr)) {
           return false;

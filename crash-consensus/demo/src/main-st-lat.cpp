@@ -147,7 +147,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       auto [id_posted, id_replicated] = consensus.proposedReplicatedRange();
       (void)id_posted;
 
-      std::cout << "id_posted : " << id_posted << "; id_replicated :" << id_replicated << std::endl;
+      //std::cout << "id_posted : " << id_posted << "; id_replicated :" << id_replicated << std::endl;
 
       timestamps_ranges[i] = std::make_pair(int(id_replicated - offset), loop_time);
     }
