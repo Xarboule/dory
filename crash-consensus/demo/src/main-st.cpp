@@ -150,7 +150,6 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     GET_TIMESTAMP(end_meas);
     
     double n_commands = static_cast<double>(times);
-
     double elapsed_time = static_cast<double>(ELAPSED_NSEC(start_meas, end_meas));
     double time_per_op = elapsed_time / n_commands;
     double throughput = n_commands*payload_size/elapsed_time  * 1000 *1000 *1000 /1024 /1024/1024; 
