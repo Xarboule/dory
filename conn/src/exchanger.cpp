@@ -594,7 +594,7 @@ std::pair<bool, int> ConnectionExchanger::valid_ids() const {
 int ConnectionExchanger::setup_tofino(){
   ibv_mr mr;
   ibv_comp_channel comp_channel;
-  connection conn;
+  bypass::connection conn;
 
   if (my_id == 1 ){
       auto& rc = rcs.find(2)->second;
@@ -603,7 +603,7 @@ int ConnectionExchanger::setup_tofino(){
       mr.lkey = rc.get_mr().lkey;
       mr.rkey = rc.get_mr().rkey;
 
-      bypass_client_connect(addr_tofino, 
+      bypass::bypass_client_connect(addr_tofino, 
                             rc.get_cm_id().verbs, 
                             rc.get_pd(),
                             mr,
@@ -611,7 +611,7 @@ int ConnectionExchanger::setup_tofino(){
                             comp_channel,
                             &conn);                      
 
-      )
+
   }
   else {
     auto& rc = rcs.find(1)->second;
@@ -620,7 +620,7 @@ int ConnectionExchanger::setup_tofino(){
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
-    bypass_server_start(my_addr, 
+    bypass::bypass_server_start(my_addr, 
                           rc.get_cm_id().verbs, 
                           rc.get_pd(),
                           mr,
