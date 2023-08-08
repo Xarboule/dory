@@ -615,7 +615,7 @@ int ConnectionExchanger::setup_tofino(){
   else {
     auto& rc = rcs.find(1)->second;
     mr.addr = (void*)rc.get_mr().addr;
-    mr.size = rc.get_mr().size;
+    mr.length = rc.get_mr().size;
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
