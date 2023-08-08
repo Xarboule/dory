@@ -11,7 +11,7 @@
 #include <dory/extern/ibverbs.hpp>
 #include <dory/extern/rdmacm.hpp>
 
-#include <dory/libbypass-main/bypass.h>
+#include "../../libbypass-main/bypass.h"
 
 namespace dory {
 struct RemoteConnection {
