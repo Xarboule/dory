@@ -173,7 +173,7 @@ class ReliableConnection {
 
   void get_mr(){return mr;}
 
-
+  void get_create_att(){return create_attr;  }
  private:
   bool post_send(ibv_send_wr &wr);
 

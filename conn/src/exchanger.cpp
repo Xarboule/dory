@@ -597,35 +597,34 @@ int ConnectionExchanger::setup_tofino(){
   bypass::connection conn;
 
   if (my_id == 1 ){
-      auto& rc = rcs.find(2)->second;
-      mr.addr = rc.get_mr().addr;
-      mr.size = rc.get_mr().size;
-      mr.lkey = rc.get_mr().lkey;
-      mr.rkey = rc.get_mr().rkey;
+    auto& rc = rcs.find(2)->second;
+    mr.addr = rc.get_mr()->addr;
+    mr.size = rc.get_mr()->size;
+    mr.lkey = rc.get_mr()->lkey;
+    mr.rkey = rc.get_mr()->rkey;
 
-      bypass::bypass_client_connect(addr_tofino, 
-                            rc.get_cm_id().verbs, 
-                            rc.get_pd(),
-                            mr,
-                            rc.create_attr.send_cq,
-                            comp_channel,
-                            &conn);                      
-
+    bypass::bypass_client_connect(addr_tofino, 
+                          rc.get_cm_id()->verbs, 
+                          rc.get_pd(),
+                          &mr,
+                          rc.get_create_attr().send_cq,
+                          &comp_channel,
+                          &conn);                      
 
   }
   else {
     auto& rc = rcs.find(1)->second;
-    mr.addr = rc.get_mr().addr;
-    mr.size = rc.get_mr().size;
-    mr.lkey = rc.get_mr().lkey;
-    mr.rkey = rc.get_mr().rkey;
+    mr.addr = rc.get_mr()->addr;
+    mr.size = rc.get_mr()->size;
+    mr.lkey = rc.get_mr()->lkey;
+    mr.rkey = rc.get_mr()->rkey;
 
     bypass::bypass_server_start(my_addr, 
-                          rc.get_cm_id().verbs, 
+                          rc.get_cm_id()->verbs, 
                           rc.get_pd(),
-                          mr,
-                          rc.create_attr.send_cq,
-                          comp_channel,
+                          &mr,
+                          rc.get_create_attr().send_cq,
+                          &comp_channel,
                           &conn);      
 
   }
@@ -633,16 +632,16 @@ int ConnectionExchanger::setup_tofino(){
 }
 
   void ConnectionExchanger::init_addr_tofino(){
-    memset(&addr_tofino, 0 sizeof(addr_tofino));
+    memset(&addr_tofino, 0, sizeof(addr_tofino));
     //addr_tofino.sin_family = AF_INET;
-    get_addr("10.30.10.1", (struct sockaddr *) &addr_tofino);
+    get_addr("10.30.10.1", static_cast<struct sockaddr *>(&addr_tofino));
     addr_tofino.sin_port = htons(20850);
   }
 
   void ConnectionExchanger::init_my_addr(){
-    memset(&my_addr, 0 sizeof(my_addr));
+    memset(&my_addr, 0, sizeof(my_addr));
     //addr_tofino.sin_family = AF_INET;
-    get_addr(ipAddresses[my_id], (struct sockaddr *) &my_addr);
+    get_addr(ipAddresses[my_id], static_cast<struct sockaddr *>(&my_addr));
     addr_tofino.sin_port = htons(20850);
   }
 
