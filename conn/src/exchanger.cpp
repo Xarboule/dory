@@ -598,8 +598,8 @@ int ConnectionExchanger::setup_tofino(){
 
   if (my_id == 1 ){
     auto& rc = rcs.find(2)->second;
-    mr.addr = rc.get_mr().addr;
-    mr.size = rc.get_mr().size;
+    mr.addr = (void*)rc.get_mr().addr;
+    mr.length = rc.get_mr().size;
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
@@ -614,7 +614,7 @@ int ConnectionExchanger::setup_tofino(){
   }
   else {
     auto& rc = rcs.find(1)->second;
-    mr.addr = rc.get_mr().addr;
+    mr.addr = (void*)rc.get_mr().addr;
     mr.size = rc.get_mr().size;
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
