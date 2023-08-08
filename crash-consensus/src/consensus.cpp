@@ -219,7 +219,7 @@ void RdmaConsensus::run() {
   LOGGER_INFO(logger, "Waiting (5 sec) for all threads to start");
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
-  ce_replication.setup_tofino();
+  ce_replication->setup_tofino();
 
 }
 
