@@ -499,8 +499,15 @@ void ReliableConnection :: setRCWithTofino(bypass::connection *conn){
   pd = conn->pd;
 
   auto qp = conn->qp;
-  std::cout << "qp copied" << std::endl;
+  std::cout << "qp copied : " << qp<< ";" << *qp << std::endl;
   
+  uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
+    auto ret = ibv_destroy_qp(qp);
+    if (ret != 0) {
+      throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
+    }
+  });
+
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     /*auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
