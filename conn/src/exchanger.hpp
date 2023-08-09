@@ -130,6 +130,7 @@ class ConnectionExchanger {
     Using std::map enables us to create the object RC when we want to 
   */
   std::map<int, ReliableConnection> pair_rc_tofino; 
+  bypass::connection conn_tof;
   
   
 };

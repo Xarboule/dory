@@ -594,7 +594,7 @@ std::pair<bool, int> ConnectionExchanger::valid_ids() const {
 int ConnectionExchanger::setup_tofino(){
   ibv_mr mr;
   ibv_comp_channel comp_channel;
-  bypass::connection conn;
+  memset(&conn_tof, 0, sizeof(conn_tof));
 
   int ret;
   if (my_id == 1 ){
@@ -615,7 +615,7 @@ int ConnectionExchanger::setup_tofino(){
                           &mr,
                           rc.get_create_attr().send_cq,
                           &comp_channel,
-                          &conn);                      
+                          &conn_tof);                      
     if (ret){  
       throw std::runtime_error("Bypass_client_connect failed");
     }
@@ -637,7 +637,7 @@ int ConnectionExchanger::setup_tofino(){
                           &mr,
                           rc.get_create_attr().send_cq,
                           &comp_channel,
-                          &conn);     
+                          &conn_tof);     
     
     if (ret){  
       throw std::runtime_error("Bypass_server_connect failed");
@@ -649,7 +649,7 @@ int ConnectionExchanger::setup_tofino(){
   */
   auto& rc_tofino = pair_rc_tofino.find(0)->second;
   std::cout << "Conn's qp seen from exchanger :" << conn.qp << std::endl;
-  rc_tofino.setRCWithTofino(&conn);
+  rc_tofino.setRCWithTofino(&conn_tof);
   rc_tofino.print_all_infos();
 
   return 0;

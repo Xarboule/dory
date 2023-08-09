@@ -197,6 +197,7 @@ class ReliableConnection {
   ControlBlock::MemoryRegion mr;
   deleted_unique_ptr<struct ibv_qp> uniq_qp;
 
+
   struct ibv_qp_init_attr create_attr;
   struct ibv_qp_attr conn_attr;   //normalement inutile 
   ControlBlock::MemoryRights init_rights;
