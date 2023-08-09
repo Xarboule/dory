@@ -10,7 +10,9 @@ Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
   switch (threadBank) {
     case ThreadBank::A:
       std::cout << "RdmaConsensus object created with default ThreadBank settings (A)" << std::endl;
-      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req);
+      
+      std:: cout << "RDMACONSENSUS with want_tofino = " << want_tofino << std::endl;
+      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req, want_tofino);
       break;
     case ThreadBank::B:
       std::cout << "RdmaConsensus object created with ThreadBank settings" << std::endl;
