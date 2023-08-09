@@ -127,7 +127,7 @@ class ConnectionExchanger {
     The int corresponds to the remote node to which the QP appears to be connected to
     And it's a way for us to decide when the RC object should be constructed 
   */
-  std::pair<int, <ReliableConnection>> pair_rc_tofino; 
+  std::pair<int, ReliableConnection> pair_rc_tofino; 
   
   
 };
