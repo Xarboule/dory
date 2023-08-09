@@ -55,7 +55,7 @@ class ConnectionExchanger {
 
   void connectLoopback(ControlBlock::MemoryRights rights);
   ReliableConnection& loopback() { return *(loopback_.get()); }
-  ReliableConnection& getTofinoRC(){return *(rc_tofino_.get()) }
+  ReliableConnection& getTofinoRC(){return *(rc_tofino_.get()); }
 
   void addLoopback_with_cm( std::string const& pd,
                             std::string const& mr,
