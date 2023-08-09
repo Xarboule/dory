@@ -254,13 +254,8 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
   wr_cached->wr.rdma.rkey = rconn.rci.rkey;
 
   struct ibv_send_wr *bad_wr = nullptr;
-  int ret;
-  if (uniq_qp == nullptr){
-    ret = ibv_post_send(direct_qp, wr_cached.get(), &bad_wr);
-  }
-  else {
-    ret = ibv_post_send(uniq_qp.get(), wr_cached.get(), &bad_wr);
-  }
+  
+  auto ret = ibv_post_send(uniq_qp.get(), wr_cached.get(), &bad_wr);
   if (bad_wr != nullptr) {
     LOGGER_DEBUG(logger, "Got bad wr with id: {}", bad_wr->wr_id);
     return false;
@@ -512,7 +507,7 @@ void ReliableConnection :: setRCWithTofino(bypass::connection *conn){
       throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
     }
   });
-  
+
   std::cout << "uniq_qp set up " << std::endl;
 
   mr.addr = (uintptr_t) conn->mr->addr;
