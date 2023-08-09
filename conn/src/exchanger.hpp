@@ -55,6 +55,7 @@ class ConnectionExchanger {
 
   void connectLoopback(ControlBlock::MemoryRights rights);
   ReliableConnection& loopback() { return *(loopback_.get()); }
+  ReliableConnection& getTofinoRC(){return *(rc_tofino_.get()) }
 
   void addLoopback_with_cm( std::string const& pd,
                             std::string const& mr,
@@ -93,8 +94,7 @@ class ConnectionExchanger {
   
   std::map<int, ReliableConnection>& connections() { return rcs; }
 
-  ReliableConnection &getTofinoRC(){return pair_rc_tofino.find(0)->second; }
-
+  
   int setup_tofino();
 
   void init_addr_tofino();
@@ -123,13 +123,7 @@ class ConnectionExchanger {
   sockaddr_in addr_tofino;
   sockaddr_in my_addr;
   
-  /*
-    The int corresponds to the remote node to which the QP appears to be connected to
-    We don't use it for now because we hardcode each node's behavior regarding the tofino
-
-    Using std::map enables us to create the object RC when we want to 
-  */
-  std::map<int, ReliableConnection> pair_rc_tofino; 
+  std::unique_ptr<ReliableConnection> rc_tofino_; 
   bypass::connection conn_tof;
   
   

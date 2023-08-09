@@ -596,12 +596,11 @@ int ConnectionExchanger::setup_tofino(){
   ibv_comp_channel comp_channel;
   memset(&conn_tof, 0, sizeof(conn_tof));
 
+  rc_tofino_ = std::make_unique<ReliableConnection>(cb);
+  
   int ret;
   if (my_id == 1 ){
-    pair_rc_tofino.insert(
-      std::pair<int, ReliableConnection>(2, ReliableConnection(cb)));
     std::this_thread::sleep_for(std::chrono::seconds(3)); //give the servers some time to listen
-    
     //let's fetch the informations about one of our QP 
     auto& rc = rcs.find(2)->second;
     mr.addr = (void*)rc.get_mr().addr;
@@ -621,10 +620,6 @@ int ConnectionExchanger::setup_tofino(){
     }
   }
   else {
-    pair_rc_tofino.insert(
-      std::pair<int, ReliableConnection>(1, ReliableConnection(cb)));
-
-
     auto& rc = rcs.find(1)->second;
     mr.addr = (void*)rc.get_mr().addr;
     mr.length = rc.get_mr().size;
@@ -647,10 +642,9 @@ int ConnectionExchanger::setup_tofino(){
   /*The functions of bypass.h take care of creating the QP and setting everything up
     We now need to set up the rc_tofino from conn. 
   */
-  auto& rc_tofino = pair_rc_tofino.find(0)->second;
   std::cout << "conn_tof's qp seen from exchanger :" << conn_tof.qp << std::endl;
-  rc_tofino.setRCWithTofino(&conn_tof);
-  rc_tofino.print_all_infos();
+  rc_tofino_->setRCWithTofino(&conn_tof);
+  rc_tofino_->print_all_infos();
 
   return 0;
 }
