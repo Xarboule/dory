@@ -648,6 +648,7 @@ int ConnectionExchanger::setup_tofino(){
     We now need to set up the rc_tofino from conn. 
   */
   auto& rc_tofino = pair_rc_tofino.find(0)->second;
+  std::cout << "Conn's qp seen from exchanger :" << conn->qp << std::endl;
   rc_tofino.setRCWithTofino(&conn);
   rc_tofino.print_all_infos();
 
