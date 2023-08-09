@@ -107,6 +107,9 @@ class Devices {
 namespace dory {
 class ResolvedPort {
  public:
+
+  ResolvedPort();
+
   ResolvedPort(OpenDevice &od);
 
   /**
