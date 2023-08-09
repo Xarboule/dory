@@ -499,7 +499,7 @@ void ReliableConnection :: setRCWithTofino(bypass::connection *conn){
   pd = conn->pd;
 
   auto qp = conn->qp;
-  std::cout << "qp copied : " << qp<< ";" << *qp << std::endl;
+  std::cout << "qp copied : " << qp << std::endl;
   
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
