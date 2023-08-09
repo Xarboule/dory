@@ -93,7 +93,7 @@ class ConnectionExchanger {
   
   std::map<int, ReliableConnection>& connections() { return rcs; }
 
-  ReliableConnection getTofinoRC(){return rc_tofino; }
+  ReliableConnection &getTofinoRC(){return rc_tofino; }
 
   int setup_tofino();
 

@@ -8,7 +8,8 @@
 namespace dory {
 
 //a default constructor that is only used for the RC of tofino
-ReliableConnection::ReliableConnection(){}
+ReliableConnection::ReliableConnection() 
+    : pd{nullptr}, LOGGER_INIT(logger, "RC"){}
 
 ReliableConnection::ReliableConnection(ControlBlock &cb)
     : cb{cb}, pd{nullptr}, LOGGER_INIT(logger, "RC") {
