@@ -369,7 +369,7 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
     throw std::runtime_error("rdma_listen failed to listen on server address");
 		return;
 	}
-	printf("Server is listening successfully at: %s , port: %d",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
+	printf("Server is listening successfully at: %s , port: %d\n",inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
   
   while(1){
     ret = process_rdma_cm_event(rc.get_event_channel(),RDMA_CM_EVENT_CONNECT_REQUEST,&cm_event);
