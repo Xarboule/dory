@@ -5,7 +5,7 @@
 
 namespace dory {
 Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
-                     int outstanding_req, ThreadBank threadBank) {
+                     bool want_tofino, int outstanding_req, ThreadBank threadBank) {
   ConsensusConfig::ThreadConfig config;
   switch (threadBank) {
     case ThreadBank::A:
@@ -19,7 +19,7 @@ Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
       config.heartbeatThreadCoreID = ConsensusConfig::heartbeatThreadBankB_ID;
       config.followerThreadCoreID = ConsensusConfig::followerThreadBankB_ID;
       config.prefix = "Secondary-";
-      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req,config);
+      impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req, want_tofino, config);
       break;
     default:
       throw std::runtime_error("Unreachable, software bug");
