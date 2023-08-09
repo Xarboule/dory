@@ -222,6 +222,7 @@ void RdmaConsensus::run() {
   LOGGER_INFO(logger, "Waiting (5 sec) for all threads to start");
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
+  std::cout << "Use tofino in consensus : " << use_tofino << std::endl;
   if (use_tofino){
     std::cout << "Seting up tofino" << std::endl;
     ce_replication->setup_tofino();

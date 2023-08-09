@@ -33,7 +33,7 @@ class RdmaConsensus {
  public:
   RdmaConsensus(int my_id, std::vector<int> &remote_ids,
                 int outstanding_req = 0,
-                bool want_tofino,
+                bool want_tofino = false,
                 ConsensusConfig::ThreadConfig threadConfig =
                     ConsensusConfig::ThreadConfig());
   ~RdmaConsensus();
