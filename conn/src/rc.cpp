@@ -497,7 +497,7 @@ void ReliableConnection :: reset_with_cm(ControlBlock :: MemoryRights rights){
   return;
 }
 
-void setRCWithTofino(bypass::connection *conn){
+void ReliableConnection :: setRCWithTofino(bypass::connection *conn){
   cm_event_channel = conn->cm_event_channel;
   cm_id = conn->cm_id;
   pd = conn->pd;
@@ -515,7 +515,7 @@ void setRCWithTofino(bypass::connection *conn){
   mr.lkey = conn->mr->lkey;
   mr.rkey = conn->mr->rkey;
   
-  rconn.rci.buf_addr = (uintptr_t)conn->remote_buffer_info.buf_addr;
+  rconn.rci.buf_addr = (uintptr_t)conn->remote_buffer_info.address;
   rconn.rci.buf_size = conn->remote_buffer_info.length;
   rconn.rci.rkey = conn->remote_buffer_info.stag.local_stag;
 
