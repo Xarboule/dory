@@ -125,7 +125,9 @@ class ConnectionExchanger {
   
   /*
     The int corresponds to the remote node to which the QP appears to be connected to
-    And it's a way for us to decide when the RC object should be constructed 
+    We don't use it for now because we hardcode each node's behavior regarding the tofino
+
+    Using std::map enables us to create the object RC when we want to 
   */
   std::map<int, ReliableConnection> pair_rc_tofino; 
   
