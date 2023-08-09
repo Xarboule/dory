@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   for (auto i : remote_ids){
     std::cout << i;
   }
-  std::endl;
+  std::cout << std::endl;
 
   const int times =  static_cast<int>(1.5 * 1024) * 1024 * 1024 / (payload_size + 64);
   benchmark(id, remote_ids, times, payload_size, outstanding_req,dory::ThreadBank::A, want_tofino);
