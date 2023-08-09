@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
 void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
                int outstanding_req, dory::ThreadBank threadBank) {
-  dory::Consensus consensus(id, remote_ids, outstanding_req, threadBank);
+  dory::Consensus consensus(id, remote_ids, outstanding_req, false, threadBank);
   consensus.commitHandler([]([[maybe_unused]] bool leader,
                              [[maybe_unused]] uint8_t* buf,
                              [[maybe_unused]] size_t len) {});
