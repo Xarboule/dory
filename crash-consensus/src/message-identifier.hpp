@@ -36,7 +36,7 @@ enum Kind : uint64_t {
 
   RecyclingDone = 9,
 
-  TofinoWr = 10;
+  TofinoWr = 10,
 
   MAX = 15
 };
