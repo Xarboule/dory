@@ -71,6 +71,7 @@ template <class ID> class SerialQuorumWaiter {
 
   inline quorum::Kind kindOfOp() { return kind; }
 
+
  private:
   quorum::Kind kind; //le genre d'opération, renseigné dans la wr_id
   std::vector<ID> scoreboard;
@@ -159,9 +160,6 @@ class FailureTracker {
     return false;
   }
 
-  quorum::Kind getTofKind(){return tof_kind;}
-
-  static quorum::Kind tof_kind;
 
  private:
   quorum::Kind kind;

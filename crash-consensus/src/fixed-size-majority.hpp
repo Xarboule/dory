@@ -168,7 +168,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
       auto& tofino_rc = ctx->ce.getTofinoRC();
       auto ok = tofino_rc.postSendSingleCached(
           ReliableConnection::RdmaWrite,
-          QuorumWaiter::packer(qw.getTofKind() , 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
+          QuorumWaiter::packer( quorum::TofinoWr, 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
           static_cast<uint32_t>(size),
           tofino_rc.remoteBuf() + to_remote_memories[2] + offset);
       if (!ok) {
