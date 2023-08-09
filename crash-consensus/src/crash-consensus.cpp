@@ -19,6 +19,7 @@ Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
       config.heartbeatThreadCoreID = ConsensusConfig::heartbeatThreadBankB_ID;
       config.followerThreadCoreID = ConsensusConfig::followerThreadBankB_ID;
       config.prefix = "Secondary-";
+      std:: cout << "RDMACONSENSUS with want_tofino = " << want_tofino << std::endl;
       impl = std::make_unique<RdmaConsensus>(my_id, remote_ids, outstanding_req, want_tofino, config);
       break;
     default:
