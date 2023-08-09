@@ -159,6 +159,7 @@ class FailureTracker {
     return false;
   }
 
+  quorum::Kind getTofKind(){return tof_kind;}
 
   static quorum::Kind tof_kind;
 
