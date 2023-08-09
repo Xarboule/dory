@@ -8,7 +8,7 @@
 namespace dory {
 
 ReliableConnection::ReliableConnection(ControlBlock &cb)
-    : cb{cb}, pd{nullptr}, LOGGER_INIT(logger, "RC") {
+    : cb{cb}, pd{nullptr}, uniq_qp{nullptr}, LOGGER_INIT(logger, "RC") {
   memset(&create_attr, 0, sizeof(struct ibv_qp_init_attr));
   create_attr.qp_type = IBV_QPT_RC;
   create_attr.cap.max_send_wr = WRDepth;
