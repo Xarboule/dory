@@ -498,13 +498,16 @@ void ReliableConnection :: setRCWithTofino(bypass::connection *conn){
   cm_id = conn->cm_id;
   pd = conn->pd;
 
-  auto qp = cm_id->qp;
+  auto qp = conn->qp;
+  std::cout << "qp copied" << std::endl;
+  
   uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
     auto ret = ibv_destroy_qp(qp);
     if (ret != 0) {
       throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
     }
   });
+  std::cout << "uniq_qp set up " << std::endl;
 
   mr.addr = (uintptr_t) conn->mr->addr;
   mr.size = (uint64_t) conn->mr->length;
