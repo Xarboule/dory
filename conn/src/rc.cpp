@@ -8,7 +8,7 @@
 namespace dory {
 
 ReliableConnection::ReliableConnection(ControlBlock &cb)
-    : cb{cb}, pd{nullptr}, uniq_qp{nullptr}, LOGGER_INIT(logger, "RC") {
+    : cb{cb}, pd{nullptr}, LOGGER_INIT(logger, "RC") {
   memset(&create_attr, 0, sizeof(struct ibv_qp_init_attr));
   create_attr.qp_type = IBV_QPT_RC;
   create_attr.cap.max_send_wr = WRDepth;
@@ -238,8 +238,8 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
                                               uintptr_t remote_addr) {
   //printf("ATTENTION : postSendSingleCached() appelé\n");
-  wr_cached.get()->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
-  wr_cached.get()->sg_list->length = len;
+  wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
+  wr_cached->sg_list->length = len;
 
   wr_cached->wr_id = req_id;
   wr_cached->opcode = static_cast<enum ibv_wr_opcode>(req);

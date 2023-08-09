@@ -166,7 +166,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     if (use_tofino){
       //posting a single WR to the QP connected to the tofino
       auto& tofino_rc = ctx->ce.getTofinoRC();
-      auto ok = tofino_rc.postSendSingleCached(
+      auto ok = tofino_rc.postSendSingle(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer( quorum::TofinoWr, 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
           static_cast<uint32_t>(size), //si on enlève le hardcodage, alors il faut utiliser le pid associé à rc_tofino (dans CE)
