@@ -68,7 +68,7 @@ class RdmaConsensus {
     SlowPathLogRecycled
   };
 
-  void isTofinoUsed(){return use_tofino;}
+  bool isTofinoUsed(){return use_tofino;}
 
 
  private:
