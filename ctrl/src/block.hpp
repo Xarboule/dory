@@ -37,6 +37,8 @@ class ControlBlock {
 
   static constexpr int CQDepth = 128;
 
+  ControlBlock();
+
   ControlBlock(ResolvedPort &resolved_port);
 
   void registerPD(std::string name);

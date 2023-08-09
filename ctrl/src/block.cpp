@@ -5,6 +5,9 @@
 #include "device.hpp"
 
 namespace dory {
+ControlBlock::ControlBlock()
+    : LOGGER_INIT(logger, "CB") {}
+
 ControlBlock::ControlBlock(ResolvedPort &resolved_port)
     : resolved_port{resolved_port}, LOGGER_INIT(logger, "CB") {}
 
