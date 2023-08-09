@@ -223,6 +223,7 @@ void RdmaConsensus::run() {
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
   if (use_tofino){
+    std::cout << "Seting up tofino" << std::endl;
     ce_replication->setup_tofino();
   }
 }
