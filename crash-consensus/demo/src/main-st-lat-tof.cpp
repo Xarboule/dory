@@ -16,7 +16,7 @@
 #include "timers.h"
 
 void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
-               int outstanding_req, dory::ThreadBank threadBank);
+               int outstanding_req, dory::ThreadBank threadBank, bool want_tofino);
 
 int main(int argc, char* argv[]) {
   if (argc < 5) {
