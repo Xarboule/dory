@@ -648,8 +648,8 @@ int ConnectionExchanger::setup_tofino(){
     We now need to set up the rc_tofino from conn. 
   */
   auto& rc_tofino = pair_rc_tofino.find(0)->second;
-  rc_tofino->setRCWithTofino(&conn);
-  rc_tofino->print_all_infos();
+  rc_tofino.setRCWithTofino(&conn);
+  rc_tofino.print_all_infos();
 
   return 0;
 }
