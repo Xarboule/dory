@@ -159,7 +159,8 @@ class FailureTracker {
     return false;
   }
 
-  
+
+  static quorum::Kind tof_kind;
 
  private:
   quorum::Kind kind;
@@ -169,6 +170,5 @@ class FailureTracker {
   uint64_t track_id;
   int failed;
 
-  static quorum::kind tof_kind;
 };
 }  // namespace dory

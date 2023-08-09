@@ -10,7 +10,7 @@
 
 namespace dory {
 
-quorum::kind tof_kind = TofinoWr;
+quorum::Kind tof_kind = TofinoWr;
 
 template <class ID> SerialQuorumWaiter<ID>::SerialQuorumWaiter(quorum::Kind kind,
                                            std::vector<int>& remote_ids,
