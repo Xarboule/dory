@@ -238,9 +238,9 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
                                               uintptr_t remote_addr) {
   //printf("ATTENTION : postSendSingleCached() appelé\n");
-  std::cout << wr_cached;
-  std::cout << wr_cached->sg_list;
-  std::cout << wr_cached->sg_list->addr;
+  std::cout << (void*)wr_cached;
+  std::cout << (void*)wr_cached->sg_list;
+  std::cout << (void*)wr_cached->sg_list->addr;
   wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
   wr_cached->sg_list->length = len;
 
