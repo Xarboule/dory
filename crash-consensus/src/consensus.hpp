@@ -33,6 +33,7 @@ class RdmaConsensus {
  public:
   RdmaConsensus(int my_id, std::vector<int> &remote_ids,
                 int outstanding_req = 0,
+                bool want_tofino = false,
                 ConsensusConfig::ThreadConfig threadConfig =
                     ConsensusConfig::ThreadConfig());
   ~RdmaConsensus();
@@ -66,6 +67,9 @@ class RdmaConsensus {
     FollowerMode,
     SlowPathLogRecycled
   };
+
+  void isTofinoUsed(){return use_tofino;}
+
 
  private:
   void spawn_follower();
@@ -144,6 +148,8 @@ class RdmaConsensus {
 
   std::atomic<bool> ask_reset;
   int outstanding_req;
+
+  bool use_tofino; 
 
  public:
   ConsensusConfig::ThreadConfig threadConfig;

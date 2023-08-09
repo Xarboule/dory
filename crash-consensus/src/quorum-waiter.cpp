@@ -38,7 +38,7 @@ template <class ID> void SerialQuorumWaiter<ID>::reset(ID next) {
   for (auto& elem : scoreboard) {
     elem = next - modulo;
   }
-
+  left = quorum_size; //added. (forgotten in source code ? )
   next_id = next;
 }
 
@@ -103,24 +103,20 @@ template <class ID> bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct 
     } else {
       auto [k, pid, seq] = quorum::unpackAll<int, ID>(entry.wr_id);
 
-      if (k != kind) {
-/*#ifndef NDEBUG
-        std::cout << "Received unexpected (" << quorum::type_str(k)
-                  << " instead of " << quorum::type_str(kind) << ")"
-                  << " message from the completion queue, concerning process "
-                  << pid << std::endl;
-#endif
-*/
+      std::cout << "In fastConsume(), we just processed : "
+          <<"[" << quorum::type_str(k)    << "," << pid << "," << seq <<"] and we expected" 
+          <<"[" << quorum::type_str(kind) << "," << pid << "," << next_id << "]." << std::endl; 
+          
+      if (k != kind && k == quorum::Kind TofinoWr){
+        //such a WC means that the Write worked for all the nodes, so we update all 
+        // Question : is using reset() ok ? 
+        reset(next_id + modulo);              
+
         continue;
       }
-/*
-#ifndef NDEBUG
-      if (seq != next_id) {
-        std::cout << "Received remnant (" << seq << " instead of " << next_id
-                  << ") message from the completion queue, concerning process "
-                  << pid << std::endl;
+      else if (k != kind) { 
+        continue;
       }
-#endif*/
 
       auto current_seq = scoreboard[pid];
       scoreboard[pid] = current_seq + modulo == seq ? seq : 0;

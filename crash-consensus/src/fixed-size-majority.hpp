@@ -156,38 +156,48 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
   //fastWrite (avec un leader)
   bool fastWrite(void *from_local_memory, size_t size,
                  std::vector<uintptr_t> &to_remote_memories, uintptr_t offset,
-                 std::atomic<Leader> &leader, int outstanding_req) {
+                 std::atomic<Leader> &leader, int outstanding_req, 
+                 bool use_tofino) {
     IGNORE(leader);
 
     auto req_id = qw.fetchAndIncFastID();
     auto next_req_id = qw.nextFastReqID();
 
-    //on poste nos write 
+    if (use_tofino){
+      //posting a single WR to the QP connected to the tofino
+      auto tofino_rc = ctx->ce.getTofinoRC();
+      auto ok = tofino_rc.postSendSingleCached(
+          ReliableConnection::RdmaWrite,
+          QuorumWaiter::packer(quorum::Kind TofinoWr , 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
+          static_cast<uint32_t>(size),
+          tofino_rc.remoteBuf() + to_remote_memories[2] + offset);
+      if (!ok) {
+        throw std::runtime_error("Posting to tofino_rc failed failed");
+      }
+
+    }
+    else{
+    //posting the WR to the QPs
     for (auto &c : connections) {
       auto ok = c.rc->postSendSingleCached(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
           static_cast<uint32_t>(size),
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset);
-
-
-      //std::cout << "State of the QP is juste posted to in fastWrite: " << c.rc->query_qp_state() << std::endl;
-
       if (!ok) {
         return false;
       }
 
     }
-   
+    }
 
-    int expected_nr = outstanding_req * replicas_size + quorum_size; // pk  quorum_size ? outstanding*replicas_size devrait suffire
+    //if we use the tofino, we don't need to pull as many WC to continue forward
+    int expected_nr = use_tofino ? outstanding_req+1 : outstanding_req * replicas_size + quorum_size; 
     auto cq = ctx->cq.get();
     entries.resize(expected_nr);
     int num = 0;
-    int loops = 0;
-    constexpr unsigned mask = (1 << 14) - 1;  // Must be power of 2 minus 1
-
-    //si on ne peut plus avancer,  
+    
+    //if we can no longer send operations, than we process the WC received until the QW gives us a green light
     while (!qw.canContinueWithOutstanding(outstanding_req, next_req_id)) {
       num = ibv_poll_cq(cq, expected_nr, &entries[0]);
       
@@ -206,6 +216,9 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     //donc on vérifie de temps en temps que le leader n'a pas changé
     //(par contre, ce n'est pas dans le while. Peut-être que comme on attend pas souvent,
     // c'est plus pertinent de regarder entre deux séries d'envoies )
+    constexpr unsigned mask = (1 << 14) - 1;  // Must be power of 2 minus 1
+    int loops = 0;
+    
     loops = (loops + 1) & mask;
     if (loops == 0) {
       auto ldr = leader.load();
@@ -213,7 +226,6 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
         return false;
       }
     }
-
     range_start = req_id;
     range_end = qw.reqID();
         

@@ -36,6 +36,8 @@ enum Kind : uint64_t {
 
   RecyclingDone = 9,
 
+  TofinoWr = 10;
+
   MAX = 15
 };
 
@@ -49,7 +51,8 @@ enum Kind : uint64_t {
       {Kind::EntryWr, "Kind::EntryWr"},
       {Kind::LeaderReqWr, "Kind::LeaderReqWr"},
       {Kind::LeaderGrantWr, "Kind::LeaderGrantWr"},
-      {Kind::LeaderHeartbeat, "Kind::LeaderHeartbeat"}};
+      {Kind::LeaderHeartbeat, "Kind::LeaderHeartbeat"},
+      {Kind::TofinoWr, "Kind::TofinoWr"}};
   auto it = MyEnumStrings.find(k);
   return it == MyEnumStrings.end() ? "Out of range" : it->second;
 }

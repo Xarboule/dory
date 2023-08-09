@@ -94,6 +94,8 @@ class ReliableConnection {
   static constexpr int MaxInlining = 256;
   static constexpr uint32_t DefaultPSN = 3185;
 
+  ReliableConnection();
+
   ReliableConnection(ControlBlock &cb);
 
   void bindToPD(std::string pd_name);
@@ -175,6 +177,8 @@ class ReliableConnection {
  
   ibv_qp_init_attr get_create_attr(){return create_attr; }
 
+  void setRCWithTofino(bypass::connection *conn);
+
 
  private:
   bool post_send(ibv_send_wr &wr);
@@ -190,7 +194,7 @@ class ReliableConnection {
     return numToRound + multiple - remainder;
   }
 
-  ControlBlock &cb;   //?? 
+  ControlBlock &cb;   
   struct ibv_pd *pd;
   ControlBlock::MemoryRegion mr;
   deleted_unique_ptr<struct ibv_qp> uniq_qp;
@@ -203,8 +207,7 @@ class ReliableConnection {
   struct rdma_event_channel *cm_event_channel;
   struct rdma_cm_id *cm_listen_id;
   struct rdma_cm_id *cm_id;
-  //TO DO : add cm_id_listen et corriger le reste ;
-
+  
   RemoteConnection rconn;
   deleted_unique_ptr<struct ibv_send_wr> wr_cached;
   

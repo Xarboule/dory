@@ -6,6 +6,10 @@
 
 
 namespace dory {
+
+//a default constructor that is only used for the RC of tofino
+ReliableConnection::ReliableConnection(){}
+
 ReliableConnection::ReliableConnection(ControlBlock &cb)
     : cb{cb}, pd{nullptr}, LOGGER_INIT(logger, "RC") {
   memset(&create_attr, 0, sizeof(struct ibv_qp_init_attr));
@@ -137,103 +141,15 @@ void ReliableConnection :: set_init_with_cm(ControlBlock :: MemoryRights rights)
 
 void ReliableConnection::init(ControlBlock::MemoryRights rights) {
   printf("ATTENTION appel d'une fonction de RC qui change l'état: init() ==> ne fait rien  \n");
-  /*struct ibv_qp_attr init_attr;
-  memset(&init_attr, 0, sizeof(struct ibv_qp_attr));
-  init_attr.qp_state = IBV_QPS_INIT;
-  init_attr.pkey_index = 0;
-  init_attr.port_num = static_cast<uint8_t>(cb.port());
-  init_attr.qp_access_flags = rights;
-
-
-  auto ret = ibv_modify_qp(
-      uniq_qp.get(), &init_attr,
-      IBV_QP_STATE | IBV_QP_PKEY_INDEX | IBV_QP_PORT | IBV_QP_ACCESS_FLAGS);
-
-  if (ret != 0) {
-    throw std::runtime_error("Failed to bring conn QP to INIT: " +
-                             std::string(std::strerror(errno)));
-  }
-
-  init_rights = rights;
-*/
-
 }
 
 void ReliableConnection::reinit() { 
   printf("ATTENTION appel d'une fonction de RC interdite: reinit() ==> ne fait rien\n");
-  //init(init_rights); 
 }
 
 
 void ReliableConnection::connect(RemoteConnection &rc) {
   printf("ATTENTION appel d'une fonction de RC interdite: connect() ==> ne fait rien\n");
-  /*memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
-  conn_attr.qp_state = IBV_QPS_RTR;
-  conn_attr.path_mtu = IBV_MTU_4096;
-  conn_attr.rq_psn = DefaultPSN;
-
-  conn_attr.ah_attr.is_global = 0;
-  conn_attr.ah_attr.sl = 0;  // TODO: Igor has it to 1
-  conn_attr.ah_attr.src_path_bits = 0;
-  conn_attr.ah_attr.port_num = static_cast<uint8_t>(cb.port());
-
-  conn_attr.dest_qp_num = rc.rci.qpn;
-  // conn_attr.ah_attr.dlid = rc.rci.lid; //original mu code
-  conn_attr.ah_attr.dlid = 0;  // comme RoCE v2, pas besoin ?
-
-  conn_attr.max_dest_rd_atomic = 16;
-  conn_attr.min_rnr_timer = 12;
-
-  int rtr_flags = IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU | IBV_QP_DEST_QPN |
-                  IBV_QP_RQ_PSN | IBV_QP_MAX_DEST_RD_ATOMIC |
-                  IBV_QP_MIN_RNR_TIMER;
-
-  auto ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rtr_flags);
-  if (ret != 0) {
-    throw std::runtime_error("Failed to bring conn QP to RTR: " +
-                             std::string(std::strerror(errno)));
-  }
-
-  memset(&conn_attr, 0, sizeof(struct ibv_qp_attr));
-  conn_attr.qp_state = IBV_QPS_RTS;
-  conn_attr.sq_psn = DefaultPSN;
-
-  conn_attr.timeout = 14;
-  conn_attr.retry_cnt = 7;
-  conn_attr.rnr_retry = 7;
-  conn_attr.max_rd_atomic = 16;
-  conn_attr.max_dest_rd_atomic = 16;
-
-  int rts_flags = IBV_QP_STATE | IBV_QP_SQ_PSN | IBV_QP_TIMEOUT |
-                  IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY | IBV_QP_MAX_QP_RD_ATOMIC;
-
-  ret = ibv_modify_qp(uniq_qp.get(), &conn_attr, rts_flags);
-  if (ret != 0) {
-    throw std::runtime_error("Failed to bring conn QP to RTS: " +
-                             std::string(std::strerror(errno)));
-  }
-
-  rconn = rc;
-
-  // This has to happen here, because when the object is copied, the pointer
-  // breaks!
-  struct ibv_send_wr *wr_ = reinterpret_cast<ibv_send_wr *>(
-      aligned_alloc(64, roundUp(sizeof(ibv_send_wr), 64) + sizeof(ibv_sge)));
-  struct ibv_sge *sg_ = reinterpret_cast<ibv_sge *>(
-      reinterpret_cast<char *>(wr_) + roundUp(sizeof(ibv_send_wr), 64));
-
-  memset(sg_, 0, sizeof(*sg_));
-  memset(wr_, 0, sizeof(*wr_));
-
-  wr_->sg_list = sg_;
-  wr_->num_sge = 1;
-  wr_->send_flags |= IBV_SEND_SIGNALED;
-
-  sg_->lkey = mr.lkey;
-  wr_->wr.rdma.rkey = rconn.rci.rkey;
-
-  wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter);*/
-
 }
 
 bool ReliableConnection::needsReset() {
@@ -522,7 +438,7 @@ void ReliableConnection :: print_all_infos(){
   
   printf("======Informations about this rc ======\n");
   
-  printf("ControlBlock cb : %p \n", reinterpret_cast<void*>(&cb));
+  //printf("ControlBlock cb : %p \n", reinterpret_cast<void*>(&cb));
   
   printf("Protection Domain pd : %p \n", reinterpret_cast<void*>(pd));
   printf("\t pd-> context : %p \n", reinterpret_cast<void*>(pd->context));
@@ -534,11 +450,11 @@ void ReliableConnection :: print_all_infos(){
   printf("Queue pair uniq_qp : %p \n", reinterpret_cast<void*>(&uniq_qp));
   printf("\t qp-> context : %p \n", reinterpret_cast<void*>(uniq_qp->context));
   printf("\t qp-> pd : %p \n", reinterpret_cast<void*>(uniq_qp->pd));
-  printf("\t qp-> qp_num : %d \n",uniq_qp->qp_num);
+  //printf("\t qp-> qp_num : %d \n",uniq_qp->qp_num);
     //??
 
   printf("Remote connection rconn: %p \n", reinterpret_cast<void*>(&rconn));
-  printf("\t qpn : %d \n", rconn.rci.qpn );
+  //printf("\t qpn : %d \n", rconn.rci.qpn );
   printf("\t buff addr : %p \n",  reinterpret_cast<void*>(rconn.rci.buf_addr));
   //printf("\t buf size : %d \n",  rconn.rci.buf_size);
   printf("\t rkey : %d \n", rconn.rci.rkey);
@@ -578,6 +494,46 @@ void ReliableConnection :: reset_with_cm(ControlBlock :: MemoryRights rights){
   set_init_with_cm(rights);
 
   return;
+}
+
+void setRCWithTofino(bypass::connection *conn){
+  cm_event_channel = conn->cm_event_channel;
+  cm_id = conn->cm_id;
+  pd = conn->pd;
+
+  auto qp = cm_id->qp;
+  uniq_qp = deleted_unique_ptr<struct ibv_qp>(qp, [](struct ibv_qp *qp) {
+    auto ret = ibv_destroy_qp(qp);
+    if (ret != 0) {
+      throw std::runtime_error("Could not query device: " + std::string(std::strerror(errno)));
+    }
+  });
+
+  mr.addr = (uintptr_t) conn->mr->addr;
+  mr.size = (uint64_t) conn->mr->length;
+  mr.lkey = conn->mr->lkey;
+  mr.rkey = conn->mr->rkey;
+  
+  rconn.rci.buf_addr = (uintptr_t)conn->remote_buffer_info.buf_addr;
+  rconn.rci.buf_size = conn->remote_buffer_info.length;
+  rconn.rci.rkey = conn->remote_buffer_info.stag.local_stag;
+
+  // Copié-collé de la fin de la fonction connect() du code source, pour pouvoir utiliser SendSingleCached
+  struct ibv_send_wr *wr_ = reinterpret_cast<ibv_send_wr *>( aligned_alloc(64, roundUp(sizeof(ibv_send_wr), 64) + sizeof(ibv_sge)));
+  struct ibv_sge *sg_ = reinterpret_cast<ibv_sge *>( reinterpret_cast<char *>(wr_) + roundUp(sizeof(ibv_send_wr), 64));
+
+  memset(sg_, 0, sizeof(*sg_));
+  memset(wr_, 0, sizeof(*wr_));
+
+  wr_->sg_list = sg_;
+  wr_->num_sge = 1;
+  wr_->send_flags |= IBV_SEND_SIGNALED;
+
+  sg_->lkey = mr.lkey;
+  wr_->wr.rdma.rkey = rconn.rci.rkey;
+
+  wr_cached = deleted_unique_ptr<struct ibv_send_wr>(wr_, wr_deleter); 
+
 }
 
 }  // namespace dory

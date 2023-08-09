@@ -7,6 +7,7 @@
 namespace dory {
 RdmaConsensus::RdmaConsensus(int my_id, std::vector<int>& remote_ids,
                              int outstanding_req,
+                             bool want_tofino,
                              ConsensusConfig::ThreadConfig threadConfig)
     : my_id{my_id},
       remote_ids{remote_ids},
@@ -15,7 +16,8 @@ RdmaConsensus::RdmaConsensus(int my_id, std::vector<int>& remote_ids,
       outstanding_req{outstanding_req},
       threadConfig{threadConfig},
       store(threadConfig.prefix),
-      LOGGER_INIT(logger, ConsensusConfig::logger_prefix) {
+      LOGGER_INIT(logger, ConsensusConfig::logger_prefix),
+      use_tofino(want_tofino) {
   using namespace units;
 
   allocated_size = 2_GiB;
@@ -220,8 +222,9 @@ void RdmaConsensus::run() {
   LOGGER_INFO(logger, "Waiting (5 sec) for all threads to start");
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
-  ce_replication->setup_tofino();
-
+  if (use_tofino){
+    ce_replication->setup_tofino();
+  }
 }
 
 int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
@@ -251,7 +254,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
     //on écrit dans celui des autres
     auto ok = majW->fastWrite(address, size, to_remote_memory, offset, leader,
-                              outstanding_req);
+                              outstanding_req, use_tofino);
 
       
     if (likely(ok)) {
@@ -313,7 +316,7 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
       auto [address, offset, size] = slot.location();
 
       auto ok = majW->fastWrite(address, size, to_remote_memory, offset, leader,
-                                outstanding_req);
+                                outstanding_req, use_tofino);
 
       if (likely(ok)) {
         auto fuo = LogConfig::round_up_powerof2(offset + size);
@@ -610,4 +613,5 @@ int RdmaConsensus::propose(uint8_t* buf, size_t buf_len) {
 
   return ret_no_error();
 }
+
 }  // namespace dory

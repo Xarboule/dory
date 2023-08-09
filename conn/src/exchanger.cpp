@@ -596,22 +596,27 @@ int ConnectionExchanger::setup_tofino(){
   ibv_comp_channel comp_channel;
   bypass::connection conn;
 
+  int ret;
   if (my_id == 1 ){
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(3)); //give the servers some time to listen
+    
+    //let's fetch the informations about one of our QP 
     auto& rc = rcs.find(2)->second;
     mr.addr = (void*)rc.get_mr().addr;
     mr.length = rc.get_mr().size;
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
-    bypass::bypass_client_connect(&addr_tofino, 
+    ret=bypass::bypass_client_connect(&addr_tofino, 
                           rc.get_cm_id()->verbs, 
                           rc.get_pd(),
                           &mr,
                           rc.get_create_attr().send_cq,
                           &comp_channel,
                           &conn);                      
-
+    if (ret){  
+      throw std::runtime_error("Bypass_client_connect failed");
+    }
   }
   else {
     auto& rc = rcs.find(1)->second;
@@ -620,15 +625,25 @@ int ConnectionExchanger::setup_tofino(){
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
-    bypass::bypass_server_start(&my_addr, 
+    ret = bypass::bypass_server_start(&my_addr, 
                           rc.get_cm_id()->verbs, 
                           rc.get_pd(),
                           &mr,
                           rc.get_create_attr().send_cq,
                           &comp_channel,
-                          &conn);      
-
+                          &conn);     
+    
+    if (ret){  
+      throw std::runtime_error("Bypass_server_connect failed");
+    } 
   }
+
+  /*The functions of bypass.h take care of creating the QP and setting everything up
+    We now need to set up the rc_tofino from conn. 
+  */
+  rc_tofino.setRCWithTofino(&conn);
+  rc_tofino.print_all_infos();
+
   return 0;
 }
 

@@ -93,6 +93,8 @@ class ConnectionExchanger {
   
   std::map<int, ReliableConnection>& connections() { return rcs; }
 
+  ReliableConnection getTofinoRC(){return rc_tofino; }
+
   int setup_tofino();
 
   void init_addr_tofino();
@@ -120,6 +122,8 @@ class ConnectionExchanger {
 
   sockaddr_in addr_tofino;
   sockaddr_in my_addr;
+  
+  ReliableConnection rc_tofino;
   
 };
 }  // namespace dory
