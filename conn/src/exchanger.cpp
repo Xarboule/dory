@@ -598,6 +598,7 @@ int ConnectionExchanger::setup_tofino(){
 
   int ret;
   if (my_id == 1 ){
+    pair_rc_tofino = std::pair<int, ReliableConnection>(2, ReliableConnection(cb));
     std::this_thread::sleep_for(std::chrono::seconds(3)); //give the servers some time to listen
     
     //let's fetch the informations about one of our QP 
@@ -619,6 +620,7 @@ int ConnectionExchanger::setup_tofino(){
     }
   }
   else {
+    pair_rc_tofino = std::pair<int, ReliableConnection>(1, ReliableConnection(cb));
     auto& rc = rcs.find(1)->second;
     mr.addr = (void*)rc.get_mr().addr;
     mr.length = rc.get_mr().size;
@@ -641,8 +643,9 @@ int ConnectionExchanger::setup_tofino(){
   /*The functions of bypass.h take care of creating the QP and setting everything up
     We now need to set up the rc_tofino from conn. 
   */
-  rc_tofino.setRCWithTofino(&conn);
-  rc_tofino.print_all_infos();
+  ReliableConnection & rc_tofino = pair_rc_tofino.second;
+  rc_tofino->setRCWithTofino(&conn);
+  rc_tofino->print_all_infos();
 
   return 0;
 }

@@ -93,7 +93,7 @@ class ConnectionExchanger {
   
   std::map<int, ReliableConnection>& connections() { return rcs; }
 
-  ReliableConnection &getTofinoRC(){return rc_tofino; }
+  ReliableConnection &getTofinoRC(){return pair_rc_tofino.second; }
 
   int setup_tofino();
 
@@ -123,7 +123,12 @@ class ConnectionExchanger {
   sockaddr_in addr_tofino;
   sockaddr_in my_addr;
   
-  ReliableConnection rc_tofino;
+  /*
+    The int corresponds to the remote node to which the QP appears to be connected to
+    And it's a way for us to decide when the RC object should be constructed 
+  */
+  std::pair<int, <ReliableConnection>> pair_rc_tofino; 
+  
   
 };
 }  // namespace dory

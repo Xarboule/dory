@@ -37,7 +37,7 @@ class ControlBlock {
 
   static constexpr int CQDepth = 128;
 
-  ControlBlock();
+  //ControlBlock();
 
   ControlBlock(ResolvedPort &resolved_port);
 

@@ -121,10 +121,10 @@ std::vector<OpenDevice> &Devices::list(bool force) {
 }  // namespace dory
 
 namespace dory {
-ResolvedPort::ResolvedPort()    
+/*ResolvedPort::ResolvedPort()    
   : port_index{-1}, port_id{0}, port_lid{0} {
   (void)port_index;
-}
+}*/
 
 ResolvedPort::ResolvedPort(OpenDevice &od)
     : open_dev{od}, port_index{-1}, port_id{0}, port_lid{0} {

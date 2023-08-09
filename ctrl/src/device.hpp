@@ -9,6 +9,7 @@ namespace dory {
 class OpenDevice {
  public:
   OpenDevice();
+  
   OpenDevice(struct ibv_device *device);
 
   ~OpenDevice();
@@ -107,8 +108,7 @@ class Devices {
 namespace dory {
 class ResolvedPort {
  public:
-
-  ResolvedPort();
+  //ResolvedPort();
 
   ResolvedPort(OpenDevice &od);
 
