@@ -159,6 +159,8 @@ class FailureTracker {
     return false;
   }
 
+  
+
  private:
   quorum::Kind kind;
   int tolerated_failures;
@@ -166,5 +168,7 @@ class FailureTracker {
   std::vector<uint64_t> failures;
   uint64_t track_id;
   int failed;
+
+  static quorum::kind tof_kind;
 };
 }  // namespace dory

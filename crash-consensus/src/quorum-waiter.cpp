@@ -9,6 +9,9 @@
 #include "message-identifier.hpp"
 
 namespace dory {
+
+quorum::kind tof_kind = TofinoWr;
+
 template <class ID> SerialQuorumWaiter<ID>::SerialQuorumWaiter(quorum::Kind kind,
                                            std::vector<int>& remote_ids,
                                            size_t quorum_size, ID next_id,
@@ -107,7 +110,7 @@ template <class ID> bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct 
           <<"[" << quorum::type_str(k)    << "," << pid << "," << seq <<"] and we expected" 
           <<"[" << quorum::type_str(kind) << "," << pid << "," << next_id << "]." << std::endl; 
           
-      if (k != kind && k == quorum::Kind TofinoWr){
+      if (k != kind && k == tof_kind){
         //such a WC means that the Write worked for all the nodes, so we update all 
         // Question : is using reset() ok ? 
         reset(next_id + modulo);              
