@@ -94,8 +94,6 @@ class ReliableConnection {
   static constexpr int MaxInlining = 256;
   static constexpr uint32_t DefaultPSN = 3185;
 
-  ReliableConnection();
-
   ReliableConnection(ControlBlock &cb);
 
   void bindToPD(std::string pd_name);

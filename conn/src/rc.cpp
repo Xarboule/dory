@@ -7,10 +7,6 @@
 
 namespace dory {
 
-//a default constructor that is only used for the RC of tofino
-ReliableConnection::ReliableConnection() 
-    : cb{NULL}, pd{nullptr}, LOGGER_INIT(logger, "RC"){}
-
 ReliableConnection::ReliableConnection(ControlBlock &cb)
     : cb{cb}, pd{nullptr}, LOGGER_INIT(logger, "RC") {
   memset(&create_attr, 0, sizeof(struct ibv_qp_init_attr));
