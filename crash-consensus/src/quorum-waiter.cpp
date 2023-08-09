@@ -104,10 +104,10 @@ template <class ID> bool SerialQuorumWaiter<ID>::fastConsume(std::vector<struct 
     } else {
       auto [k, pid, seq] = quorum::unpackAll<int, ID>(entry.wr_id);
 
-      std::cout << "In fastConsume(), we just processed : "
+      /*std::cout << "In fastConsume(), we just processed : "
           <<"[" << quorum::type_str(k)    << "," << pid << "," << seq <<"] and we expected" 
           <<"[" << quorum::type_str(kind) << "," << pid << "," << next_id << "]." << std::endl; 
-          
+       */   
       if (k != kind && k == quorum::TofinoWr){
         //such a WC means that the Write worked for all the nodes, so we update all 
         // Question : is using reset() ok ? 
