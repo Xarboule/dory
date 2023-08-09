@@ -5,7 +5,7 @@
 
 namespace dory {
 Consensus::Consensus(int my_id, std::vector<int> &remote_ids,
-                     bool want_tofino, int outstanding_req, ThreadBank threadBank) {
+                     int outstanding_req, bool want_tofino,  ThreadBank threadBank) {
   ConsensusConfig::ThreadConfig config;
   switch (threadBank) {
     case ThreadBank::A:
