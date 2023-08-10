@@ -198,7 +198,7 @@ class LeaderHeartbeat {
         status[pid].value = *val; //maj de la valeur
       }
     }
-    /*
+    
     std::cout << "===========Scores=========="<<std::endl;
     for (auto& pid: ids) {
         std::cout << "PID:" << pid << ", score: " << status[pid].consecutive_updates << std::endl;
@@ -210,7 +210,7 @@ class LeaderHeartbeat {
     } else {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
       //std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }*/
+    }
   }
 
   std::atomic<bool> &wantLeaderSignal() { return want_leader; }
