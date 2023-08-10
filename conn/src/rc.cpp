@@ -228,6 +228,7 @@ bool ReliableConnection::post_send(ibv_send_wr &wr, bool print) {
 
   if (print){
     std::cout << "In post_send, we just sent to addr : "<< (uintptr_t)wr.wr.rdma.remote_addr << std::endl;
+    std::cout << "While the remote buffr is  : "<< remoteBuf() << std::endl;
     std::cout << "If we substract the remoteAddr : "<< (uintptr_t)wr_cached->wr.rdma.remote_addr - remoteBuf() << std::endl;
   }
 
