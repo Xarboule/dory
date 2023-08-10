@@ -115,7 +115,7 @@ class ReliableConnection {
   bool changeRightsIfNeeded(ControlBlock::MemoryRights rights);
 
   bool postSendSingle(RdmaReq req, uint64_t req_id, void *buf, uint32_t len,
-                      uintptr_t remote_addr);
+                      uintptr_t remote_addr, bool print=false);
 
   // Only re-use this method when the previous WR posted by this method is
   // completed and a corresponding WC was consumed, otherwise unexpected
@@ -123,10 +123,10 @@ class ReliableConnection {
   // (which is the case when the length of the payload is smaller or equal to
   // `MaxInlining`) one can reuse this method right after it returns.
   bool postSendSingleCached(RdmaReq req, uint64_t req_id, void *buf,
-                            uint32_t len, uintptr_t remote_addr);
+                            uint32_t len, uintptr_t remote_addr, bool print=false);
 
   bool postSendSingle(RdmaReq req, uint64_t req_id, void *buf, uint32_t len,
-                      uint32_t lkey, uintptr_t remote_addr);
+                      uint32_t lkey, uintptr_t remote_addr, bool print=false);
 
   bool pollCqIsOK(CQ cq, std::vector<struct ibv_wc> &entries);
 
@@ -179,7 +179,7 @@ class ReliableConnection {
 
 
  private:
-  bool post_send(ibv_send_wr &wr);
+  bool post_send(ibv_send_wr &wr, bool print=false);
 
   static void wr_deleter(struct ibv_send_wr *wr) { free(wr); }
 

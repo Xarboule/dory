@@ -213,7 +213,7 @@ bool ReliableConnection::changeRightsIfNeeded(
   return changeRights(rights);
 }
 
-bool ReliableConnection::post_send(ibv_send_wr &wr) {
+bool ReliableConnection::post_send(ibv_send_wr &wr, bool print) {
   //printf("ATTENTION : post_send() appelé\n");
   struct ibv_send_wr *bad_wr = nullptr;
 
@@ -226,6 +226,10 @@ bool ReliableConnection::post_send(ibv_send_wr &wr) {
     // request");
   }
 
+  if (print){
+    std::cout << "In post_send, we just sent to addr : "<< (void*)wr.wr.rdma.remote_addr << std::endl;
+  }
+
   if (ret != 0) {
     throw std::runtime_error("Error due to driver misuse during posting: " +
                              std::string(std::strerror(errno)));
@@ -236,7 +240,8 @@ bool ReliableConnection::post_send(ibv_send_wr &wr) {
 
 bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
                                               void *buf, uint32_t len,
-                                              uintptr_t remote_addr) {
+                                              uintptr_t remote_addr,
+                                              bool print) {
   //printf("ATTENTION : postSendSingleCached() appelé\n");
   wr_cached->sg_list->addr = reinterpret_cast<uintptr_t>(buf);
   wr_cached->sg_list->length = len;
@@ -263,6 +268,10 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
     //     "Error encountered during posting in some work request");
   }
 
+  if (print){
+    std::cout << "In postSendSingleCached, we just sent to addr : "<< (void*)wr_cached->wr.rdma.remote_addr << std::endl;
+  }
+
   if (ret != 0) {
     throw std::runtime_error("Error due to driver misuse during posting: " +
                              std::string(std::strerror(errno)));
@@ -272,14 +281,14 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
 }
 
 bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
-                                        uint32_t len, uintptr_t remote_addr) {
+                                        uint32_t len, uintptr_t remote_addr,bool print) {
   //printf("ATTENTION : postSendSingle appelé\n");
-  return postSendSingle(req, req_id, buf, len, mr.lkey, remote_addr);
+  return postSendSingle(req, req_id, buf, len, mr.lkey, remote_addr, print);
 }
 
 bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
                                         uint32_t len, uint32_t lkey,
-                                        uintptr_t remote_addr) {
+                                        uintptr_t remote_addr,bool print) {
   // TODO(Kristian): if not used concurrently, we could reuse the same wr
   //printf("ATTENTION : postSendSingle() appelé\n");
   struct ibv_send_wr wr;
@@ -296,7 +305,7 @@ bool ReliableConnection::postSendSingle(RdmaReq req, uint64_t req_id, void *buf,
       .rkey(rconn.rci.rkey)
       .build(wr, sg);
 
-  return post_send(wr);
+  return post_send(wr, print);
 }
 
 void ReliableConnection::reconnect() { 
