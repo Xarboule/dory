@@ -496,19 +496,19 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 
 
 int ConnectionExchanger :: get_addr(std::string dst, struct sockaddr *addr){
-	char* char_ip = new char[dst.length() + 1];
-  strcpy(char_ip, dst.c_str()); 
+	//char* char_ip = new char[dst.length() + 1];
+  //strcpy(char_ip, dst.c_str()); 
   
   struct addrinfo *res;
 	int ret = -1;
-	ret = getaddrinfo(char_ip, NULL, NULL, &res);
+	ret = getaddrinfo(dst.c_str(), NULL, NULL, &res);
 	if (ret) {
 		throw std::runtime_error("Error when fetching getaddrinfo ");
 		return ret;
 	}
 	memcpy(addr, res->ai_addr, sizeof(struct sockaddr_in));
 	freeaddrinfo(res);
-  delete char_ip;
+  //delete char_ip;
 	return ret;
 }
 
