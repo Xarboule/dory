@@ -170,7 +170,6 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer( quorum::TofinoWr, 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
           static_cast<uint32_t>(size), //si on enlève le hardcodage, alors il faut utiliser le pid associé à rc_tofino (dans CE)
-          //tofino_rc.remoteBuf() + to_remote_memories[2] + offset);
           tofino_rc.remoteBuf() + to_remote_memories[2] + offset);
       if (!ok) {
         throw std::runtime_error("Posting to tofino_rc failed failed");
@@ -180,7 +179,6 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     else{
     //posting the WR to the QPs
     for (auto &c : connections) {
-      std::cout << 
       auto ok = c.rc->postSendSingleCached(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
