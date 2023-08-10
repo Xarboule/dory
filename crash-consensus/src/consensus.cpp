@@ -52,6 +52,7 @@ void RdmaConsensus::spawn_follower() {
       bool asked_reset = ask_reset.load();
       if (asked_reset) {
         LOGGER_WARN(logger, "Hard-reset requested.");
+        throw std::runtime_error("changeRights failed or Hard set ==> stop !");
         force_permission_request = true;
         am_I_leader.store(false);
       }
