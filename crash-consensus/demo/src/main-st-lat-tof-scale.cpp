@@ -189,7 +189,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
         std::cin >> foo;
       }
 
-      if (i%2000==0){
+      if (i%10000==0){
         std::cout << "Check ";
         std::cin >> foo;
       }
