@@ -172,6 +172,8 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
             std::cout << "Bug in code. You should only handle errors here"
                       << std::endl;
         }
+        throw std::runtime_error(" failure in proposal ==> stop !");
+        
       }
 
       GET_TIMESTAMP(loop_time);
