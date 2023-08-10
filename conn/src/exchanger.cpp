@@ -314,6 +314,7 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
       return; //this node is done ! 
     }
     else if (my_id == round){  //it's this node's turn to act as a server 
+      std::cout << "I'm a server" << std::endl;
       int num_threads = max_id - my_id;
       std::vector<std::thread> threads;
       for (int j=0; j < num_threads; j++){
@@ -328,7 +329,9 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
       }
     }
     else if (my_id > round){ //this node must act as a client 
+      std::cout << "I'm a client" << std::endl;
       std::this_thread::sleep_for(std::chrono::seconds(1)); //wait for the server to set-up 
+      std::cout << "Done sleeping" << std::endl;
       start_client(round, base_port + my_id, rights);
     }
   }
@@ -407,6 +410,9 @@ void ConnectionExchanger:: start_server(int proc_id, int my_port, ControlBlock::
 
 
 int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock::MemoryRights rights){
+  
+  
+  std::cout << "A" << std::endl;
   //destination à renseigner 
   struct sockaddr_in server_addr;
   struct rdma_cm_event *cm_event = NULL;
@@ -424,9 +430,12 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 
   server_addr.sin_port = htons(static_cast<uint16_t>(dest_port));
   
-
+  std::cout << "B" << std::endl;
   auto& rc = rcs.find(proc_id)->second;
   rc.configure_cm_channel();
+
+
+  std::cout << "C" << std::endl;
 
   ret = rdma_resolve_addr(rc.get_cm_listen_id(), NULL, reinterpret_cast<struct sockaddr*>(&server_addr), 2000);
   if (ret) {
@@ -443,7 +452,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
 	}
-  //LOGGER_INFO(logger, "RDMA address is resolved \n");
+  LOGGER_INFO(logger, "RDMA address is resolved \n");
 
 	ret = rdma_resolve_route(rc.get_cm_listen_id(), 2000);
 	if (ret) {
@@ -460,7 +469,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
 		throw std::runtime_error("Failed to acknowledge the CM event");
 		exit(-1);
 	}
-  //LOGGER_INFO(logger, "RDMA route is resolved \n");
+  LOGGER_INFO(logger, "RDMA route is resolved \n");
   printf("Trying to connect to server at : %s port: %d",inet_ntoa(server_addr.sin_addr),ntohs(server_addr.sin_port));
   
   /* Creating the QP */      
@@ -476,7 +485,7 @@ int ConnectionExchanger:: start_client(int proc_id, int dest_port, ControlBlock:
   cm_params.private_data = rc.getLocalSetup();
   rdma_connect(rc.get_cm_id(), &cm_params);
 
-  //LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
+  LOGGER_INFO(logger, "waiting for cm event: RDMA_CM_EVENT_ESTABLISHED\n");
   ret = process_rdma_cm_event(rc.get_event_channel(), RDMA_CM_EVENT_ESTABLISHED,&cm_event);
   if (ret) {
 		throw std::runtime_error("Failed to receive a valid event");
