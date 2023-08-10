@@ -647,6 +647,7 @@ class LeaderSwitcher {
               //std::cout << "I'm the new leader ==> reset of the right rc (former leader)" << std::endl;
               if (!rc.changeRights(rights)) {
                 //std::cout << "changeRights() failed, calling the big guns "<<std::endl;
+                throw std::runtime_error("changeRights failed or Hard set ==> stop !");
                 rc.reset();
                 rc.init(rights);
                 rc.reconnect();
@@ -700,6 +701,7 @@ class LeaderSwitcher {
             //std::cout << "changeRights() to revoke former leader's rights" << std::endl; 
             if (!rc.changeRights(rights)) {
               //std::cout << "changeRights() failed (to revoke former leader), calling the big guns (ce qui va provoquer une erreur) "<<std::endl;
+              throw std::runtime_error("changeRights failed or Hard set ==> stop !");
               rc.reset();
               rc.init(rights);
               rc.reconnect();
@@ -716,6 +718,8 @@ class LeaderSwitcher {
             //std::cout << "changeRights() is called to grant new rights to : "<< current_leader.requester << std::endl;
             if (!rc.changeRights(rights)) {
               //std::cout << "changeRights() failed (to grant new rights), calling the big guns  (which will cause an error)"<<std::endl;
+              
+              throw std::runtime_error("changeRights failed or Hard set ==> stop !");
               rc.reset();
               rc.init(rights);
               rc.reconnect();
