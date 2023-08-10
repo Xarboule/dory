@@ -227,7 +227,7 @@ bool ReliableConnection::post_send(ibv_send_wr &wr, bool print) {
   }
 
   if (print){
-    std::cout << "In post_send, we just sent to addr : "<< (void*)wr.wr.rdma.remote_addr << std::endl;
+    std::cout << "In post_send, we just sent to addr : "<< wr.wr.rdma.remote_addr << std::endl;
   }
 
   if (ret != 0) {
@@ -269,7 +269,7 @@ bool ReliableConnection::postSendSingleCached(RdmaReq req, uint64_t req_id,
   }
 
   if (print){
-    std::cout << "In postSendSingleCached, we just sent to addr : "<< (void*)wr_cached->wr.rdma.remote_addr << std::endl;
+    std::cout << "In postSendSingleCached, we just sent to addr : "<< wr_cached->wr.rdma.remote_addr << std::endl;
   }
 
   if (ret != 0) {
