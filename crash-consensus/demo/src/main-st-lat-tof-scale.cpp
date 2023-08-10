@@ -183,6 +183,17 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       //std::cout << "id_posted : " << id_posted << "; id_replicated :" << id_replicated << std::endl;
 
       timestamps_ranges[i] = std::make_pair(int(id_replicated - offset), loop_time);
+
+      if (i == 300){
+        std::cout << "First 300 propose done : check ";
+        std::cin >> foo;
+      }
+
+      if (i%2000==0){
+        std::cout << "Check ";
+        std::cin >> foo;
+      }
+
     }
 
     std::ofstream dump;
