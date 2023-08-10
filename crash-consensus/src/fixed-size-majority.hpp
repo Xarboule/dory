@@ -187,12 +187,12 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     else{
     //posting the WR to the QPs
     for (auto &c : connections) {
-      std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
+      //std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
       auto ok = c.rc->postSendSingle(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
           static_cast<uint32_t>(size),
-          c.rc->remoteBuf() + to_remote_memories[c.pid] + offset, true);  
+          c.rc->remoteBuf() + to_remote_memories[c.pid] + offset, false);  
       //std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
       //       << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
       
