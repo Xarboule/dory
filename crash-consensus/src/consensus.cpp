@@ -154,7 +154,7 @@ void RdmaConsensus::run() {
 
   replication_log = std::make_unique<Log>(logmem, logmem_size);
 
-  
+  std::cout << "connecting all" << std::endl;  
   //connecting everything 
 
   int port = 20886;
