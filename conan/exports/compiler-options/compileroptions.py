@@ -98,6 +98,7 @@ options = {
         "C": [],
     },
     "GENERAL": [
+        "-fsanitize=address",
         # Make all warnings into errors
         #"-Werror",
         # Turns on the above mentioned flags
