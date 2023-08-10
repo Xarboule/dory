@@ -185,6 +185,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
           static_cast<uint32_t>(size),
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset);
       if (!ok) {
+        throw std::runtime_error("Posting to rc for fastWrite failed failed");
         return false;
       }
 
@@ -203,9 +204,11 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
       
       if (num >= 0) {
         if (!qw.fastConsume(entries, num, expected_nr)) {
+          std::cout << "Fast Consume failed "<< std::endl;
           return false;
         }
       } else {
+        std::cout << "Polled negative value in fastWrite==> failed "<< std::endl;
         return false;
       }
     }
