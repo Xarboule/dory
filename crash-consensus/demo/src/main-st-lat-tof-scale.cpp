@@ -123,7 +123,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
     std::vector<std::vector<uint8_t>> payloads(8192);
     for (size_t i = 0; i < payloads.size(); i++) {
-      payloads[i].resize(payload_size);
+      payloads[i].resize(payload_size+2);
       mkrndstr_ipa(payload_size, &(payloads[i][0]));
     }
 
