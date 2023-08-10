@@ -187,7 +187,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     //posting the WR to the QPs
     for (auto &c : connections) {
       std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
-      auto ok = c.rc->postSendSingleCached(
+      auto ok = c.rc->postSendSingle(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
           static_cast<uint32_t>(size),
