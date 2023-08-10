@@ -121,7 +121,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
     int offset = 2;
 
-    std::vector<std::vector<uint8_t>> payloads(8192);
+    std::vector<std::vector<uint8_t>> payloads(100);
     for (size_t i = 0; i < payloads.size(); i++) {
       payloads[i].resize(payload_size+2);
       mkrndstr_ipa(payload_size, &(payloads[i][0]));
@@ -140,7 +140,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       // Encode process doing the proposal
       dory::ProposeError err;
       // std::cout << "Proposing " << i << std::endl;
-      if ((err = consensus.propose(&(payloads[i % 8192][0]), payload_size)) != dory::ProposeError::NoError) {
+      if ((err = consensus.propose(&(payloads[i % 100][0]), payload_size)) != dory::ProposeError::NoError) {
         std::cout << "Proposal failed at index " << i << std::endl;
         i -= 1;
         switch (err) {
