@@ -44,7 +44,8 @@
 #define MAX_WR (100)
 /* Default port where the RDMA server is listening */
 #define DEFAULT_RDMA_PORT (20886)
-#define BIG_BUFFER_SIZE (1LU * 1024 * 1024)
+//#define BIG_BUFFER_SIZE (1LU * 1024 * 1024)
+#define BIG_BUFFER_SIZE (2LU*1024*1024*1024)
 #define SMALL_BUFFER_SIZE (1LU * 1024 * 1024)
 
 

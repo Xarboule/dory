@@ -170,7 +170,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer( quorum::TofinoWr, 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
           static_cast<uint32_t>(size), //si on enlève le hardcodage, alors il faut utiliser le pid associé à rc_tofino (dans CE)
-          tofino_rc.remoteBuf() + to_remote_memories[2] + 0);
+          tofino_rc.remoteBuf() + to_remote_memories[2] + offset);
 
       //std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
        //         << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
