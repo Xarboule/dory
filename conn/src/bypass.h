@@ -189,6 +189,7 @@ static void setRemoteSetup(struct rdma_buffer_attr *dst, const void *network_dat
     // 4 Bytes of offset to get the address
     memcpy(&dst->address, network_data + 4, 8);
     dst->length = BIG_BUFFER_SIZE;
+    std::cout << "Big buffer size : " << BIG_BUFFER_SIZE << std::endl;
 
     // 20 Bytes of offset to get KEY
     memcpy(&dst->stag.local_stag, network_data + 20, 4);
