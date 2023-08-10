@@ -168,6 +168,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
 
     if (use_tofino){
       //posting a single WR to the QP connected to the tofino
+      std::cout << "Posting to all through byp4ss" << std::endl;
       auto& tofino_rc = ctx->ce.getTofinoRC();
       auto ok = tofino_rc.postSendSingle(
           ReliableConnection::RdmaWrite,
@@ -185,6 +186,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     else{
     //posting the WR to the QPs
     for (auto &c : connections) {
+      std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
       auto ok = c.rc->postSendSingleCached(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
