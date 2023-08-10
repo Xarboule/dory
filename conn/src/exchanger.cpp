@@ -308,8 +308,8 @@ void ConnectionExchanger::connect_all(MemoryStore& store,
                                       std::string const& prefix, //this remains from mu's original code, but we don't use it
                                       int base_port,
                                       ControlBlock::MemoryRights rights) {
-  std::cout << "round" << std::endl;
   for (int round = 1; round < max_id; round++){
+    std::cout << "round" << round << std::endl;
     if (my_id < round){
       return; //this node is done ! 
     }
