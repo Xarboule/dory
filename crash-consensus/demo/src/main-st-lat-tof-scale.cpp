@@ -133,6 +133,8 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     for (int i = 0; i < times; i++) {
       //std::cout << "Next propose ? ";
       //std::cin >> foo;
+      
+      std::cout << "Proposing " << i << std::endl;
       GET_TIMESTAMP(timestamps_start[i]);
 
       // Encode process doing the proposal
