@@ -54,8 +54,7 @@ void ControlBlock::allocateBuffer(std::string name, size_t length,
                              name); //"protection domain" ? Ca devrait plutôt être "buffer name" je pense
   }
 
-  std::unique_ptr<uint8_t[], DeleteAligned<uint8_t>> data(
-      allocate_aligned<uint8_t>(alignment, length));
+  std::unique_ptr<uint8_t[], DeleteAligned<uint8_t>> data(allocate_aligned<uint8_t>(alignment, length));
   memset(data.get(), 0, length);
 
   raw_bufs.push_back(std::move(data));

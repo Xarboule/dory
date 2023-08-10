@@ -633,6 +633,7 @@ int ConnectionExchanger::setup_tofino(){
     auto& rc = rcs.find(1)->second;
     mr.addr = (void*)rc.get_mr().addr;
     mr.length = rc.get_mr().size;
+    std::cout << "MR's size given to bypass QP : " << mr.length << std::endl;
     mr.lkey = rc.get_mr().lkey;
     mr.rkey = rc.get_mr().rkey;
 
