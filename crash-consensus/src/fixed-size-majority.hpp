@@ -8,7 +8,7 @@
 #include "quorum-waiter.hpp"
 #include "timers.h"
 
-#define MODULO (2UL * 1024 *1024 *1024)
+#define MODULO (1UL * 1024 *1024 *1024)
 
 
 namespace dory {
