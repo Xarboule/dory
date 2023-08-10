@@ -654,8 +654,8 @@ int ConnectionExchanger::setup_tofino(){
   */
   std::cout << "conn_tof's qp seen from exchanger :" << conn_tof.qp << std::endl;
   rc_tofino_->setRCWithTofino(&conn_tof);
-  //rc_tofino_->print_all_infos();
-
+  rc_tofino_->print_all_infos();
+  
   return 0;
 }
 
