@@ -168,17 +168,17 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
 
     if (use_tofino){
       //posting a single WR to the QP connected to the tofino
-      //std::cout << "Posting to all through byp4ss" << std::endl;
+      std::cout << "Posting to all through byp4ss" << std::endl;
       auto& tofino_rc = ctx->ce.getTofinoRC();
       auto ok = tofino_rc.postSendSingle(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer( quorum::TofinoWr, 2, req_id), from_local_memory,     //comme pour le moment seulement le noeud 1 utilise la fastWrite() avec tofino, l'id 2 est toujours là
           static_cast<uint32_t>(size), //si on enlève le hardcodage, alors il faut utiliser le pid associé à rc_tofino (dans CE)
-          //tofino_rc.remoteBuf() + to_remote_memories[2] + offset, true);
-          tofino_rc.remoteBuf() + to_remote_memories[2] + 0. , false);
+          tofino_rc.remoteBuf() + to_remote_memories[2] + offset, true);
+          //tofino_rc.remoteBuf() + to_remote_memories[2] + 0. , false);
 
-      //std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
-       //         << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
+      std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
+               << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
       if (!ok) {
         throw std::runtime_error("Posting to tofino_rc failed failed");
       }
@@ -187,14 +187,14 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
     else{
     //posting the WR to the QPs
     for (auto &c : connections) {
-      //std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
+      std::cout << "Posting to "<< c.pid << " by hand " << std::endl;
       auto ok = c.rc->postSendSingle(
           ReliableConnection::RdmaWrite,
           QuorumWaiter::packer(kind, c.pid, req_id), from_local_memory,
           static_cast<uint32_t>(size),
           c.rc->remoteBuf() + to_remote_memories[c.pid] + offset, false);  
-      //std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
-      //       << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
+      std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
+             << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
       
       if (!ok) {
         throw std::runtime_error("Posting to rc for fastWrite failed failed");
