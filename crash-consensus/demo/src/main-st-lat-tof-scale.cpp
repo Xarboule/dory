@@ -15,7 +15,7 @@
 #include "helpers.hpp"
 #include "timers.h"
 
-void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
+void benchmark(int id, std::vector<int> remote_ids, long times, int payload_size,
                int outstanding_req, dory::ThreadBank threadBank, bool want_tofino);
 
 int main(int argc, char* argv[]) {
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   }
   std::cout << std::endl;
 
-  const int times =  static_cast<int>(45 * 1024) * 1024 * 1024 / (payload_size + 64);
+  const long times =  (45LU * 1024) * 1024 * 1024 / (payload_size + 64);
   benchmark(id, remote_ids, times, payload_size, outstanding_req,dory::ThreadBank::A, want_tofino);
 
   while (true) {
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
+void benchmark(int id, std::vector<int> remote_ids, long times, int payload_size,
                int outstanding_req, dory::ThreadBank threadBank, bool want_tofino) {
   std::cout << "calling consensus() with want_tofino : " << want_tofino << std::endl;
   dory::Consensus consensus(id, remote_ids, outstanding_req, want_tofino, threadBank);
@@ -113,7 +113,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
 
     std::vector<TIMESTAMP_T> timestamps_start(times);
     std::vector<TIMESTAMP_T> timestamps_end(times);
-    std::vector<std::pair<int, TIMESTAMP_T>> timestamps_ranges(times);
+    std::vector<std::pair<long, TIMESTAMP_T>> timestamps_ranges(times);
     TIMESTAMP_T loop_time;
 
     mkrndstr_ipa(payload_size, payload);
@@ -130,7 +130,7 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
     std::cout << "Started" << std::endl;
 
     std::string foo;
-    for (int i = 0; i < times; i++) {
+    for (long i = 0; i < times; i++) {
       //std::cout << "Next propose ? ";
       //std::cin >> foo;
       
