@@ -168,7 +168,7 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
 
     if (use_tofino){
       //posting a single WR to the QP connected to the tofino
-      std::cout << "Posting to all through byp4ss" << std::endl;
+      //std::cout << "Posting to all through byp4ss" << std::endl;
       auto& tofino_rc = ctx->ce.getTofinoRC();
       auto ok = tofino_rc.postSendSingle(
           ReliableConnection::RdmaWrite,
@@ -177,8 +177,8 @@ template <class QuorumWaiter, class ErrorType> class FixedSizeMajorityOperation 
           tofino_rc.remoteBuf() + to_remote_memories[2] + offset, false);
           //tofino_rc.remoteBuf() + to_remote_memories[2] + 0. , false);
 
-      std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
-               << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
+      //std::cout << "pids " << connections[0].pid << " " << connections[1].pid << " offsets " << to_remote_memories[connections[0].pid]  << " " << to_remote_memories[connections[1].pid] 
+        //       << " we used " << to_remote_memories[2] << " offset " << offset << "\n";
       if (!ok) {
         throw std::runtime_error("Posting to tofino_rc failed failed");
       }
