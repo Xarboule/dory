@@ -187,12 +187,12 @@ void benchmark(int id, std::vector<int> remote_ids, int times, int payload_size,
       if (i == 300){
         std::cout << "First 300 propose done : check ";
         std::cin >> foo;
-      }
+      }*/
 
       if (i%10000==0){
         std::cout << "Check ";
         std::cin >> foo;
-      }*/
+      }
       /*
       if (i%200==0){
         std::cout << "i =" << i << std::endl;
